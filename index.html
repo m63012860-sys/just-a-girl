@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just a Girl - Luxury Fashion Brand</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="top-bar">
+        <span>شحن لجميع محافظات مصر عبر البريد المصري | متوفر المعاينة قبل الاستلام (بدون وسيط)</span>
+    </div>
+
+    <header>
+        <div class="logo-container">
+            <h1>Just a Girl</h1>
+        </div>
+        
+        <div class="search-bar">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="searchInput" placeholder="ابحث عن فساتين، بدل، عبايات..." oninput="filterProducts()">
+        </div>
+
+        <div class="header-actions">
+            <button class="action-btn" onclick="toggleLang()"><i class="fa-solid fa-globe"></i> <span id="langText">EN</span></button>
+            <button class="action-btn" onclick="openProfileModal()"><i class="fa-solid fa-user"></i></button>
+            <button class="action-btn" onclick="openCartModal()">
+                <i class="fa-solid fa-shopping-bag"></i>
+                <span class="badge-count" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
+
+    <nav id="categoryNav">
+        <button class="active" onclick="filterCategory('all')">الكل (All)</button>
+        <button onclick="filterCategory('dresses')">الفساتين (Dresses)</button>
+        <button onclick="filterCategory('suits')">البدل (Suits)</button>
+        <button onclick="filterCategory('abayas')">العبايات (Abayas)</button>
+        <button onclick="filterCategory('jackets')">الجواكت (Jackets)</button>
+        <button onclick="filterCategory('adults')">الكبار (Adults)</button>
+        <button onclick="filterCategory('babies')">البيبيز (Babies)</button>
+        <button onclick="filterCategory('bundles')">الباكدج (Bundles)</button>
+        <button onclick="filterCategory('offers')">عروض خاصة (Offers)</button>
+    </nav>
+
+    <div class="hero-slider" id="heroSlider"></div>
+
+    <div class="features-banner">
+        <div class="feature-box">
+            <i class="fa-solid fa-coins"></i>
+            <h4>ديبوزيت 100 جنيه</h4>
+            <p>جدية حجز واجبة قبل إرسال أي طلب</p>
+        </div>
+        <div class="feature-box">
+            <i class="fa-solid fa-box-open"></i>
+            <h4>معاينة عند الاستلام</h4>
+            <p>حقك تعاين المنتج مع مندوب الشحن</p>
+        </div>
+        <div class="feature-box">
+            <i class="fa-solid fa-truck-fast"></i>
+            <h4>البريد المصري</h4>
+            <p>توصيل آمن لجميع محافظات مصر</p>
+        </div>
+        <div class="feature-box">
+            <i class="fa-brands fa-whatsapp"></i>
+            <h4>طلب مباشر عبر الواتساب</h4>
+            <p>دون وسيط - التواصل مع المالكة مباشرة</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div style="text-align: center;">
+            <h2 class="section-title" id="catalogTitle">تجميعة المنتجات</h2>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
+
+    <!-- قسم آراء العملاء -->
+    <div class="container" style="margin-top: 50px;">
+        <h2 class="section-title" style="text-align: center; display: block;">آراء وتجارب عملائنا المميزين</h2>
+
+        <!-- نموذج إضافة رأي: يظهر للمالكة فقط (يتم إظهاره من الجافاسكريبت بعد تسجيل دخول الإدارة) -->
+        <div id="ownerReviewForm" style="display: none; background: #fff; border: 1px dashed #D4AF37; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: #4A040D; margin-bottom: 15px; text-align: center;">
+                <i class="fa-solid fa-plus-circle"></i> إضافة رأي عميلة جديد (للإدارة فقط)
+            </h3>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                <input type="text" id="reviewCustomerName" placeholder="اسم العميلة..." style="flex: 1; min-width: 160px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <select id="reviewStars" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                    <option value="4">⭐⭐⭐⭐ (4)</option>
+                    <option value="3">⭐⭐⭐ (3)</option>
+                </select>
+            </div>
+
+            <textarea id="reviewMessageText" rows="3" placeholder="اكتبي رسالة العميلة هنا (اختياري لو هترفعي صورة)..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; font-family: inherit; resize: vertical;"></textarea>
+
+            <div style="margin-bottom: 10px;">
+                <label for="reviewImageInput" style="display: inline-block; background: #f5f0e6; border: 1px solid #D4AF37; color: #4A040D; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    <i class="fa-solid fa-image"></i> رفع Screenshot من الواتساب
+                </label>
+                <input type="file" id="reviewImageInput" accept="image/*" style="display: none;" onchange="previewReviewImage(this)">
+                <button type="button" id="removeReviewImageBtn" onclick="clearReviewImage()" style="display: none; background: none; border: none; color: #c00; cursor: pointer; margin-right: 10px;">
+                    <i class="fa-solid fa-trash"></i> حذف الصورة
+                </button>
+            </div>
+
+            <div id="reviewImagePreview" style="margin-bottom: 10px;"></div>
+
+            <button type="button" onclick="addReview()" style="background: #4A040D; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-check"></i> نشر الرأي
+            </button>
+        </div>
+
+        <!-- هنا بتظهر الآراء (الرسالة و/أو الصورة) -->
+        <div id="reviewsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
+    </div>
+
+    <!-- مجتمع العملاء -->
+    <div class="container" style="margin-top: 50px; background: #fff; padding: 25px; border-radius: 10px; border: 1px solid #ddd;">
+        <h2 class="section-title" style="text-align: center; display: block;">مجتمع Just a Girl 💬</h2>
+        <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px;">مساحة لتبادل الآراء والاستفسارات بين العملاء.</p>
+        
+        <div id="chatMessages" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <!-- تم حذف التلميح اللي كان بيكشف إن الباسورد بيتكتب في خانة الاسم -->
+            <input type="text" id="chatSenderName" placeholder="اسمك..." style="width: 30%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <input type="text" id="chatInputText" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <button onclick="sendCommunityMessage()" style="background: #4A040D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
+        </div>
+    </div>
+
+    <!-- مودال التفاصيل -->
+    <div class="modal" id="productModal"><div class="modal-content" id="productModalContent"></div></div>
+
+    <!-- مودال السلة -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCartModal()">&times;</span>
+            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">سلة التسوق وإتمام الطلب</h2>
+            <div id="cartItemsList"></div>
+            <div style="margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px;">
+                <h3>الإجمالي: <span id="cartTotalPrice">0</span> ج.م</h3>
+            </div>
+            <div style="margin-top: 15px;">
+                <div class="form-group"><label>الاسم بالكامل:</label><input type="text" id="clientName"></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="tel" id="clientPhone"></div>
+                <div class="form-group"><label>العنوان بالتفصيل:</label><input type="text" id="clientAddress"></div>
+                <div class="terms-box">
+                    <strong>شروط وأحكام البراند:</strong>
+                    <p>1. تحويل 100 جنيه ديبوزيت جدية حجز.<br>2. الشحن عبر البريد المصري مع المعاينة عند الاستلام.</p>
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="checkbox" id="legalCheck" style="width: 20px; height: 20px;">
+                    <label for="legalCheck" style="font-size: 13px;">أوافق على الشروط ودفع الديبوزيت.</label>
+                </div>
+                <button class="checkout-btn" onclick="sendToWhatsApp()"><i class="fa-brands fa-whatsapp"></i> تأكيد الطلب عبر الواتساب</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- مودال الملف الشخصي -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">حسابي وإحصائياتي</h2>
+            <p><strong>عدد زياراتك للموقع:</strong> <span id="visitCountDisplay">0</span> مرة</p>
+            <p><strong>عدد الطلبات السابقة:</strong> <span id="orderCountDisplay">0</span> أوردر</p>
+        </div>
+    </div>
+
+    <!-- ربط ملف الجافاسكريبت الخارجي -->
+    <script src="script.js"></script>
+</body>
+</html>
