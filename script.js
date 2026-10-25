@@ -19,7 +19,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         titleEn: "Burgundy Velvet Evening Dress", 
         category: "dresses", 
         hasDiscount: true, 
-        isSoldOut: false, // حالة نفذت الكمية
+        isSoldOut: false,
         image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500",
         description: "فستان مخملي فخم، تلبيس مريح وخامة عالية الجودة.",
         colors: [
@@ -39,7 +39,6 @@ let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
 ];
 let pendingReviewImage = "";
 
-// مجتمع العملاء - تم ربطه بـ localStorage بحيث يظهر للجميع فور إرساله
 let communityMessages = JSON.parse(localStorage.getItem('jag_community')) || [
     { id: 1, sender: "نوران أحمد", text: "يا جماعة، هل مقاسات الفساتين مضبوطة بالظبط ولا واسعة؟", isOwner: false, replies: [] },
     { id: 2, sender: "Just a Girl (المالك)", text: "أهلاً يا نوران! المقاسات مضبوطة تماماً حسب جدول المقاسات لكل منتج ✨", isOwner: true, replies: [] }
@@ -49,7 +48,6 @@ let currentLang = 'ar';
 let cart = [];
 let replyingToId = null;
 
-// مزامنة تلقائية لرسائل المجتمع بين التبويبات/الأجهزة المختلفة المفتوحة
 window.addEventListener('storage', function(e) {
     if (e.key === 'jag_community') {
         communityMessages = JSON.parse(e.newValue) || [];
@@ -361,7 +359,7 @@ function logoutOwner() {
     alert('تم تسجيل الخروج من وضع الإدارة.');
 }
 
-// --- مجتمع العملاء (Chat متزامن وحقيقي للجميع) ---
+// --- مجتمع العملاء ---
 function renderCommunityChat() {
     const chatBox = document.getElementById('chatMessages');
     if (!chatBox) return;
@@ -482,7 +480,6 @@ function sendCommunityMessage() {
         });
     }
 
-    // حفظ ونشر الرسالة لكل الأجهزة والزوار عبر التخزين المشترك
     localStorage.setItem('jag_community', JSON.stringify(communityMessages));
     textInput.value = '';
     nameInput.value = '';
@@ -578,7 +575,7 @@ function sendToWhatsApp() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// --- لوحة التحكم والأمان وإدارة المنتجات ---
+// --- لوحة التحكم والأمان وإدارة وتعديل المنتجات ---
 function checkOwnerAccess() {
     if (ownerSession) { openAdminModal(); return; }
     if (Date.now() < pinLockedUntil) { alert('محاولات كتير غلط. حاولي تاني بعد دقيقة.'); return; }
@@ -651,7 +648,7 @@ function addAdminPanelButton() {
 
     const modalHTML = `
         <div class="modal" id="adminModal">
-            <div class="modal-content" style="max-width: 700px; max-height: 85vh;">
+            <div class="modal-content" style="max-width: 720px; max-height: 88vh;">
                 <span class="close-modal" onclick="closeAdminModal()">&times;</span>
                 <h2 style="color: var(--burgundy); margin-bottom: 15px; text-align: center;">لوحة التحكم والإدارة</h2>
                 <div style="text-align: center; margin-bottom: 12px;">
@@ -691,10 +688,10 @@ function addAdminPanelButton() {
                     <button onclick="addNewProductFromPanel()" style="background: var(--burgundy); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;">إضافة المنتج للمتجر</button>
                 </div>
 
-                <!-- إدارة وحذف المنتجات وتحديد نفذت الكمية -->
+                <!-- إدارة وتعديل وحذف المنتجات ووضع علامة نفذ -->
                 <div style="background: #f4f1ed; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">إدارة وتعديل المنتجات الحالية (حذف / نفذت الكمية):</h4>
-                    <div id="adminProductsListContainer" style="max-height: 250px; overflow-y: auto;"></div>
+                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">إدارة وتعديل المنتجات الحالية:</h4>
+                    <div id="adminProductsListContainer" style="max-height: 280px; overflow-y: auto;"></div>
                 </div>
             </div>
         </div>
@@ -726,7 +723,6 @@ function changeAdminPin() {
     document.getElementById('newPinInput').value = '';
 }
 
-// عرض قائمة المنتجات في لوحة التحكم مع أزرار الحذف وتبديل حالة "نفذت الكمية"
 function renderAdminProductsList() {
     const container = document.getElementById('adminProductsListContainer');
     if(!container) return;
@@ -737,22 +733,88 @@ function renderAdminProductsList() {
     }
     products.forEach((prod) => {
         const item = document.createElement('div');
-        item.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:white; padding:8px 12px; margin-bottom:8px; border-radius:6px; border:1px solid #ddd;";
+        item.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:white; padding:10px; margin-bottom:8px; border-radius:6px; border:1px solid #ddd; gap: 10px;";
         item.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px;">
-                <img src="${prod.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;">
-                <div>
+            <div style="display:flex; align-items:center; gap:10px; flex: 1;">
+                <img src="${prod.image}" style="width:45px; height:45px; object-fit:cover; border-radius:4px;">
+                <div style="flex:1;">
                     <strong style="font-size:14px; color:var(--burgundy);">${prod.titleAr}</strong>
                     <div style="font-size:11px; color:#666;">${prod.isSoldOut ? '<span style="color:red; font-weight:bold;">[نفذت الكمية]</span>' : 'متوفر'}</div>
                 </div>
             </div>
-            <div style="display:flex; gap:6px;">
-                <button onclick="toggleProductSoldOut(${prod.id})" style="background:${prod.isSoldOut ? '#28a745' : '#ffc107'}; color:#222; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">${prod.isSoldOut ? 'إعادة توفير' : 'تعليم كـ (نفذ)'}</button>
-                <button onclick="deleteProduct(${prod.id})" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;"><i class="fa-solid fa-trash"></i> حذف</button>
+            <div style="display:flex; gap:5px; flex-wrap: wrap;">
+                <button onclick="openEditProductModal(${prod.id})" style="background:#17a2b8; color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;"><i class="fa-solid fa-pen"></i> تعديل</button>
+                <button onclick="toggleProductSoldOut(${prod.id})" style="background:${prod.isSoldOut ? '#28a745' : '#ffc107'}; color:#222; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">${prod.isSoldOut ? 'توفير' : 'نفذ'}</button>
+                <button onclick="deleteProduct(${prod.id})" style="background:#dc3545; color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px;"><i class="fa-solid fa-trash"></i></button>
             </div>
         `;
         container.appendChild(item);
     });
+}
+
+// نافذة تعديل المنتج
+function openEditProductModal(productId) {
+    const prod = products.find(p => p.id === productId);
+    if(!prod) return;
+
+    let sizesText = Object.keys(prod.sizes).map(k => `${k}:${prod.sizes[k].price}`).join(', ');
+
+    let editModal = document.getElementById('editProductModal');
+    if(!editModal) {
+        editModal = document.createElement('div');
+        editModal.id = 'editProductModal';
+        editModal.className = 'modal';
+        document.body.appendChild(editModal);
+    }
+
+    editModal.innerHTML = `
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close-modal" onclick="document.getElementById('editProductModal').style.display='none'">&times;</span>
+            <h3 style="color:var(--burgundy); margin-bottom:15px; text-align:center;">تعديل المنتج</h3>
+            <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editTitle" value="${prod.titleAr}"></div>
+            <div class="form-group"><label>الوصف:</label><textarea id="editDesc" rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">${prod.description || ''}</textarea></div>
+            <div class="form-group"><label>الأسعار والمقاسات (مثال: S:1200, M:1250):</label><input type="text" id="editPrices" value="${sizesText}"></div>
+            <button onclick="saveEditedProduct(${prod.id})" style="background:var(--burgundy); color:white; border:none; padding:10px; width:100%; border-radius:5px; font-weight:bold; cursor:pointer;">حفظ التعديلات</button>
+        </div>
+    `;
+    editModal.style.display = 'flex';
+}
+
+function saveEditedProduct(productId) {
+    const prod = products.find(p => p.id === productId);
+    if(!prod) return;
+
+    const newTitle = document.getElementById('editTitle').value.trim();
+    const newDesc = document.getElementById('editDesc').value.trim();
+    const newPricesStr = document.getElementById('editPrices').value.trim();
+
+    if(!newTitle || !newPricesStr) {
+        alert('الاسم والأسعار مطلوبة.');
+        return;
+    }
+
+    let sizesObj = {};
+    newPricesStr.split(',').forEach(pair => {
+        let parts = pair.split(':');
+        if(parts.length === 2) {
+            let sName = parts[0].trim().toUpperCase();
+            let sPrice = parseFloat(parts[1].trim());
+            if(!isNaN(sPrice)) {
+                sizesObj[sName] = { price: sPrice, oldPrice: 0, available: true };
+            }
+        }
+    });
+
+    prod.titleAr = newTitle;
+    prod.titleEn = newTitle;
+    prod.description = newDesc;
+    prod.sizes = sizesObj;
+
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    renderProducts();
+    renderAdminProductsList();
+    document.getElementById('editProductModal').style.display = 'none';
+    alert('تم تعديل المنتج بنجاح!');
 }
 
 function toggleProductSoldOut(productId) {
@@ -766,7 +828,7 @@ function toggleProductSoldOut(productId) {
 }
 
 function deleteProduct(productId) {
-    if(!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً من المتجر؟')) return;
+    if(!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً؟')) return;
     products = products.filter(p => p.id !== productId);
     localStorage.setItem('jag_products', JSON.stringify(products));
     renderProducts();
@@ -781,7 +843,7 @@ function addNewProductFromPanel() {
     const imageFile = document.getElementById('newProdImageFile').files[0];
 
     if(!title || !imageFile || !pricesStr) {
-        alert('الرجاء إدخال اسم المنتج، الصورة الرئيسية، وأسعار المقاسات على الأقل.');
+        alert('الرجاء إدخال اسم المنتج، الصورة الرئيسية، وأسعار المقاسات.');
         return;
     }
 
@@ -789,7 +851,6 @@ function addNewProductFromPanel() {
     reader.onload = function(e) {
         let mainImgUrl = e.target.result;
         
-        // تحليل أسعار المقاسات (مثال: S:1200, M:1250)
         let sizesObj = {};
         pricesStr.split(',').forEach(pair => {
             let parts = pair.split(':');
@@ -801,11 +862,6 @@ function addNewProductFromPanel() {
                 }
             }
         });
-
-        if(Object.keys(sizesObj).length === 0) {
-            alert('صيغة الأسعار غير صحيحة. مثال: S:1200, M:1250');
-            return;
-        }
 
         let colorsArr = [];
         if(colorUploadsList.length > 0) {
@@ -846,7 +902,6 @@ function addNewProductFromPanel() {
     reader.readAsDataURL(imageFile);
 }
 
-// تهيئة الموقع عند التحميل
 window.addEventListener('DOMContentLoaded', () => {
     trackUserActivity();
     initSlider();
