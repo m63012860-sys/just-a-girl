@@ -137,6 +137,69 @@
     <!-- مودال التفاصيل -->
     <div class="modal" id="productModal"><div class="modal-content" id="productModalContent"></div></div>
 
+    <!-- مودال لوحة التحكم والإدارة (مصمم بلغة HTML بشكل مرتب) -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto;">
+            <span class="close-modal" onclick="closeAdminModal()">&times;</span>
+            <h2 style="color: var(--burgundy); margin-bottom: 15px; text-align: center;">لوحة التحكم والإدارة</h2>
+            <div style="text-align: center; margin-bottom: 12px;">
+                <button onclick="logoutOwner()" style="background: none; border: 1px solid var(--burgundy); color: var(--burgundy); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج من وضع الإدارة</button>
+            </div>
+            
+            <div style="background: #fff3f3; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffcccc;">
+                <h4 style="color: var(--burgundy); margin-bottom: 8px;">تغيير رمز الأمان (الباسورد):</h4>
+                <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="oldPinInput" placeholder="الرقم السري القديم"></div>
+                <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="newPinInput" placeholder="الرقم السري الجديد (6 خانات على الأقل)"></div>
+                <button onclick="changeAdminPin()" style="background:var(--burgundy); color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; width:100%; font-weight:bold;">تحديث الرقم السري</button>
+            </div>
+
+            <div style="background: #fdf8f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2d3b5;">
+                <h4 style="color: var(--burgundy); margin-bottom: 8px; text-align:center;">إضافة منتج جديد</h4>
+                <div class="form-group"><label>اسم المنتج (مثل فستان، بلوفر):</label><input type="text" id="newProdTitle" placeholder="اسم المنتج"></div>
+                <div class="form-group">
+                    <label>القسم:</label>
+                    <select id="newProdCategory" style="padding:8px; width:100%; border:1px solid #ccc; border-radius:4px;">
+                        <option value="dresses">فساتين (Dresses)</option>
+                        <option value="suits">بدل (Suits)</option>
+                        <option value="hoodies">هوديات (Hoodies)</option>
+                        <option value="pants">بناطيل (Pants)</option>
+                        <option value="kids">أطفال (Kids)</option>
+                        <option value="pajamas">بيجامات (Pajamas)</option>
+                        <option value="sets">طقمة (Sets)</option>
+                        <option value="jackets">جواكت (Jackets)</option>
+                        <option value="bundles">باكدج (Bundles)</option>
+                        <option value="offers">عروض خاصة (Offers)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>نبذة بسيطة (نوع القماش والوصف - سطرين):</label><textarea id="newProdDesc" placeholder="نوع القماش والوصف..." rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></textarea></div>
+                <div class="form-group"><label>صورة المنتج الرئيسية:</label><input type="file" id="newProdImageFile" accept="image/*"></div>
+                <div class="form-group"><label>صور الألوان المتاحة:</label><input type="file" id="newProdColorsFiles" accept="image/*" multiple onchange="handleColorImagesSelection(event)"></div>
+                <div id="colorInputsContainer"></div>
+
+                <!-- المقاسات بتصميم HTML منظم -->
+                <div style="background: #fff; border: 1px solid #e2d3b5; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                    <label style="font-weight: bold; color: var(--burgundy); display: block; margin-bottom: 8px;">المقاسات المتوفرة فقط (اترك المقاس غير المتوفر فارغاً أو 0):</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:13px; font-weight:bold; width:55px;">مقاس S</span><input type="number" id="size_S" placeholder="السعر" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:13px; font-weight:bold; width:55px;">مقاس M</span><input type="number" id="size_M" placeholder="السعر" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:13px; font-weight:bold; width:55px;">مقاس L</span><input type="number" id="size_L" placeholder="السعر" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:13px; font-weight:bold; width:55px;">مقاس XL</span><input type="number" id="size_XL" placeholder="السعر" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:13px; font-weight:bold; width:55px;">مقاس 2XL</span><input type="number" id="size_2XL" placeholder="السعر" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:13px; font-weight:bold; width:55px;">مقاس 3XL</span><input type="number" id="size_3XL" placeholder="السعر" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px;"></div>
+                    </div>
+                </div>
+
+                <button onclick="addNewProductFromPanel()" style="background: var(--burgundy); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;">إضافة المنتج للمتجر</button>
+            </div>
+
+            <!-- إدارة وتعديل وحذف المنتجات الحالية -->
+            <div style="background: #f4f1ed; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                <h4 style="color: var(--burgundy); margin-bottom: 8px;">إدارة وتعديل المنتجات الحالية:</h4>
+                <div id="adminProductsListContainer" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- مودال السلة -->
     <div class="modal" id="cartModal">
         <div class="modal-content">
@@ -166,13 +229,4 @@
     <!-- مودال الملف الشخصي -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
-            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">حسابي وإحصائياتي</h2>
-            <p><strong>عدد زياراتك للموقع:</strong> <span id="visitCountDisplay">0</span> مرة</p>
-            <p><strong>عدد الطلبات السابقة:</strong> <span id="orderCountDisplay">0</span> أوردر</p>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+            <span class="close-modal" onclick="closeProfileModal()
