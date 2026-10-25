@@ -2,9 +2,8 @@
 // 🛠️ إعدادات البراند والأساسيات
 // =========================================================================
 const WHATSAPP_NUMBER = "201283332160"; 
-// لا يوجد رقم سري افتراضي: أول مرة تفتحي لوحة الإدارة هيطلب منك تحددي رقمك السري
 let adminPin = localStorage.getItem('jag_admin_pin') || null;
-let ownerSession = false;      // بتبقى true بعد إدخال الرقم السري الصحيح (لحد ما تقفلي الصفحة أو تسجلي خروج)
+let ownerSession = false; 
 let failedPinAttempts = 0;
 let pinLockedUntil = 0;
 
@@ -20,6 +19,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         titleEn: "Burgundy Velvet Evening Dress", 
         category: "dresses", 
         hasDiscount: true, 
+        isSoldOut: false, // حالة نفذت الكمية
         image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500",
         description: "فستان مخملي فخم، تلبيس مريح وخامة عالية الجودة.",
         colors: [
@@ -34,13 +34,12 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
     }
 ];
 
-// كل رأي: { id, name, comment (اختياري), rating (رقم من 1 إلى 5), image (اختياري - Screenshot) }
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
     { id: 1, name: "سارة محمد", comment: "الخامات تحفة والمعاينة كانت ممتازة جداً، شكراً Just a Girl!", rating: 5, image: "" }
 ];
-let pendingReviewImage = ""; // الصورة اللي اتختارت ولسه ما اتنشرتش
+let pendingReviewImage = "";
 
-// هيكل رسائل المجتمع يدعم الردود والحذف
+// مجتمع العملاء - تم ربطه بـ localStorage بحيث يظهر للجميع فور إرساله
 let communityMessages = JSON.parse(localStorage.getItem('jag_community')) || [
     { id: 1, sender: "نوران أحمد", text: "يا جماعة، هل مقاسات الفساتين مضبوطة بالظبط ولا واسعة؟", isOwner: false, replies: [] },
     { id: 2, sender: "Just a Girl (المالك)", text: "أهلاً يا نوران! المقاسات مضبوطة تماماً حسب جدول المقاسات لكل منتج ✨", isOwner: true, replies: [] }
@@ -48,7 +47,19 @@ let communityMessages = JSON.parse(localStorage.getItem('jag_community')) || [
 
 let currentLang = 'ar';
 let cart = [];
-let replyingToId = null; // لتتبع التعليق المراد الرد عليه
+let replyingToId = null;
+
+// مزامنة تلقائية لرسائل المجتمع بين التبويبات/الأجهزة المختلفة المفتوحة
+window.addEventListener('storage', function(e) {
+    if (e.key === 'jag_community') {
+        communityMessages = JSON.parse(e.newValue) || [];
+        renderCommunityChat();
+    }
+    if (e.key === 'jag_products') {
+        products = JSON.parse(e.newValue) || [];
+        renderProducts();
+    }
+});
 
 function trackUserActivity() {
     let visits = localStorage.getItem('jag_visits') || 0;
@@ -99,14 +110,15 @@ function renderProducts(itemsToRender = products) {
         card.className = 'product-card';
         card.innerHTML = `
             ${hasAnyDiscount ? `<span class="discount-badge">خصم</span>` : ''}
-            <img src="${product.image}" alt="${title}" class="product-img">
+            ${product.isSoldOut ? `<span class="soldout-badge" style="position: absolute; top: 10px; left: 10px; background: #222; color: #D4AF37; padding: 4px 10px; font-size: 12px; border-radius: 4px; font-weight: bold; z-index: 5;">نفذت الكمية</span>` : ''}
+            <img src="${product.image}" alt="${title}" class="product-img" style="${product.isSoldOut ? 'filter: grayscale(80%);' : ''}">
             <div class="product-info">
                 <div class="product-title">${title}</div>
                 <div class="product-desc">${product.description || ''}</div>
                 <div class="price-box">
-                    <span class="current-price">يبدأ من ${minPrice} ج.م</span>
+                    <span class="current-price">${product.isSoldOut ? 'نفذت الكمية' : 'يبدأ من ' + minPrice + ' ج.م'}</span>
                 </div>
-                <button class="view-details-btn" onclick="openProductDetails(${product.id})">
+                <button class="view-details-btn" onclick="openProductDetails(${product.id})" style="${product.isSoldOut ? 'background: #777; cursor: not-allowed;' : ''}">
                     ${currentLang === 'ar' ? 'عرض واختيار المقاس واللون' : 'View Details'}
                 </button>
             </div>
@@ -174,18 +186,16 @@ function openProductDetails(productId) {
                 <p style="font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5;">${product.description || ''}</p>
                 
                 <div class="price-box" style="margin-bottom: 15px;">
-                    <span id="modalCurrentPrice" class="current-price">${firstAvailablePrice} ج.م</span>
-                    <span id="modalOldPrice" class="old-price">${firstAvailableOldPrice ? firstAvailableOldPrice + ' ج.م' : ''}</span>
+                    <span id="modalCurrentPrice" class="current-price">${product.isSoldOut ? 'نفذت الكمية' : firstAvailablePrice + ' ج.م'}</span>
+                    <span id="modalOldPrice" class="old-price">${!product.isSoldOut && firstAvailableOldPrice > 0 ? firstAvailableOldPrice + ' ج.م' : ''}</span>
                 </div>
 
                 <div style="margin-bottom: 15px;">
                     <label style="font-weight: bold; color: var(--burgundy); display: block; margin-bottom: 5px;">المقاسات المتوفرة:</label>
-                    <div>${sizesHtml}</div>
+                    <div>${product.isSoldOut ? '<span style="color:red; font-weight:bold;">عذراً، هذا المنتج نفذ تماماً حالياً.</span>' : sizesHtml}</div>
                 </div>
 
-                <button class="add-to-cart-btn" onclick="addToCartWithOptions(${product.id})">
-                    إضافة للسلة
-                </button>
+                ${!product.isSoldOut ? `<button class="add-to-cart-btn" onclick="addToCartWithOptions(${product.id})">إضافة للسلة</button>` : `<button class="add-to-cart-btn" style="background:#777; cursor:not-allowed;" disabled>نفذت الكمية</button>`}
             </div>
         </div>
     `;
@@ -213,6 +223,7 @@ function updateModalPrice(radio) {
 
 function addToCartWithOptions(productId) {
     const product = products.find(p => p.id === productId);
+    if(product.isSoldOut) { alert('عذراً، هذا المنتج نفذت كميته.'); return; }
     const selectedSizeRadio = document.querySelector('input[name="selectedSize"]:checked');
     
     if (!selectedSizeRadio) {
@@ -246,13 +257,13 @@ function addToCartWithOptions(productId) {
     alert('تمت إضافة المنتج إلى السلة بنجاح!');
 }
 
-// --- آراء العملاء: رسالة و/أو Screenshot (الإضافة والحذف للمالكة فقط) ---
+// --- آراء العملاء ---
 function saveReviews() {
     try {
         localStorage.setItem('jag_reviews', JSON.stringify(customerReviews));
         return true;
     } catch (e) {
-        alert('مساحة التخزين في المتصفح امتلأت. جربي صورة أصغر أو احذفي بعض الآراء القديمة.');
+        alert('مساحة التخزين في المتصفح امتلأت.');
         return false;
     }
 }
@@ -277,7 +288,6 @@ function renderReviews() {
     });
 }
 
-// تكبير الـScreenshot عند الضغط عليه
 function openReviewImage(id) {
     const rev = customerReviews.find(r => r.id === id);
     if (!rev || !rev.image) return;
@@ -291,37 +301,16 @@ function openReviewImage(id) {
     document.body.appendChild(overlay);
 }
 
-// اختيار صورة وتصغيرها تلقائيًا قبل الحفظ (عشان مساحة المتصفح)
 function previewReviewImage(input) {
     const file = input.files && input.files[0];
     if (!file) return;
-    if (!file.type.startsWith('image/')) {
-        alert('الرجاء اختيار صورة فقط.');
-        input.value = '';
-        return;
-    }
     const reader = new FileReader();
     reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            const maxSide = 1400;
-            const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
-            const canvas = document.createElement('canvas');
-            canvas.width = Math.round(img.width * scale);
-            canvas.height = Math.round(img.height * scale);
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            pendingReviewImage = canvas.toDataURL('image/jpeg', 0.82);
-
-            const preview = document.getElementById('reviewImagePreview');
-            if (preview) preview.innerHTML = `<img src="${pendingReviewImage}" style="max-width:220px;max-height:260px;border-radius:6px;border:1px solid #ddd;">`;
-            const removeBtn = document.getElementById('removeReviewImageBtn');
-            if (removeBtn) removeBtn.style.display = 'inline-block';
-        };
-        img.onerror = function() { alert('تعذر قراءة الصورة، جربي صورة تانية.'); };
-        img.src = e.target.result;
+        pendingReviewImage = e.target.result;
+        const preview = document.getElementById('reviewImagePreview');
+        if (preview) preview.innerHTML = `<img src="${pendingReviewImage}" style="max-width:220px;max-height:260px;border-radius:6px;border:1px solid #ddd;">`;
+        const removeBtn = document.getElementById('removeReviewImageBtn');
+        if (removeBtn) removeBtn.style.display = 'inline-block';
     };
     reader.readAsDataURL(file);
 }
@@ -337,32 +326,16 @@ function clearReviewImage() {
 }
 
 function addReview() {
-    if (!ownerSession) {
-        alert('إضافة الآراء متاحة للإدارة فقط.');
-        return;
-    }
+    if (!ownerSession) { alert('إضافة الآراء متاحة للإدارة فقط.'); return; }
     const name = document.getElementById('reviewCustomerName').value.trim();
     const comment = document.getElementById('reviewMessageText').value.trim();
     const rating = parseInt(document.getElementById('reviewStars').value, 10) || 5;
 
-    if (!name) {
-        alert('الرجاء كتابة اسم العميلة.');
-        return;
-    }
-    if (!comment && !pendingReviewImage) {
-        alert('اكتبي رسالة أو ارفعي صورة على الأقل.');
-        return;
-    }
-
+    if (!name) { alert('الرجاء كتابة اسم العميلة.'); return; }
     customerReviews.unshift({ id: Date.now(), name, comment, rating, image: pendingReviewImage });
-    if (!saveReviews()) {
-        customerReviews.shift();
-        return;
-    }
-
+    saveReviews();
     document.getElementById('reviewCustomerName').value = '';
     document.getElementById('reviewMessageText').value = '';
-    document.getElementById('reviewStars').value = '5';
     clearReviewImage();
     renderReviews();
 }
@@ -375,7 +348,6 @@ function deleteReview(id) {
     renderReviews();
 }
 
-// إظهار/إخفاء نموذج إضافة الآراء حسب حالة دخول الإدارة
 function updateOwnerUI() {
     const form = document.getElementById('ownerReviewForm');
     if (form) form.style.display = ownerSession ? 'block' : 'none';
@@ -389,7 +361,7 @@ function logoutOwner() {
     alert('تم تسجيل الخروج من وضع الإدارة.');
 }
 
-// --- مجتمع العملاء: الردود وحذف تعليقك أو حذف المالك لأي تعليق ---
+// --- مجتمع العملاء (Chat متزامن وحقيقي للجميع) ---
 function renderCommunityChat() {
     const chatBox = document.getElementById('chatMessages');
     if (!chatBox) return;
@@ -426,7 +398,6 @@ function renderCommunityChat() {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// حماية النصوص التي يكتبها العملاء من تفسيرها كـ HTML
 function escapeCommunityText(value) {
     return String(value ?? '').replace(/[&<>"']/g, char => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -443,15 +414,14 @@ function setReplyTarget(msgId) {
     }
 }
 
-// صاحب التعليق يستطيع حذفه بإثبات الاسم، والمالك يستطيع حذف أي تعليق برمز الإدارة
 function canDeleteCommunityItem(authorName) {
-    if (ownerSession) return true; // المالكة بعد تسجيل الدخول تحذف أي تعليق بدون سؤال
-    const enteredName = prompt('لحذف تعليقك، اكتبي نفس الاسم الذي استخدمتيه عند النشر. إذا كنتِ مالكة الموقع، أدخلي رمز الإدارة لحذف أي تعليق:');
+    if (ownerSession) return true;
+    const enteredName = prompt('لحذف تعليقك، اكتبي نفس الاسم الذي استخدمتيه عند النشر أو رمز الإدارة:');
     if (enteredName === null) return false;
     const value = enteredName.trim();
     if (value && value === adminPin) return true;
     if (value && authorName && value.toLocaleLowerCase() === String(authorName).trim().toLocaleLowerCase()) return true;
-    alert('لم يتم التحقق من الصلاحية. استخدمي اسم صاحب التعليق نفسه أو رمز الإدارة الصحيح.');
+    alert('لم يتم التحقق من الصلاحية.');
     return false;
 }
 
@@ -459,7 +429,7 @@ function deleteMessage(id) {
     const message = communityMessages.find(item => item.id === id);
     if (!message) return;
     if (!canDeleteCommunityItem(message.sender)) return;
-    if (confirm('هل أنتِ متأكدة من حذف هذا التعليق وكل الردود التابعة له؟')) {
+    if (confirm('هل أنتِ متأكدة من حذف هذا التعليق؟')) {
         communityMessages = communityMessages.filter(item => item.id !== id);
         localStorage.setItem('jag_community', JSON.stringify(communityMessages));
         renderCommunityChat();
@@ -489,7 +459,6 @@ function sendCommunityMessage() {
     const text = textInput.value.trim();
     let isOwner = false;
 
-    // لا تمنح صلاحية المالك لمجرد كتابة اسمه؛ يجب إدخال رمز الإدارة الصحيح
     if (ownerSession || (adminPin && enteredName === adminPin)) {
         isOwner = true;
         enteredName = 'Just a Girl (المالك)';
@@ -497,14 +466,10 @@ function sendCommunityMessage() {
 
     if (replyingToId !== null) {
         const parentMsg = communityMessages.find(item => item.id === replyingToId);
-        if (!parentMsg) {
-            alert('التعليق الذي تحاولين الرد عليه لم يعد موجودًا.');
-            replyingToId = null;
-            textInput.placeholder = 'اكتب رسالتك أو استفسارك هنا...';
-            return;
+        if (parentMsg) {
+            if (!parentMsg.replies) parentMsg.replies = [];
+            parentMsg.replies.push({ sender: enteredName, text, isOwner });
         }
-        if (!parentMsg.replies) parentMsg.replies = [];
-        parentMsg.replies.push({ sender: enteredName, text, isOwner });
         replyingToId = null;
         textInput.placeholder = 'اكتب رسالتك أو استفسارك هنا...';
     } else {
@@ -517,6 +482,7 @@ function sendCommunityMessage() {
         });
     }
 
+    // حفظ ونشر الرسالة لكل الأجهزة والزوار عبر التخزين المشترك
     localStorage.setItem('jag_community', JSON.stringify(communityMessages));
     textInput.value = '';
     nameInput.value = '';
@@ -601,8 +567,8 @@ function sendToWhatsApp() {
     const phone = document.getElementById('clientPhone').value.trim();
     const address = document.getElementById('clientAddress').value.trim();
     const legalChecked = document.getElementById('legalCheck').checked;
-    if (!name || !phone || !address) { alert('الرجاء إدخال جميع بيانات الشحن (الاسم، الهاتف، العنوان).'); return; }
-    if (!legalChecked) { alert('يجب الموافقة على شروط البراند ودفع الـ 100 جنيه ديبوزيت للمتابعة.'); return; }
+    if (!name || !phone || !address) { alert('الرجاء إدخال جميع بيانات الشحن.'); return; }
+    if (!legalChecked) { alert('يجب الموافقة على شروط البراند ودفع الديبوزيت للمتابعة.'); return; }
     let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
     let itemsText = cart.map(item => `• ${item.titleAr} (مقاس: ${item.size}) (كمية: ${item.qty}) - السعر: ${item.price * item.qty} ج.م`).join('\n');
     let message = `مرحباً Just a Girl! أريد تأكيد أوردر جديد:\n\n👤 الاسم: ${name}\n📞 الهاتف: ${phone}\n📍 العنوان: ${address}\n\n🛒 المنتجات المطلوبة:\n${itemsText}\n\n💰 إجمالي المنتجات: ${total} ج.م\n⚠️ ملاحظة الديبوزيت: تم الإقرار بدفع 100 جنيه ديبوزيت تأكيد الأوردر للشحن عبر البريد المصري مع المعاينة.\n☑ أوافق على شروط البراند وعدم وجود وسيط.`;
@@ -612,26 +578,15 @@ function sendToWhatsApp() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// --- لوحة التحكم والأمان ---
+// --- لوحة التحكم والأمان وإدارة المنتجات ---
 function checkOwnerAccess() {
-    if (ownerSession) {
-        openAdminModal();
-        return;
-    }
+    if (ownerSession) { openAdminModal(); return; }
+    if (Date.now() < pinLockedUntil) { alert('محاولات كتير غلط. حاولي تاني بعد دقيقة.'); return; }
 
-    if (Date.now() < pinLockedUntil) {
-        alert('محاولات كتير غلط. حاولي تاني بعد دقيقة.');
-        return;
-    }
-
-    // أول استخدام: تحديد رقم سري جديد (مفيش رقم افتراضي)
     if (!adminPin) {
-        const newPin = prompt('أول مرة: اختاري رقم سري للوحة الإدارة (6 خانات على الأقل):');
+        const newPin = prompt('أول مرة: اختاري رقم سري لوحة الإدارة (6 خانات على الأقل):');
         if (newPin === null) return;
-        if (newPin.trim().length < 6) {
-            alert('الرقم السري قصير. اختاري 6 خانات على الأقل.');
-            return;
-        }
+        if (newPin.trim().length < 6) { alert('الرقم السري قصير. اختاري 6 خانات على الأقل.'); return; }
         adminPin = newPin.trim();
         localStorage.setItem('jag_admin_pin', adminPin);
         ownerSession = true;
@@ -679,7 +634,7 @@ function handleColorImagesSelection(event) {
             div.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 8px;";
             div.innerHTML = `
                 <img src="${imgData}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
-                <input type="text" id="colorName_${i}" placeholder="اكتب اسم اللون (مثل: أبيض، أسود)..." style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" value="لون ${i+1}">
+                <input type="text" id="colorName_${i}" placeholder="اكتب اسم اللون..." style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" value="لون ${i+1}">
             `;
             container.appendChild(div);
         };
@@ -696,7 +651,7 @@ function addAdminPanelButton() {
 
     const modalHTML = `
         <div class="modal" id="adminModal">
-            <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-content" style="max-width: 700px; max-height: 85vh;">
                 <span class="close-modal" onclick="closeAdminModal()">&times;</span>
                 <h2 style="color: var(--burgundy); margin-bottom: 15px; text-align: center;">لوحة التحكم والإدارة</h2>
                 <div style="text-align: center; margin-bottom: 12px;">
@@ -704,142 +659,201 @@ function addAdminPanelButton() {
                 </div>
                 
                 <div style="background: #fff3f3; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffcccc;">
-                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">تغيير رمز الأمان (الباسورد):</h4>
-                    <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="oldPinInput" placeholder="الرقم السري القديم"></div>
-                    <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="newPinInput" placeholder="الرقم السري الجديد (6 خانات على الأقل)"></div>
-                    <button onclick="changeAdminPin()" style="background: var(--burgundy); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-size: 13px;">تحديث الرقم السري</button>
-                </div>
-
-                <hr style="margin: 15px 0; border: 0; border-top: 1px solid #eee;">
-                
-                <h3 style="color: var(--burgundy); margin-bottom: 10px; text-align: center;">إضافة منتج جديد</h3>
-                <div class="form-group"><label>اسم المنتج (مثل فستان، بلوفر):</label><input type="text" id="admTitleAr" placeholder="اسم المنتج"></div>
-                <div class="form-group"><label>نبذة بسيطة (نوع القماش والوصف - سطرين):</label><textarea id="admDesc" rows="2" placeholder="نوع القماشة والوصف..."></textarea></div>
-                
-                <div style="background: var(--gray-light); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                    <h4 style="color: var(--burgundy); margin-bottom: 10px;">المقاسات المتوفرة فقط (اترك المقاس غير المتوفر فارغاً أو 0):</h4>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                        <div><label>مقاس S (السعر):</label><input type="number" id="priceS" placeholder="السعر (لو متوفر)"></div>
-                        <div><label>مقاس M (السعر):</label><input type="number" id="priceM" placeholder="السعر (لو متوفر)"></div>
-                        <div><label>مقاس L (السعر):</label><input type="number" id="priceL" placeholder="السعر (لو متوفر)"></div>
-                        <div><label>مقاس XL (السعر):</label><input type="number" id="priceXL" placeholder="السعر (لو متوفر)"></div>
-                        <div><label>مقاس 2XL (السعر):</label><input type="number" id="price2XL" placeholder="السعر (لو متوفر)"></div>
-                        <div><label>مقاس 3XL (السعر):</label><input type="number" id="price3XL" placeholder="السعر (لو متوفر)"></div>
+                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">تغيير رمز الأمان:</h4>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="password" id="newPinInput" placeholder="الرمز الجديد (6 خانات على الأقل)" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;">
+                        <button onclick="changeAdminPin()" style="background:var(--burgundy); color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">تحديث الرمز</button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>ارفع صور الألوان (اختر لغاية 20 صوره):</label>
-                    <input type="file" id="admImageFiles" accept="image/*" multiple onchange="handleColorImagesSelection(event)">
+                <div style="background: #fdf8f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2d3b5;">
+                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">إضافة منتج جديد:</h4>
+                    <div class="form-group"><input type="text" id="newProdTitle" placeholder="اسم المنتج (مثال: فستان مخملي)"></div>
+                    <div class="form-group">
+                        <select id="newProdCategory" style="padding:8px; width:100%; border:1px solid #ccc; border-radius:4px;">
+                            <option value="dresses">فساتين (Dresses)</option>
+                            <option value="suits">بدل (Suits)</option>
+                            <option value="hoodies">هوديات (Hoodies)</option>
+                            <option value="pants">بناطيل (Pants)</option>
+                            <option value="kids">أطفال (Kids)</option>
+                            <option value="pajamas">بيجامات (Pajamas)</option>
+                            <option value="sets">طقمة (Sets)</option>
+                            <option value="jackets">جواكت (Jackets)</option>
+                            <option value="bundles">باكدج (Bundles)</option>
+                            <option value="offers">عروض خاصة (Offers)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><textarea id="newProdDesc" placeholder="وصف المنتج..." rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></textarea></div>
+                    <div class="form-group"><label>صورة المنتج الرئيسية:</label><input type="file" id="newProdImageFile" accept="image/*"></div>
+                    <div class="form-group"><label>صور الألوان المتاحة:</label><input type="file" id="newProdColorsFiles" accept="image/*" multiple onchange="handleColorImagesSelection(event)"></div>
+                    <div id="colorInputsContainer"></div>
+                    <div class="form-group"><input type="text" id="newProdPrices" placeholder="أسعار المقاسات (مثال: S:1200, M:1250, XL:1350)"></div>
+                    <button onclick="addNewProductFromPanel()" style="background: var(--burgundy); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;">إضافة المنتج للمتجر</button>
                 </div>
-                <div id="colorInputsContainer" style="margin-bottom: 15px;"></div>
 
-                <div class="form-group"><label>القسم:</label>
-                    <select id="admCategory">
-                        <option value="dresses">فساتين</option><option value="suits">بدل</option><option value="abayas">عبايات</option><option value="jackets">جواكت</option><option value="adults">كبار</option><option value="babies">بيبيز</option><option value="bundles">باكدج</option><option value="offers">عروض خاصة</option>
-                    </select>
+                <!-- إدارة وحذف المنتجات وتحديد نفذت الكمية -->
+                <div style="background: #f4f1ed; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">إدارة وتعديل المنتجات الحالية (حذف / نفذت الكمية):</h4>
+                    <div id="adminProductsListContainer" style="max-height: 250px; overflow-y: auto;"></div>
                 </div>
-                <button onclick="addNewProductFromAdmin()" style="background: var(--burgundy); color: white; border: none; width: 100%; padding: 12px; border-radius: 5px; font-weight: bold; cursor: pointer;">حفظ ونشر المنتج فوراً</button>
             </div>
         </div>
     `;
-    const divModal = document.createElement('div');
-    divModal.innerHTML = modalHTML;
-    document.body.appendChild(divModal);
+    const div = document.createElement('div');
+    div.innerHTML = modalHTML;
+    document.body.appendChild(div.firstElementChild);
 }
 
-function openAdminModal() { 
+function openAdminModal() {
     const modal = document.getElementById('adminModal');
-    if(modal) modal.style.display = 'flex'; 
+    if (modal) {
+        modal.style.display = 'flex';
+        renderAdminProductsList();
+    }
 }
 
-function closeAdminModal() { 
+function closeAdminModal() {
     const modal = document.getElementById('adminModal');
-    if(modal) modal.style.display = 'none'; 
+    if (modal) modal.style.display = 'none';
 }
 
 function changeAdminPin() {
-    let oldInput = document.getElementById('oldPinInput').value.trim();
-    let newInput = document.getElementById('newPinInput').value.trim();
-
-    if (oldInput !== adminPin) {
-        alert("الرقم السري القديم غير صحيح!");
-        return;
-    }
-    if (newInput.length < 6) {
-        alert("الرقم السري الجديد قصير. استخدمي 6 خانات على الأقل.");
-        return;
-    }
-
-    adminPin = newInput;
+    const pin = document.getElementById('newPinInput').value.trim();
+    if (pin.length < 6) { alert('الرمز يجب أن يكون 6 خانات على الأقل.'); return; }
+    adminPin = pin;
     localStorage.setItem('jag_admin_pin', adminPin);
-    alert("تم تغيير الرقم السري بنجاح!");
-    document.getElementById('oldPinInput').value = '';
+    alert('تم تحديث رمز الأمان بنجاح.');
     document.getElementById('newPinInput').value = '';
 }
 
-function addNewProductFromAdmin() {
-    const titleAr = document.getElementById('admTitleAr').value.trim();
-    const description = document.getElementById('admDesc').value.trim();
-    const category = document.getElementById('admCategory').value;
+// عرض قائمة المنتجات في لوحة التحكم مع أزرار الحذف وتبديل حالة "نفذت الكمية"
+function renderAdminProductsList() {
+    const container = document.getElementById('adminProductsListContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    if(products.length === 0) {
+        container.innerHTML = `<p style="text-align:center; color:#666;">لا توجد منتجات.</p>`;
+        return;
+    }
+    products.forEach((prod) => {
+        const item = document.createElement('div');
+        item.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:white; padding:8px 12px; margin-bottom:8px; border-radius:6px; border:1px solid #ddd;";
+        item.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px;">
+                <img src="${prod.image}" style="width:40px; height:40px; object-fit:cover; border-radius:4px;">
+                <div>
+                    <strong style="font-size:14px; color:var(--burgundy);">${prod.titleAr}</strong>
+                    <div style="font-size:11px; color:#666;">${prod.isSoldOut ? '<span style="color:red; font-weight:bold;">[نفذت الكمية]</span>' : 'متوفر'}</div>
+                </div>
+            </div>
+            <div style="display:flex; gap:6px;">
+                <button onclick="toggleProductSoldOut(${prod.id})" style="background:${prod.isSoldOut ? '#28a745' : '#ffc107'}; color:#222; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">${prod.isSoldOut ? 'إعادة توفير' : 'تعليم كـ (نفذ)'}</button>
+                <button onclick="deleteProduct(${prod.id})" style="background:#dc3545; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; font-size:11px;"><i class="fa-solid fa-trash"></i> حذف</button>
+            </div>
+        `;
+        container.appendChild(item);
+    });
+}
 
-    if (!titleAr || colorUploadsList.length === 0) {
-        alert('الرجاء إدخال اسم المنتج على الأقل ورفع صورة لون واحد على الأقل.');
+function toggleProductSoldOut(productId) {
+    const prod = products.find(p => p.id === productId);
+    if(prod) {
+        prod.isSoldOut = !prod.isSoldOut;
+        localStorage.setItem('jag_products', JSON.stringify(products));
+        renderProducts();
+        renderAdminProductsList();
+    }
+}
+
+function deleteProduct(productId) {
+    if(!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً من المتجر؟')) return;
+    products = products.filter(p => p.id !== productId);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    renderProducts();
+    renderAdminProductsList();
+}
+
+function addNewProductFromPanel() {
+    const title = document.getElementById('newProdTitle').value.trim();
+    const category = document.getElementById('newProdCategory').value;
+    const desc = document.getElementById('newProdDesc').value.trim();
+    const pricesStr = document.getElementById('newProdPrices').value.trim();
+    const imageFile = document.getElementById('newProdImageFile').files[0];
+
+    if(!title || !imageFile || !pricesStr) {
+        alert('الرجاء إدخال اسم المنتج، الصورة الرئيسية، وأسعار المقاسات على الأقل.');
         return;
     }
 
-    colorUploadsList.forEach((col, idx) => {
-        let nameInput = document.getElementById(`colorName_${idx}`);
-        if(nameInput && nameInput.value.trim()) {
-            col.name = nameInput.value.trim();
-        }
-    });
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        let mainImgUrl = e.target.result;
+        
+        // تحليل أسعار المقاسات (مثال: S:1200, M:1250)
+        let sizesObj = {};
+        pricesStr.split(',').forEach(pair => {
+            let parts = pair.split(':');
+            if(parts.length === 2) {
+                let sName = parts[0].trim().toUpperCase();
+                let sPrice = parseFloat(parts[1].trim());
+                if(!isNaN(sPrice)) {
+                    sizesObj[sName] = { price: sPrice, oldPrice: 0, available: true };
+                }
+            }
+        });
 
-    let sizesObj = {};
-    let sizesList = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
-    sizesList.forEach(sz => {
-        let p = parseFloat(document.getElementById(`price${sz}`).value) || 0;
-        if (p > 0) {
-            sizesObj[sz] = { price: p, oldPrice: p + 200, available: true };
+        if(Object.keys(sizesObj).length === 0) {
+            alert('صيغة الأسعار غير صحيحة. مثال: S:1200, M:1250');
+            return;
         }
-    });
 
-    const newProd = {
-        id: Date.now(),
-        titleAr: titleAr,
-        titleEn: titleAr,
-        category: category,
-        hasDiscount: true,
-        image: colorUploadsList[0].image,
-        description: description,
-        colors: colorUploadsList,
-        sizes: sizesObj
+        let colorsArr = [];
+        if(colorUploadsList.length > 0) {
+            colorUploadsList.forEach((col, idx) => {
+                let nameInput = document.getElementById(`colorName_${idx}`);
+                let cName = nameInput ? nameInput.value.trim() : col.name;
+                colorsArr.push({ name: cName, image: col.image });
+            });
+        }
+
+        const newProd = {
+            id: Date.now(),
+            titleAr: title,
+            titleEn: title,
+            category: category,
+            hasDiscount: false,
+            isSoldOut: false,
+            image: mainImgUrl,
+            description: desc,
+            colors: colorsArr,
+            sizes: sizesObj
+        };
+
+        products.unshift(newProd);
+        localStorage.setItem('jag_products', JSON.stringify(products));
+        renderProducts();
+        renderAdminProductsList();
+        alert('تمت إضافة المنتج بنجاح!');
+
+        document.getElementById('newProdTitle').value = '';
+        document.getElementById('newProdDesc').value = '';
+        document.getElementById('newProdPrices').value = '';
+        document.getElementById('newProdImageFile').value = '';
+        document.getElementById('newProdColorsFiles').value = '';
+        document.getElementById('colorInputsContainer').innerHTML = '';
+        colorUploadsList = [];
     };
-
-    products.push(newProd);
-    localStorage.setItem('jag_products', JSON.stringify(products));
-    renderProducts();
-    closeAdminModal();
-    alert('تم نشر المنتج بنجاح بكل مقاساته وألوانه!');
+    reader.readAsDataURL(imageFile);
 }
 
-function toggleLang() {
-    currentLang = currentLang === 'ar' ? 'en' : 'ar';
-    document.documentElement.lang = currentLang;
-    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
-    const langText = document.getElementById('langText');
-    const catalogTitle = document.getElementById('catalogTitle');
-    if(langText) langText.innerText = currentLang === 'ar' ? 'EN' : 'AR';
-    if(catalogTitle) catalogTitle.innerText = currentLang === 'ar' ? 'تجميعة المنتجات' : 'Products Catalog';
-    initSlider();
-    renderProducts();
-}
-
-window.onload = function() {
+// تهيئة الموقع عند التحميل
+window.addEventListener('DOMContentLoaded', () => {
     trackUserActivity();
     initSlider();
     renderProducts();
     renderReviews();
     renderCommunityChat();
+    updateOwnerUI();
+    updateCartCount();
     addAdminPanelButton();
-};
+});
