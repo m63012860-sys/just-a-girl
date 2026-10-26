@@ -1,6 +1,24 @@
 // =========================================================================
-// 🛠️ إعدادات البراند والأساسيات
+// 🛠️ إعدادات البراند والأساسيات مع Firebase Firestore
 // =========================================================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBYcjNMku4yc6ekL8ZaaXe8Bg6Linbi4Mo",
+  authDomain: "just-a-girl-6313e.firebaseapp.com",
+  projectId: "just-a-girl-6313e",
+  storageBucket: "just-a-girl-6313e.firebasestorage.app",
+  messagingSenderId: "571477381444",
+  appId: "1:571477381444:web:0cbbcc2de547680728c711",
+  measurementId: "G-PKZ9DPQ16R"
+};
+
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+const db = getFirestore(app);
+
 const WHATSAPP_NUMBER = "201283332160"; 
 let adminPin = localStorage.getItem('jag_admin_pin') || null;
 let ownerSession = false; 
@@ -13,27 +31,7 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
 
-let products = JSON.parse(localStorage.getItem('jag_products')) || [
-    { 
-        id: 1, 
-        titleAr: "فستان سهرة مخملي بورجوندي", 
-        titleEn: "Burgundy Velvet Evening Dress", 
-        category: "dresses", 
-        hasDiscount: true, 
-        isSoldOut: false,
-        image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500",
-        description: "فستان مخملي فخم، تلبيس مريح وخامة عالية الجودة.",
-        colors: [
-            { name: "بورجوندي", image: "https://images.unsplash.com/photo-1595777457583-95e059d581b8?w=500" },
-            { name: "أسود", image: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=500" }
-        ],
-        sizes: {
-            "S": { price: 1200, oldPrice: 1500, available: true },
-            "M": { price: 1250, oldPrice: 1500, available: true },
-            "XL": { price: 1350, oldPrice: 1650, available: true }
-        }
-    }
-];
+let products = []; // يتم جلبها وتحديثها فورياً من Firestore
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
     { id: 1, name: "سارة محمد", comment: "الخامات تحفة والمعاينة كانت ممتازة جداً، شكراً Just a Girl!", rating: 5, image: "" }
@@ -46,24 +44,13 @@ let communityMessages = JSON.parse(localStorage.getItem('jag_community')) || [
 ];
 
 let currentLang = 'ar';
-let cart = [];
+let cart = JSON.parse(localStorage.getItem('just_girl_cart')) || [];
 let replyingToId = null;
-
-window.addEventListener('storage', function(e) {
-    if (e.key === 'jag_community') {
-        communityMessages = JSON.parse(e.newValue) || [];
-        renderCommunityChat();
-    }
-    if (e.key === 'jag_products') {
-        products = JSON.parse(e.newValue) || [];
-        renderProducts();
-    }
-});
 
 document.addEventListener('DOMContentLoaded', () => {
     trackUserActivity();
     initSlider();
-    renderProducts();
+    initProductsListener(); // تشغيل الاستماع المباشر للتحديثات من القاعدة
     renderReviews();
     renderCommunityChat();
     updateCartCount();
@@ -84,13 +71,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// الاستماع المباشر لمنتجات Firestore لتحديث المتجر عالمياً لكل الزوار في الوقت الفعلي
+function initProductsListener() {
+    onSnapshot(collection(db, "products"), (snapshot) => {
+        products = [];
+        snapshot.forEach((docSnap) => {
+            products.push({
+                id: docSnap.id,
+                ...docSnap.data()
+            });
+        });
+        renderProducts();
+        renderAdminProductsList();
+    }, (error) => {
+        console.error("خطأ في جلب المنتجات: ", error);
+    });
+}
+
 function trackUserActivity() {
     let visits = localStorage.getItem('jag_visits') || 0;
     visits++;
     localStorage.setItem('jag_visits', visits);
-    let orders = localStorage.getItem('jag_orders') || 0;
     if(document.getElementById('visitCountDisplay')) document.getElementById('visitCountDisplay').innerText = visits;
-    if(document.getElementById('orderCountDisplay')) document.getElementById('orderCountDisplay').innerText = orders;
+    if(document.getElementById('orderCountDisplay')) document.getElementById('orderCountDisplay').innerText = localStorage.getItem('jag_orders') || 0;
 }
 
 function initSlider() {
@@ -119,34 +122,56 @@ function renderProducts(itemsToRender = products) {
     if (!grid) return;
     grid.innerHTML = '';
     if (itemsToRender.length === 0) {
-        grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding: 40px; font-size: 18px;">لا توجد منتجات مطابقة للبحث.</p>`;
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding: 40px; font-size: 18px;">لا توجد منتجات مطابقة حالياً.</p>`;
         return;
     }
     itemsToRender.forEach(product => {
-        const title = currentLang === 'ar' ? product.titleAr : product.titleEn;
-        let availableSizes = Object.values(product.sizes).filter(s => s.available && s.price > 0);
+        const title = currentLang === 'ar' ? (product.titleAr || product.name) : (product.titleEn || product.name);
+        const desc = product.description || product.desc || '';
+        const img = product.image || '';
+        const isSoldOut = product.isSoldOut || false;
+        
+        let availableSizes = product.sizes ? Object.values(product.sizes).filter(s => s.available && s.price > 0) : [];
         let pricesArr = availableSizes.map(s => s.price);
-        let minPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : 0;
-        let hasAnyDiscount = Object.values(product.sizes).some(s => s.oldPrice && s.oldPrice > s.price);
+        let minPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : (product.price || 0);
 
         const card = document.createElement('div');
         card.className = 'product-card';
         card.innerHTML = `
-            ${hasAnyDiscount ? `<span class="discount-badge">خصم</span>` : ''}
-            ${product.isSoldOut ? `<span class="soldout-badge" style="position: absolute; top: 10px; left: 10px; background: #222; color: #D4AF37; padding: 4px 10px; font-size: 12px; border-radius: 4px; font-weight: bold; z-index: 5;">نفذت الكمية</span>` : ''}
-            <img src="${product.image}" alt="${title}" class="product-img" style="${product.isSoldOut ? 'filter: grayscale(80%);' : ''}">
+            ${product.hasDiscount ? `<span class="discount-badge">خصم</span>` : ''}
+            ${isSoldOut ? `<span class="soldout-badge" style="position: absolute; top: 10px; left: 10px; background: #222; color: #D4AF37; padding: 4px 10px; font-size: 12px; border-radius: 4px; font-weight: bold; z-index: 5;">نفذت الكمية</span>` : ''}
+            <img src="${img}" alt="${title}" class="product-img" style="${isSoldOut ? 'filter: grayscale(80%);' : ''}">
             <div class="product-info">
                 <div class="product-title">${title}</div>
-                <div class="product-desc" style="font-size:12px; color:#666; margin-bottom:8px;">${product.description || ''}</div>
+                <div class="product-desc" style="font-size:12px; color:#666; margin-bottom:8px;">${desc}</div>
                 <div class="price-box">
-                    <span class="current-price">${product.isSoldOut ? 'نفذت الكمية' : 'يبدأ من ' + minPrice + ' ج.م'}</span>
+                    <span class="current-price">${isSoldOut ? 'نفذت الكمية' : (typeof minPrice === 'number' ? 'يبدأ من ' + minPrice + ' ج.م' : minPrice)}</span>
                 </div>
-                <button class="add-to-cart-btn" onclick="openProductDetails(${product.id})" style="${product.isSoldOut ? 'background: #777; cursor: not-allowed;' : ''}">
+                <button class="add-to-cart-btn" onclick="openProductDetails('${product.id}')" style="${isSoldOut ? 'background: #777; cursor: not-allowed;' : ''}">
                     ${currentLang === 'ar' ? 'عرض واختيار المقاس واللون' : 'View Details'}
                 </button>
             </div>
         `;
         grid.appendChild(card);
+    });
+}
+
+function renderAdminProductsList() {
+    const adminListContainer = document.getElementById("adminProductsListContainer");
+    if (!adminListContainer) return;
+    adminListContainer.innerHTML = "";
+    if (products.length === 0) {
+        adminListContainer.innerHTML = "<p style='font-size:12px; color:#666; text-align:center;'>لا توجد منتجات في القاعدة.</p>";
+        return;
+    }
+    products.forEach(product => {
+        const title = product.titleAr || product.name || 'بدون اسم';
+        adminListContainer.innerHTML += `
+          <div style="display:flex; justify-content:space-between; align-items:center; background:#fff; padding:8px 12px; margin-bottom:6px; border-radius:4px; border:1px solid #ddd;">
+            <span style="font-size:13px; font-weight:bold;">${title}</span>
+            <button onclick="window.deleteProductFromStore('${product.id}')" style="background:none; border:none; color:#c00; cursor:pointer;"><i class="fa-solid fa-trash"></i> حذف</button>
+          </div>
+        `;
     });
 }
 
@@ -169,19 +194,21 @@ function openProductDetails(productId) {
     let firstAvailableOldPrice = 0;
     let count = 0;
 
-    Object.keys(product.sizes).forEach((sizeKey) => {
-        let sizeData = product.sizes[sizeKey];
-        if (sizeData.available && sizeData.price > 0) {
-            if(count === 0) { firstAvailablePrice = sizeData.price; firstAvailableOldPrice = sizeData.oldPrice; }
-            sizesHtml += `
-                <label style="display: inline-block; margin: 5px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
-                    <input type="radio" name="selectedSize" value="${sizeKey}" data-price="${sizeData.price}" data-old="${sizeData.oldPrice || 0}" ${count === 0 ? 'checked' : ''} onchange="updateModalPrice(this)">
-                    <strong>مقاس ${sizeKey}</strong> (${sizeData.price} ج.م)
-                </label>
-            `;
-            count++;
-        }
-    });
+    if (product.sizes) {
+        Object.keys(product.sizes).forEach((sizeKey) => {
+            let sizeData = product.sizes[sizeKey];
+            if (sizeData.available && sizeData.price > 0) {
+                if(count === 0) { firstAvailablePrice = sizeData.price; firstAvailableOldPrice = sizeData.oldPrice; }
+                sizesHtml += `
+                    <label style="display: inline-block; margin: 5px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                        <input type="radio" name="selectedSize" value="${sizeKey}" data-price="${sizeData.price}" data-old="${sizeData.oldPrice || 0}" ${count === 0 ? 'checked' : ''} onchange="updateModalPrice(this)">
+                        <strong>مقاس ${sizeKey}</strong> (${sizeData.price} ج.م)
+                    </label>
+                `;
+                count++;
+            }
+        });
+    }
 
     let colorsHtml = '';
     if(product.colors && product.colors.length > 0) {
@@ -205,20 +232,20 @@ function openProductDetails(productId) {
                 </div>
             </div>
             <div style="flex: 1; min-width: 240px;">
-                <h2 style="color: var(--burgundy); margin-bottom: 8px;">${product.titleAr}</h2>
-                <p style="font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5;">${product.description || ''}</p>
+                <h2 style="color: var(--burgundy); margin-bottom: 8px;">${product.titleAr || product.name}</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 12px; line-height: 1.5;">${product.description || product.desc || ''}</p>
                 
                 <div class="price-box" style="margin-bottom: 15px;">
-                    <span id="modalCurrentPrice" class="current-price">${product.isSoldOut ? 'نفذت الكمية' : firstAvailablePrice + ' ج.م'}</span>
+                    <span id="modalCurrentPrice" class="current-price">${product.isSoldOut ? 'نفذت الكمية' : (firstAvailablePrice ? firstAvailablePrice + ' ج.م' : product.price)}</span>
                     <span id="modalOldPrice" class="old-price">${!product.isSoldOut && firstAvailableOldPrice > 0 ? firstAvailableOldPrice + ' ج.م' : ''}</span>
                 </div>
 
                 <div style="margin-bottom: 15px;">
                     <label style="font-weight: bold; color: var(--burgundy); display: block; margin-bottom: 5px;">المقاسات المتوفرة:</label>
-                    <div>${product.isSoldOut ? '<span style="color:red; font-weight:bold;">عذراً، هذا المنتج نفذ تماماً حالياً.</span>' : sizesHtml}</div>
+                    <div>${product.isSoldOut ? '<span style="color:red; font-weight:bold;">عذراً، هذا المنتج نفذ تماماً حالياً.</span>' : (sizesHtml || '<span>متوفر بالسعر القياسي</span>')}</div>
                 </div>
 
-                ${!product.isSoldOut ? `<button class="add-to-cart-btn" onclick="addToCartWithOptions(${product.id})">إضافة للسلة</button>` : `<button class="add-to-cart-btn" style="background:#777; cursor:not-allowed;" disabled>نفذت الكمية</button>`}
+                ${!product.isSoldOut ? `<button class="add-to-cart-btn" onclick="addToCartWithOptions('${product.id}')">إضافة للسلة</button>` : `<button class="add-to-cart-btn" style="background:#777; cursor:not-allowed;" disabled>نفذت الكمية</button>`}
             </div>
         </div>
     `;
@@ -246,16 +273,11 @@ function updateModalPrice(radio) {
 
 function addToCartWithOptions(productId) {
     const product = products.find(p => p.id === productId);
-    if(product.isSoldOut) { alert('عذراً، هذا المنتج نفذت كميته.'); return; }
-    const selectedSizeRadio = document.querySelector('input[name="selectedSize"]:checked');
+    if(!product || product.isSoldOut) { alert('عذراً، هذا المنتج نفذت كميته.'); return; }
     
-    if (!selectedSizeRadio) {
-        alert('الرجاء اختيار المقاس المناسب أولاً.');
-        return;
-    }
-
-    let sizeKey = selectedSizeRadio.value;
-    let price = parseFloat(selectedSizeRadio.getAttribute('data-price'));
+    const selectedSizeRadio = document.querySelector('input[name="selectedSize"]:checked');
+    let sizeKey = selectedSizeRadio ? selectedSizeRadio.value : 'قياسي';
+    let price = selectedSizeRadio ? parseFloat(selectedSizeRadio.getAttribute('data-price')) : parseFloat(product.price || 0);
     let mainImg = document.getElementById('modalMainImg') ? document.getElementById('modalMainImg').src : product.image;
 
     let cartItemKey = `${productId}-${sizeKey}`;
@@ -267,17 +289,22 @@ function addToCartWithOptions(productId) {
         cart.push({
             cartKey: cartItemKey,
             id: product.id,
-            titleAr: product.titleAr,
-            titleEn: product.titleEn,
+            titleAr: product.titleAr || product.name,
+            titleEn: product.titleEn || product.name,
             price: price,
             size: sizeKey,
             image: mainImg,
             qty: 1
         });
     }
+    saveCart();
     updateCartCount();
     closeProductModal();
     alert('تمت إضافة المنتج إلى السلة بنجاح!');
+}
+
+function saveCart() {
+    localStorage.setItem('just_girl_cart', JSON.stringify(cart));
 }
 
 // --- آراء العملاء ---
@@ -527,9 +554,10 @@ function filterProducts() {
     if(!searchInput) return;
     const query = searchInput.value.toLowerCase();
     const filtered = products.filter(p => 
-        p.titleAr.toLowerCase().includes(query) || 
-        p.titleEn.toLowerCase().includes(query) ||
-        p.category.toLowerCase().includes(query)
+        (p.titleAr && p.titleAr.toLowerCase().includes(query)) || 
+        (p.titleEn && p.titleEn.toLowerCase().includes(query)) ||
+        (p.category && p.category.toLowerCase().includes(query)) ||
+        (p.name && p.name.toLowerCase().includes(query))
     );
     renderProducts(filtered);
 }
@@ -569,6 +597,7 @@ function closeCartModal() {
 
 function removeFromCart(index) { 
     cart.splice(index, 1); 
+    saveCart();
     updateCartCount(); 
     openCartModal(); 
 }
@@ -600,7 +629,7 @@ function sendToWhatsApp() {
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
 }
 
-// --- لوحة التحكم والأمان وإدارة وتعديل المنتجات ---
+// --- لوحة التحكم وإدارة وتعديل المنتجات عبر Firestore ---
 function checkOwnerAccess() {
     if (ownerSession) { openAdminModal(); return; }
     if (Date.now() < pinLockedUntil) { alert('محاولات كتير غلط. حاولي تاني بعد دقيقة.'); return; }
@@ -674,8 +703,21 @@ function addAdminPanelButton() {
     document.body.appendChild(btn);
 }
 
-// دالة الإضافة المفصلة والآمنة لتحديد مكان الخطأ بالضبط
-async function addNewProductFromPanel() {
+function openAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderAdminProductsList();
+    }
+}
+
+function closeAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// دالة إضافة منتج جديد إلى Firestore
+window.addNewProductFromPanel = async function() {
     const titleInput = document.getElementById('newProdTitle');
     const descInput = document.getElementById('newProdDesc');
     const categorySelect = document.getElementById('newProdCategory');
@@ -717,45 +759,50 @@ async function addNewProductFromPanel() {
         }
     });
 
-    let hasAnySize = Object.keys(sizes).length > 0;
-    if (!hasAnySize) {
-        alert('❌ خطأ: يجب إدخال سعر واحد على الأقل لمقاس واحد.');
-        return;
-    }
-
-    let newProduct = {
-        id: Date.now(),
-        titleAr: title,
-        titleEn: title,
-        category: category,
-        hasDiscount: false,
-        isSoldOut: false,
-        image: imageSrc,
-        description: description,
-        colors: colorUploadsList.length > 0 ? colorUploadsList : [{ name: "افتراضي", image: imageSrc }],
-        sizes: sizes
-    };
-
-    products.unshift(newProduct);
     try {
-        localStorage.setItem('jag_products', JSON.stringify(products));
-        alert('✅ تم إضافة المنتج بنجاح وتحديث المتجر!');
-        closeAdminModal();
-        renderProducts();
+        await addDoc(collection(db, "products"), {
+            titleAr: title,
+            titleEn: title,
+            category: category,
+            description: description,
+            image: imageSrc,
+            colors: colorUploadsList,
+            sizes: sizes,
+            isSoldOut: false,
+            hasDiscount: false,
+            createdAt: new Date()
+        });
+
+        alert('✅ تم إضافة المنتج بنجاح إلى قاعدة بيانات فايربيس وسيظهر فوراً في المتجر لجميع الزوار!');
         
-        // إعادة تعيين الحقول
         if(titleInput) titleInput.value = '';
         if(descInput) descInput.value = '';
-        if(imageInput) imageInput.value = '';
         mainProductImageBase64 = "";
+        if(imageInput) imageInput.value = '';
         colorUploadsList = [];
-        const container = document.getElementById('colorInputsContainer');
-        if(container) container.innerHTML = '';
-        sizeKeys.forEach(k => {
-            let inp = document.getElementById(`size_${k}`);
-            if(inp) inp.value = '';
+        const colContainer = document.getElementById('colorInputsContainer');
+        if(colContainer) colContainer.innerHTML = '';
+        sizeKeys.forEach(key => {
+            let input = document.getElementById(`size_${key}`);
+            if(input) input.value = '';
         });
-    } catch(err) {
-        alert('❌ حدث خطأ أثناء حفظ المنتج (ربما حجم الصور كبير جداً لمساحة المتصفح).');
+
+        closeAdminModal();
+    } catch (e) {
+        console.error("خطأ أثناء الإضافة لـ Firestore: ", e);
+        alert('❌ حدث خطأ أثناء إضافة المنتج للقاعدة.');
     }
-}
+};
+
+// دالة حذف منتج من Firestore
+window.deleteProductFromStore = async function(productId) {
+    if (confirm("هل أنتِ متأكدة من حذف هذا المنتج نهائياً من المتجر؟")) {
+        try {
+            await deleteDoc(doc(db, "products", productId));
+            alert("تم الحذف بنجاح!");
+        } catch (e) {
+            console.error("خطأ في الحذف من Firestore: ", e);
+            alert("حدث خطأ أثناء محاولة الحذف.");
+        }
+    }
+};
