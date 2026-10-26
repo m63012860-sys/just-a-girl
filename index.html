@@ -1,258 +1,258 @@
-<!DOCTYPE html>
+hi, hg;,] la ]i <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Just a Girl - Luxury Fashion Brand</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Just a Girl - Luxury Fashion Brand</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="top-bar">
-        <span>شحن لجميع محافظات مصر عبر البريد المصري | متوفر المعاينة قبل الاستلام (بدون وسيط)</span>
-    </div>
+    <div class="top-bar">
+        <span>شحن لجميع محافظات مصر عبر البريد المصري | متوفر المعاينة قبل الاستلام (بدون وسيط)</span>
+    </div>
 
-    <header>
-        <div class="logo-container">
-            <h1>Just a Girl</h1>
-        </div>
-        
-        <div class="search-bar">
-            <i class="fa-solid fa-search"></i>
-            <input type="text" id="searchInput" placeholder="ابحث عن فساتين، هوديات، بناطيل..." oninput="filterProducts()">
-        </div>
+    <header>
+        <div class="logo-container">
+            <h1>Just a Girl</h1>
+        </div>
+        
+        <div class="search-bar">
+            <i class="fa-solid fa-search"></i>
+            <input type="text" id="searchInput" placeholder="ابحث عن فساتين، هوديات، بناطيل..." oninput="filterProducts()">
+        </div>
 
-        <div class="header-actions">
-            <button class="action-btn" onclick="toggleLang()"><i class="fa-solid fa-globe"></i> <span id="langText">EN</span></button>
-            <button class="action-btn" onclick="openProfileModal()"><i class="fa-solid fa-user"></i></button>
-            <button class="action-btn" onclick="openCartModal()">
-                <i class="fa-solid fa-shopping-bag"></i>
-                <span class="badge-count" id="cartCount">0</span>
-            </button>
-        </div>
-    </header>
+        <div class="header-actions">
+            <button class="action-btn" onclick="toggleLang()"><i class="fa-solid fa-globe"></i> <span id="langText">EN</span></button>
+            <button class="action-btn" onclick="openProfileModal()"><i class="fa-solid fa-user"></i></button>
+            <button class="action-btn" onclick="openCartModal()">
+                <i class="fa-solid fa-shopping-bag"></i>
+                <span class="badge-count" id="cartCount">0</span>
+            </button>
+        </div>
+    </header>
 
-    <nav id="categoryNav">
-        <button class="active" onclick="filterCategory('all')">الكل (All)</button>
-        <button onclick="filterCategory('dresses')">الفساتين (Dresses)</button>
-        <button onclick="filterCategory('suits')">البدل (Suits)</button>
-        <button onclick="filterCategory('hoodies')">الهوديات (Hoodies)</button>
-        <button onclick="filterCategory('pants')">البناطيل (Pants)</button>
-        <button onclick="filterCategory('kids')">الأطفال (Kids)</button>
-        <button onclick="filterCategory('pajamas')">البيجامات (Pajamas)</button>
-        <button onclick="filterCategory('sets')">الطقمة (Sets)</button>
-        <button onclick="filterCategory('jackets')">الجواكت (Jackets)</button>
-        <button onclick="filterCategory('bundles')">الباكدج (Bundles)</button>
-        <button onclick="filterCategory('offers')">عروض خاصة (Offers)</button>
-    </nav>
+    <nav id="categoryNav">
+        <button class="active" onclick="filterCategory('all')">الكل (All)</button>
+        <button onclick="filterCategory('dresses')">الفساتين (Dresses)</button>
+        <button onclick="filterCategory('suits')">البدل (Suits)</button>
+        <button onclick="filterCategory('hoodies')">الهوديات (Hoodies)</button>
+        <button onclick="filterCategory('pants')">البناطيل (Pants)</button>
+        <button onclick="filterCategory('kids')">الأطفال (Kids)</button>
+        <button onclick="filterCategory('pajamas')">البيجامات (Pajamas)</button>
+        <button onclick="filterCategory('sets')">الطقمة (Sets)</button>
+        <button onclick="filterCategory('jackets')">الجواكت (Jackets)</button>
+        <button onclick="filterCategory('bundles')">الباكدج (Bundles)</button>
+        <button onclick="filterCategory('offers')">عروض خاصة (Offers)</button>
+    </nav>
 
-    <div class="hero-slider" id="heroSlider"></div>
+    <div class="hero-slider" id="heroSlider"></div>
 
-    <div class="features-banner">
-        <div class="feature-box">
-            <i class="fa-solid fa-coins"></i>
-            <h4>ديبوزيت 100 جنيه</h4>
-            <p>جدية حجز واجبة قبل إرسال أي طلب</p>
-        </div>
-        <div class="feature-box">
-            <i class="fa-solid fa-box-open"></i>
-            <h4>معاينة عند الاستلام</h4>
-            <p>حقك تعاين المنتج مع مندوب الشحن</p>
-        </div>
-        <div class="feature-box">
-            <i class="fa-solid fa-truck-fast"></i>
-            <h4>البريد المصري</h4>
-            <p>توصيل آمن لجميع محافظات مصر</p>
-        </div>
-        <div class="feature-box">
-            <i class="fa-brands fa-whatsapp"></i>
-            <h4>طلب مباشر عبر الواتساب</h4>
-            <p>دون وسيط - التواصل مع المالكة مباشرة</p>
-        </div>
-    </div>
+    <div class="features-banner">
+        <div class="feature-box">
+            <i class="fa-solid fa-coins"></i>
+            <h4>ديبوزيت 100 جنيه</h4>
+            <p>جدية حجز واجبة قبل إرسال أي طلب</p>
+        </div>
+        <div class="feature-box">
+            <i class="fa-solid fa-box-open"></i>
+            <h4>معاينة عند الاستلام</h4>
+            <p>حقك تعاين المنتج مع مندوب الشحن</p>
+        </div>
+        <div class="feature-box">
+            <i class="fa-solid fa-truck-fast"></i>
+            <h4>البريد المصري</h4>
+            <p>توصيل آمن لجميع محافظات مصر</p>
+        </div>
+        <div class="feature-box">
+            <i class="fa-brands fa-whatsapp"></i>
+            <h4>طلب مباشر عبر الواتساب</h4>
+            <p>دون وسيط - التواصل مع المالكة مباشرة</p>
+        </div>
+    </div>
 
-    <div class="container">
-        <div style="text-align: center;">
-            <h2 class="section-title" id="catalogTitle">تجميعة المنتجات</h2>
-        </div>
-        <div class="products-grid" id="productsGrid"></div>
-    </div>
+    <div class="container">
+        <div style="text-align: center;">
+            <h2 class="section-title" id="catalogTitle">تجميعة المنتجات</h2>
+        </div>
+        <div class="products-grid" id="productsGrid"></div>
+    </div>
 
-    <!-- قسم آراء العملاء -->
-    <div class="container" style="margin-top: 50px;">
-        <h2 class="section-title" style="text-align: center; display: block;">آراء وتجارب عملائنا المميزين</h2>
+    <!-- قسم آراء العملاء -->
+    <div class="container" style="margin-top: 50px;">
+        <h2 class="section-title" style="text-align: center; display: block;">آراء وتجارب عملائنا المميزين</h2>
 
-        <div id="ownerReviewForm" style="display: none; background: #fff; border: 1px dashed #D4AF37; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
-            <h3 style="color: #4A040D; margin-bottom: 15px; text-align: center;">
-                <i class="fa-solid fa-plus-circle"></i> إضافة رأي عميلة جديد (للإدارة فقط)
-            </h3>
+        <div id="ownerReviewForm" style="display: none; background: #fff; border: 1px dashed #D4AF37; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+            <h3 style="color: #4A040D; margin-bottom: 15px; text-align: center;">
+                <i class="fa-solid fa-plus-circle"></i> إضافة رأي عميلة جديد (للإدارة فقط)
+            </h3>
 
-            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
-                <input type="text" id="reviewCustomerName" placeholder="اسم العميلة..." style="flex: 1; min-width: 160px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                <select id="reviewStars" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-                    <option value="4">⭐⭐⭐⭐ (4)</option>
-                    <option value="3">⭐⭐⭐ (3)</option>
-                </select>
-            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px;">
+                <input type="text" id="reviewCustomerName" placeholder="اسم العميلة..." style="flex: 1; min-width: 160px; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                <select id="reviewStars" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                    <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+                    <option value="4">⭐⭐⭐⭐ (4)</option>
+                    <option value="3">⭐⭐⭐ (3)</option>
+                </select>
+            </div>
 
-            <textarea id="reviewMessageText" rows="3" placeholder="اكتبي رسالة العميلة هنا (اختياري لو هترفعي صورة)..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; font-family: inherit; resize: vertical;"></textarea>
+            <textarea id="reviewMessageText" rows="3" placeholder="اكتبي رسالة العميلة هنا (اختياري لو هترفعي صورة)..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; margin-bottom: 10px; font-family: inherit; resize: vertical;"></textarea>
 
-            <div style="margin-bottom: 10px;">
-                <label for="reviewImageInput" style="display: inline-block; background: #f5f0e6; border: 1px solid #D4AF37; color: #4A040D; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                    <i class="fa-solid fa-image"></i> رفع Screenshot من الواتساب
-                </label>
-                <input type="file" id="reviewImageInput" accept="image/*" style="display: none;" onchange="previewReviewImage(this)">
-                <button type="button" id="removeReviewImageBtn" onclick="clearReviewImage()" style="display: none; background: none; border: none; color: #c00; cursor: pointer; margin-right: 10px;">
-                    <i class="fa-solid fa-trash"></i> حذف الصورة
-                </button>
-            </div>
+            <div style="margin-bottom: 10px;">
+                <label for="reviewImageInput" style="display: inline-block; background: #f5f0e6; border: 1px solid #D4AF37; color: #4A040D; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                    <i class="fa-solid fa-image"></i> رفع Screenshot من الواتساب
+                </label>
+                <input type="file" id="reviewImageInput" accept="image/*" style="display: none;" onchange="previewReviewImage(this)">
+                <button type="button" id="removeReviewImageBtn" onclick="clearReviewImage()" style="display: none; background: none; border: none; color: #c00; cursor: pointer; margin-right: 10px;">
+                    <i class="fa-solid fa-trash"></i> حذف الصورة
+                </button>
+            </div>
 
-            <div id="reviewImagePreview" style="margin-bottom: 10px;"></div>
+            <div id="reviewImagePreview" style="margin-bottom: 10px;"></div>
 
-            <button type="button" onclick="addReview()" style="background: #4A040D; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold;">
-                <i class="fa-solid fa-check"></i> نشر الرأي
-            </button>
-        </div>
+            <button type="button" onclick="addReview()" style="background: #4A040D; color: white; border: none; padding: 10px 25px; border-radius: 5px; cursor: pointer; font-weight: bold;">
+                <i class="fa-solid fa-check"></i> نشر الرأي
+            </button>
+        </div>
 
-        <div id="reviewsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
-    </div>
+        <div id="reviewsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
+    </div>
 
-    <!-- مجتمع العملاء -->
-    <div class="container" style="margin-top: 50px; background: #fff; padding: 25px; border-radius: 10px; border: 1px solid #ddd;">
-        <h2 class="section-title" style="text-align: center; display: block;">مجتمع Just a Girl 💬</h2>
-        <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px;">مساحة لتبادل الآراء والاستفسارات بين العملاء.</p>
-        
-        <div id="chatMessages" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
+    <!-- مجتمع العملاء -->
+    <div class="container" style="margin-top: 50px; background: #fff; padding: 25px; border-radius: 10px; border: 1px solid #ddd;">
+        <h2 class="section-title" style="text-align: center; display: block;">مجتمع Just a Girl 💬</h2>
+        <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px;">مساحة لتبادل الآراء والاستفسارات بين العملاء.</p>
+        
+        <div id="chatMessages" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
 
-        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <input type="text" id="chatSenderName" placeholder="اسمك..." style="width: 30%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-            <input type="text" id="chatInputText" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-            <button onclick="sendCommunityMessage()" style="background: #4A040D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
-        </div>
-    </div>
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <input type="text" id="chatSenderName" placeholder="اسمك..." style="width: 30%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <input type="text" id="chatInputText" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <button onclick="sendCommunityMessage()" style="background: #4A040D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
+        </div>
+    </div>
 
-    <!-- مودال التفاصيل -->
-    <div class="modal" id="productModal"><div class="modal-content" id="productModalContent"></div></div>
+    <!-- مودال التفاصيل -->
+    <div class="modal" id="productModal"><div class="modal-content" id="productModalContent"></div></div>
 
-    <!-- مودال لوحة التحكم والإدارة -->
-    <div class="modal" id="adminModal">
-        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto;">
-            <span class="close-modal" onclick="closeAdminModal()">&times;</span>
-            <h2 style="color: var(--burgundy); margin-bottom: 15px; text-align: center;">لوحة التحكم والإدارة</h2>
-            <div style="text-align: center; margin-bottom: 12px;">
-                <button onclick="logoutOwner()" style="background: none; border: 1px solid var(--burgundy); color: var(--burgundy); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج من وضع الإدارة</button>
-            </div>
-            
-            <div style="background: #fff3f3; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffcccc;">
-                <h4 style="color: var(--burgundy); margin-bottom: 8px;">تغيير رمز الأمان (الباسورد):</h4>
-                <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="oldPinInput" placeholder="الرقم السري القديم"></div>
-                <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="newPinInput" placeholder="الرقم السري الجديد (6 خانات على الأقل)"></div>
-                <button onclick="changeAdminPin()" style="background:var(--burgundy); color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; width:100%; font-weight:bold;">تحديث الرقم السري</button>
-            </div>
+    <!-- مودال لوحة التحكم والإدارة بالشكل المطلوب تماماً -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto;">
+            <span class="close-modal" onclick="closeAdminModal()">&times;</span>
+            <h2 style="color: var(--burgundy); margin-bottom: 15px; text-align: center;">لوحة التحكم والإدارة</h2>
+            <div style="text-align: center; margin-bottom: 12px;">
+                <button onclick="logoutOwner()" style="background: none; border: 1px solid var(--burgundy); color: var(--burgundy); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج من وضع الإدارة</button>
+            </div>
+            
+            <div style="background: #fff3f3; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffcccc;">
+                <h4 style="color: var(--burgundy); margin-bottom: 8px;">تغيير رمز الأمان (الباسورد):</h4>
+                <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="oldPinInput" placeholder="الرقم السري القديم"></div>
+                <div class="form-group" style="margin-bottom: 8px;"><input type="password" id="newPinInput" placeholder="الرقم السري الجديد (6 خانات على الأقل)"></div>
+                <button onclick="changeAdminPin()" style="background:var(--burgundy); color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer; width:100%; font-weight:bold;">تحديث الرقم السري</button>
+            </div>
 
-            <div style="background: #fdf8f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2d3b5;">
-                <h4 style="color: var(--burgundy); margin-bottom: 15px; text-align:center;">إضافة منتج جديد</h4>
-                
-                <div class="form-group">
-                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">اسم المنتج (مثل فستان، بلوفر):</label>
-                    <input type="text" id="newProdTitle" placeholder="اسم المنتج">
-                </div>
+            <div style="background: #fdf8f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2d3b5;">
+                <h4 style="color: var(--burgundy); margin-bottom: 15px; text-align:center;">إضافة منتج جديد</h4>
+                
+                <div class="form-group">
+                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">اسم المنتج (مثل فستان، بلوفر):</label>
+                    <input type="text" id="newProdTitle" placeholder="اسم المنتج">
+                </div>
 
-                <div class="form-group">
-                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">القسم:</label>
-                    <select id="newProdCategory" style="padding:8px; width:100%; border:1px solid #ccc; border-radius:4px;">
-                        <option value="dresses">فساتين (Dresses)</option>
-                        <option value="suits">بدل (Suits)</option>
-                        <option value="hoodies">هوديات (Hoodies)</option>
-                        <option value="pants">بناطيل (Pants)</option>
-                        <option value="kids">أطفال (Kids)</option>
-                        <option value="pajamas">بيجامات (Pajamas)</option>
-                        <option value="sets">طقمة (Sets)</option>
-                        <option value="jackets">جواكت (Jackets)</option>
-                        <option value="bundles">باكدج (Bundles)</option>
-                        <option value="offers">عروض خاصة (Offers)</option>
-                    </select>
-                </div>
+                <div class="form-group">
+                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">القسم:</label>
+                    <select id="newProdCategory" style="padding:8px; width:100%; border:1px solid #ccc; border-radius:4px;">
+                        <option value="dresses">فساتين (Dresses)</option>
+                        <option value="suits">بدل (Suits)</option>
+                        <option value="hoodies">هوديات (Hoodies)</option>
+                        <option value="pants">بناطيل (Pants)</option>
+                        <option value="kids">أطفال (Kids)</option>
+                        <option value="pajamas">بيجامات (Pajamas)</option>
+                        <option value="sets">طقمة (Sets)</option>
+                        <option value="jackets">جواكت (Jackets)</option>
+                        <option value="bundles">باكدج (Bundles)</option>
+                        <option value="offers">عروض خاصة (Offers)</option>
+                    </select>
+                </div>
 
-                <div class="form-group">
-                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">نبذة بسيطة (نوع القماش والوصف - سطرين):</label>
-                    <textarea id="newProdDesc" placeholder="نوع القماش والوصف..." rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></textarea>
-                </div>
+                <div class="form-group">
+                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">نبذة بسيطة (نوع القماش والوصف - سطرين):</label>
+                    <textarea id="newProdDesc" placeholder="نوع القماش والوصف..." rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></textarea>
+                </div>
 
-                <div class="form-group">
-                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">صورة المنتج الرئيسية:</label>
-                    <input type="file" id="newProdImageFile" accept="image/*">
-                </div>
+                <div class="form-group">
+                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">صورة المنتج الرئيسية:</label>
+                    <input type="file" id="newProdImageFile" accept="image/*">
+                </div>
 
-                <div class="form-group">
-                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">صور الألوان المتاحة:</label>
-                    <input type="file" id="newProdColorsFiles" accept="image/*" multiple onchange="handleColorImagesSelection(event)">
-                </div>
-                <div id="colorInputsContainer"></div>
+                <div class="form-group">
+                    <label style="font-size: 13px; font-weight: bold; color: var(--burgundy);">صور الألوان المتاحة:</label>
+                    <input type="file" id="newProdColorsFiles" accept="image/*" multiple onchange="handleColorImagesSelection(event)">
+                </div>
+                <div id="colorInputsContainer"></div>
 
-                <div style="background: #fff; border: 1px solid #e2d3b5; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
-                    <label style="font-weight: bold; color: var(--burgundy); display: block; margin-bottom: 8px; font-size: 13px;">المقاسات المتوفرة فقط (اترك المقاس غير المتوفر فارغاً أو 0):</label>
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس S</span><input type="number" id="size_S" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
-                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس M</span><input type="number" id="size_M" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
-                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس L</span><input type="number" id="size_L" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
-                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس XL</span><input type="number" id="size_XL" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
-                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس 2XL</span><input type="number" id="size_2XL" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
-                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس 3XL</span><input type="number" id="size_3XL" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
-                    </div>
-                </div>
+                <!-- المقاسات بنفس الشكل المطلوب تماماً -->
+                <div style="background: #fff; border: 1px solid #e2d3b5; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
+                    <label style="font-weight: bold; color: var(--burgundy); display: block; margin-bottom: 8px; font-size: 13px;">المقاسات المتوفرة فقط (اترك المقاس غير المتوفر فارغاً أو 0)[cite: 5]:</label>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس S</span><input type="number" id="size_S" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس M</span><input type="number" id="size_M" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس L</span><input type="number" id="size_L" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس XL</span><input type="number" id="size_XL" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس 2XL</span><input type="number" id="size_2XL" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
+                        <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس 3XL</span><input type="number" id="size_3XL" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
+                    </div>
+                </div>
 
-                <button onclick="addNewProductFromPanel()" style="background: var(--burgundy); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;">إضافة المنتج للمتجر</button>
-            </div>
+                <button onclick="addNewProductFromPanel()" style="background: var(--burgundy); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;">إضافة المنتج للمتجر</button>
+            </div>
 
-            <!-- إدارة وتعديل وحذف المنتجات الحالية -->
-            <div style="background: #f4f1ed; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                <h4 style="color: var(--burgundy); margin-bottom: 8px;">إدارة وتعديل المنتجات الحالية:</h4>
-                <div id="adminProductsListContainer" style="max-height: 250px; overflow-y: auto;"></div>
-            </div>
-        </div>
-    </div>
+            <!-- إدارة وتعديل وحذف المنتجات الحالية -->
+            <div style="background: #f4f1ed; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
+                <h4 style="color: var(--burgundy); margin-bottom: 8px;">إدارة وتعديل المنتجات الحالية:</h4>
+                <div id="adminProductsListContainer" style="max-height: 250px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
 
-    <!-- مودال السلة -->
-    <div class="modal" id="cartModal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeCartModal()">&times;</span>
-            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">سلة التسوق وإتمام الطلب</h2>
-            <div id="cartItemsList"></div>
-            <div style="margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px;">
-                <h3>الإجمالي: <span id="cartTotalPrice">0</span> ج.م</h3>
-            </div>
-            <div style="margin-top: 15px;">
-                <div class="form-group"><label>الاسم بالكامل:</label><input type="text" id="clientName"></div>
-                <div class="form-group"><label>رقم الهاتف:</label><input type="tel" id="clientPhone"></div>
-                <div class="form-group"><label>العنوان بالتفصيل:</label><input type="text" id="clientAddress"></div>
-                <div class="terms-box">
-                    <strong>شروط وأحكام البراند:</strong>
-                    <p>1. تحويل 100 جنيه ديبوزيت جدية حجز.<br>2. الشحن عبر البريد المصري مع المعاينة عند الاستلام.</p>
-                </div>
-                <div class="form-group" style="display: flex; gap: 10px; align-items: center;">
-                    <input type="checkbox" id="legalCheck" style="width: 20px; height: 20px;">
-                    <label for="legalCheck" style="font-size: 13px;">أوافق على الشروط ودفع الديبوزيت.</label>
-                </div>
-                <button class="checkout-btn" onclick="sendToWhatsApp()"><i class="fa-brands fa-whatsapp"></i> تأكيد الطلب عبر الواتساب</button>
-            </div>
-        </div>
-    </div>
+    <!-- مودال السلة -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeCartModal()">&times;</span>
+            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">سلة التسوق وإتمام الطلب</h2>
+            <div id="cartItemsList"></div>
+            <div style="margin-top: 15px; border-top: 2px solid #eee; padding-top: 10px;">
+                <h3>الإجمالي: <span id="cartTotalPrice">0</span> ج.م</h3>
+            </div>
+            <div style="margin-top: 15px;">
+                <div class="form-group"><label>الاسم بالكامل:</label><input type="text" id="clientName"></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="tel" id="clientPhone"></div>
+                <div class="form-group"><label>العنوان بالتفصيل:</label><input type="text" id="clientAddress"></div>
+                <div class="terms-box">
+                    <strong>شروط وأحكام البراند:</strong>
+                    <p>1. تحويل 100 جنيه ديبوزيت جدية حجز.<br>2. الشحن عبر البريد المصري مع المعاينة عند الاستلام.</p>
+                </div>
+                <div class="form-group" style="display: flex; gap: 10px; align-items: center;">
+                    <input type="checkbox" id="legalCheck" style="width: 20px; height: 20px;">
+                    <label for="legalCheck" style="font-size: 13px;">أوافق على الشروط ودفع الديبوزيت.</label>
+                </div>
+                <button class="checkout-btn" onclick="sendToWhatsApp()"><i class="fa-brands fa-whatsapp"></i> تأكيد الطلب عبر الواتساب</button>
+            </div>
+        </div>
+    </div>
 
-    <!-- مودال الملف الشخصي -->
-    <div class="modal" id="profileModal">
-        <div class="modal-content">
-            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
-            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">حسابي وإحصائياتي</h2>
-            <p><strong>عدد زياراتك للموقع:</strong> <span id="visitCountDisplay">0</span> مرة</p>
-            <p><strong>عدد الطلبات السابقة:</strong> <span id="orderCountDisplay">0</span> أوردر</p>
-        </div>
-    </div>
+    <!-- مودال الملف الشخصي -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeProfileModal()">&times;</span>
+            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">حسابي وإحصائياتي</h2>
+            <p><strong>عدد زياراتك للموقع:</strong> <span id="visitCountDisplay">0</span> مرة</p>
+            <p><strong>عدد الطلبات السابقة:</strong> <span id="orderCountDisplay">0</span> أوردر</p>
+        </div>
+    </div>
 
-    <!-- التعديل المطلوب هنا: إضافة type="module" لملف الـ script -->
-    <script type="module" src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
