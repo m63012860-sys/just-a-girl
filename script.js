@@ -31,8 +31,7 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
 
-let products = []; // يتم جلبها وتحديثها فورياً من Firestore
-
+let products = [];
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
     { id: 1, name: "سارة محمد", comment: "الخامات تحفة والمعاينة كانت ممتازة جداً، شكراً Just a Girl!", rating: 5, image: "" }
 ];
@@ -50,7 +49,7 @@ let replyingToId = null;
 document.addEventListener('DOMContentLoaded', () => {
     trackUserActivity();
     initSlider();
-    initProductsListener(); // تشغيل الاستماع المباشر للتحديثات من القاعدة
+    initProductsListener();
     renderReviews();
     renderCommunityChat();
     updateCartCount();
@@ -63,7 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    mainProductImageBase64 = event.target.result;
+                    // ضغط الصورة لتجنب تجاوز حد 1 ميجابايت المسموح به في فايربيس
+                    compressImage(event.target.result, 600, 0.7, (compressedData) => {
+                        mainProductImageBase64 = compressedData;
+                    });
                 };
                 reader.readAsDataURL(file);
             }
@@ -71,7 +73,26 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// الاستماع المباشر لمنتجات Firestore لتحديث المتجر عالمياً لكل الزوار في الوقت الفعلي
+// دالة لضغط الصور حتى لا تتسبب في رفض الحفظ بقاعدة البيانات
+function compressImage(base64Str, maxWidth, quality, callback) {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        callback(canvas.toDataURL('image/jpeg', quality));
+    };
+}
+
 function initProductsListener() {
     onSnapshot(collection(db, "products"), (snapshot) => {
         products = [];
@@ -356,11 +377,13 @@ function previewReviewImage(input) {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = function(e) {
-        pendingReviewImage = e.target.result;
-        const preview = document.getElementById('reviewImagePreview');
-        if (preview) preview.innerHTML = `<img src="${pendingReviewImage}" style="max-width:220px;max-height:260px;border-radius:6px;border:1px solid #ddd;">`;
-        const removeBtn = document.getElementById('removeReviewImageBtn');
-        if (removeBtn) removeBtn.style.display = 'inline-block';
+        compressImage(e.target.result, 400, 0.7, (compressed) => {
+            pendingReviewImage = compressed;
+            const preview = document.getElementById('reviewImagePreview');
+            if (preview) preview.innerHTML = `<img src="${pendingReviewImage}" style="max-width:220px;max-height:260px;border-radius:6px;border:1px solid #ddd;">`;
+            const removeBtn = document.getElementById('removeReviewImageBtn');
+            if (removeBtn) removeBtn.style.display = 'inline-block';
+        });
     };
     reader.readAsDataURL(file);
 }
@@ -678,16 +701,17 @@ function handleColorImagesSelection(event) {
         const file = files[i];
         const reader = new FileReader();
         reader.onload = function(e) {
-            let imgData = e.target.result;
-            colorUploadsList.push({ name: `لون ${i+1}`, image: imgData });
-            
-            let div = document.createElement('div');
-            div.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 8px;";
-            div.innerHTML = `
-                <img src="${imgData}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
-                <input type="text" id="colorName_${i}" placeholder="اكتب اسم اللون..." style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" value="لون ${i+1}">
-            `;
-            container.appendChild(div);
+            compressImage(e.target.result, 400, 0.7, (compressedData) => {
+                colorUploadsList.push({ name: `لون ${i+1}`, image: compressedData });
+                
+                let div = document.createElement('div');
+                div.style.cssText = "display: flex; align-items: center; gap: 10px; margin-bottom: 8px;";
+                div.innerHTML = `
+                    <img src="${compressedData}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                    <input type="text" id="colorName_${i}" placeholder="اكتب اسم اللون..." style="flex: 1; padding: 6px; border: 1px solid #ccc; border-radius: 4px;" value="لون ${i+1}">
+                `;
+                container.appendChild(div);
+            });
         };
         reader.readAsDataURL(file);
     }
@@ -711,7 +735,8 @@ function openAdminModal() {
     }
 }
 
-function closeAdminModal() {
+// دالة إغلاق لوحة التحكم عبر زر الـ X
+window.closeAdminModal = function() {
     const modal = document.getElementById('adminModal');
     if (modal) modal.style.display = 'none';
 }
@@ -737,7 +762,9 @@ window.addNewProductFromPanel = async function() {
     if (!imageSrc && imageInput && imageInput.files && imageInput.files[0]) {
         imageSrc = await new Promise((resolve) => {
             const reader = new FileReader();
-            reader.onload = (e) => resolve(e.target.result);
+            reader.onload = (e) => {
+                compressImage(e.target.result, 600, 0.7, (compressed) => resolve(compressed));
+            };
             reader.onerror = () => resolve("");
             reader.readAsDataURL(imageInput.files[0]);
         });
@@ -790,7 +817,7 @@ window.addNewProductFromPanel = async function() {
         closeAdminModal();
     } catch (e) {
         console.error("خطأ أثناء الإضافة لـ Firestore: ", e);
-        alert('❌ حدث خطأ أثناء إضافة المنتج للقاعدة.');
+        alert('❌ حدث خطأ أثناء إضافة المنتج للقاعدة، غالباً حجم الصور كبير جداً.');
     }
 };
 
