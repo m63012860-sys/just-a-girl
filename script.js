@@ -912,3 +912,161 @@ window.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     addAdminPanelButton();
 });
+let mainProductImageBase64 = "";
+
+// قراءة الصورة الرئيسية للمنتج عند اختيارها
+document.addEventListener('DOMContentLoaded', () => {
+    const mainImgInput = document.getElementById('newProdImageFile');
+    if (mainImgInput) {
+        mainImgInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    mainProductImageBase64 = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+
+// دالة إضافة المنتج الجديدة
+function addNewProductFromPanel() {
+    const title = document.getElementById('newProdTitle').value.trim();
+    const category = document.getElementById('newProdCategory').value;
+    const description = document.getElementById('newProdDesc') ? document.getElementById('newProdDesc').value.trim() : '';
+    
+    // جمع أسعار المقاسات
+    let sizes = {};
+    let sizeKeys = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
+    let hasAnySize = false;
+
+    sizeKeys.forEach(key => {
+        let input = document.getElementById(`size_${key}`);
+        if (input && input.value.trim() !== '' && parseFloat(input.value) > 0) {
+            let price = parseFloat(input.value);
+            sizes[key] = { price: price, oldPrice: 0, available: true };
+            hasAnySize = true;
+        } else {
+            sizes[key] = { price: 0, oldPrice: 0, available: false };
+        }
+    });
+
+    // التحقق من إدخال البيانات الأساسية
+    if (!title || !mainProductImageBase64 || !hasAnySize) {
+        alert('الرجاء إدخال اسم المنتج، الصورة الرئيسية، وأسعار المقاسات.');
+        return;
+    }
+
+    // جمع الألوان المتاحة إن وجدت
+    let colors = [];
+    if (typeof colorUploadsList !== 'undefined' && colorUploadsList.length > 0) {
+        colorUploadsList.forEach((col, idx) => {
+            let nameInput = document.getElementById(`colorName_${idx}`);
+            let colName = nameInput ? nameInput.value.trim() : col.name;
+            colors.push({ name: colName, image: col.image });
+        });
+    }
+
+    const newProduct = {
+        id: Date.now(),
+        titleAr: title,
+        titleEn: title,
+        category: category,
+        hasDiscount: false,
+        isSoldOut: false,
+        image: mainProductImageBase64,
+        description: description,
+        colors: colors,
+        sizes: sizes
+    };
+
+    products.unshift(newProduct);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    renderProducts();
+    renderAdminProductsList();
+    
+    // تفريغ الحقول بعد الإضافة الناجحة
+    document.getElementById('newProdTitle').value = '';
+    if(document.getElementById('newProdDesc')) document.getElementById('newProdDesc').value = '';
+    document.getElementById('newProdImageFile').value = '';
+    mainProductImageBase64 = '';
+    document.getElementById('newProdColorsFiles').value = '';
+    document.getElementById('colorInputsContainer').innerHTML = '';
+    sizeKeys.forEach(key => {
+        let input = document.getElementById(`size_${key}`);
+        if(input) input.value = '';
+    });
+
+    alert('تمت إضافة المنتج بنجاح إلى المتجر!');
+}
+
+// عرض قائمة إدارة المنتجات داخل لوحة التحكم
+function renderAdminProductsList() {
+    const container = document.getElementById('adminProductsListContainer');
+    if (!container) return;
+    container.innerHTML = '';
+    if (products.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#666;">لا توجد منتجات حالياً.</p>';
+        return;
+    }
+    products.forEach(p => {
+        const div = document.createElement('div');
+        div.style.cssText = "display: flex; justify-content: space-between; align-items: center; background: white; padding: 8px; margin-bottom: 6px; border-radius: 4px; border: 1px solid #ddd;";
+        div.innerHTML = `
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="${p.image}" style="width:35px; height:35px; object-fit:cover; border-radius:4px;">
+                <span style="font-size:13px; font-weight:bold;">${p.titleAr}</span>
+            </div>
+            <button onclick="deleteProduct(${p.id})" style="background:none; border:none; color:red; cursor:pointer; font-size:12px;"><i class="fa-solid fa-trash"></i> حذف</button>
+        `;
+        container.appendChild(div);
+    });
+}
+
+// حذف منتج من لوحة التحكم
+function deleteProduct(id) {
+    if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+    products = products.filter(p => p.id !== id);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    renderProducts();
+    renderAdminProductsList();
+}
+
+// فتح لوحة التحكم
+function openAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        renderAdminProductsList();
+    }
+}
+
+// إغلاق لوحة التحكم
+function closeAdminModal() {
+    const modal = document.getElementById('adminModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// تغيير الرقم السري للإدارة
+function changeAdminPin() {
+    const oldPinInput = document.getElementById('oldPinInput');
+    const newPinInput = document.getElementById('newPinInput');
+    const oldPin = oldPinInput ? oldPinInput.value.trim() : '';
+    const newPin = newPinInput ? newPinInput.value.trim() : '';
+
+    if (oldPin !== adminPin) {
+        alert('الرقم السري القديم غير صحيح!');
+        return;
+    }
+    if (newPin.length < 6) {
+        alert('الرقم السري الجديد قصير جداً (يجب أن يكون 6 خانات على الأقل).');
+        return;
+    }
+    adminPin = newPin;
+    localStorage.setItem('jag_admin_pin', adminPin);
+    if(oldPinInput) oldPinInput.value = '';
+    if(newPinInput) newPinInput.value = '';
+    alert('تم تحديث الرقم السري بنجاح!');
+}
