@@ -137,7 +137,7 @@
     <!-- مودال التفاصيل -->
     <div class="modal" id="productModal"><div class="modal-content" id="productModalContent"></div></div>
 
-    <!-- مودال لوحة التحكم والإدارة بالشكل المطلوب تماماً -->
+    <!-- مودال لوحة التحكم والإدارة -->
     <div class="modal" id="adminModal">
         <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto;">
             <span class="close-modal" onclick="closeAdminModal()">&times;</span>
@@ -193,9 +193,8 @@
                 </div>
                 <div id="colorInputsContainer"></div>
 
-                <!-- المقاسات بنفس الشكل المطلوب تماماً -->
                 <div style="background: #fff; border: 1px solid #e2d3b5; padding: 12px; border-radius: 6px; margin-bottom: 15px;">
-                    <label style="font-weight: bold; color: var(--burgundy); display: block; margin-bottom: 8px; font-size: 13px;">المقاسات المتوفرة فقط (اترك المقاس غير المتوفر فارغاً أو 0)[cite: 5]:</label>
+                    <label style="font-weight: bold; color: var(--burgundy); display: block; margin-bottom: 8px; font-size: 13px;">المقاسات المتوفرة فقط (اترك المقاس غير المتوفر فارغاً أو 0):</label>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                         <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس S</span><input type="number" id="size_S" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
                         <div style="display:flex; align-items:center; gap:5px;"><span style="font-size:12px; font-weight:bold; width:65px;">مقاس M</span><input type="number" id="size_M" placeholder="السعر (لو متوفر)" style="flex:1; padding:6px; border:1px solid #ccc; border-radius:4px; font-size:12px;"></div>
@@ -253,6 +252,7 @@
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <!-- التعديل المطلوب هنا: إضافة type="module" لملف الـ script -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>
