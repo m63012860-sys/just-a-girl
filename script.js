@@ -674,21 +674,36 @@ function addAdminPanelButton() {
     document.body.appendChild(btn);
 }
 
-// دالة إضافة المنتج المحسنة والآمنة
+// دالة الإضافة المفصلة والآمنة لتحديد مكان الخطأ بالضبط
 async function addNewProductFromPanel() {
-    const title = document.getElementById('newProdTitle').value.trim();
-    const category = document.getElementById('newProdCategory').value;
-    const description = document.getElementById('newProdDesc') ? document.getElementById('newProdDesc').value.trim() : '';
+    const titleInput = document.getElementById('newProdTitle');
+    const descInput = document.getElementById('newProdDesc');
+    const categorySelect = document.getElementById('newProdCategory');
     const imageInput = document.getElementById('newProdImageFile');
-    
+
+    const title = titleInput ? titleInput.value.trim() : '';
+    const category = categorySelect ? categorySelect.value : 'dresses';
+    const description = descInput ? descInput.value.trim() : '';
+
+    if (!title) {
+        alert('❌ خطأ: يرجى كتابة اسم المنتج في الحقل المخصص.');
+        if (titleInput) titleInput.focus();
+        return;
+    }
+
     let imageSrc = mainProductImageBase64;
-    
     if (!imageSrc && imageInput && imageInput.files && imageInput.files[0]) {
         imageSrc = await new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = () => resolve("");
             reader.readAsDataURL(imageInput.files[0]);
         });
+    }
+
+    if (!imageSrc) {
+        alert('❌ خطأ: لم يتم اختيار أو قراءة الصورة الرئيسية للمنتج.');
+        return;
     }
 
     let sizes = {};
@@ -706,8 +721,8 @@ async function addNewProductFromPanel() {
         }
     });
 
-    if (!title || !imageSrc || !hasAnySize) {
-        alert('الرجاء إدخال اسم المنتج، الصورة الرئيسية، وأسعار المقاسات.');
+    if (!hasAnySize) {
+        alert('❌ خطأ: يجب إدخال سعر صحيح أكبر من الصفر لمقاس واحد على الأقل.');
         return;
     }
 
@@ -733,28 +748,32 @@ async function addNewProductFromPanel() {
         sizes: sizes
     };
 
+    if (typeof products === 'undefined') {
+        window.products = [];
+    }
+
     products.unshift(newProduct);
     localStorage.setItem('jag_products', JSON.stringify(products));
     renderProducts();
     renderAdminProductsList();
     
-    // تفريغ الحقول بعد الإضافة
-    document.getElementById('newProdTitle').value = '';
-    if(document.getElementById('newProdDesc')) document.getElementById('newProdDesc').value = '';
-    if(imageInput) imageInput.value = '';
+    // تفريغ الحقول بعد الإضافة الناجحة
+    titleInput.value = '';
+    if (descInput) descInput.value = '';
+    if (imageInput) imageInput.value = '';
     mainProductImageBase64 = '';
     
     const colorsFilesEl = document.getElementById('newProdColorsFiles');
-    if(colorsFilesEl) colorsFilesEl.value = '';
+    if (colorsFilesEl) colorsFilesEl.value = '';
     const colorContainer = document.getElementById('colorInputsContainer');
-    if(colorContainer) colorContainer.innerHTML = '';
+    if (colorContainer) colorContainer.innerHTML = '';
     
     sizeKeys.forEach(key => {
         let input = document.getElementById(`size_${key}`);
-        if(input) input.value = '';
+        if (input) input.value = '';
     });
 
-    alert('تمت إضافة المنتج بنجاح إلى المتجر!');
+    alert('✅ تمت إضافة المنتج بنجاح إلى المتجر!');
 }
 
 function renderAdminProductsList() {
