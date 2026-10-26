@@ -6,6 +6,7 @@ let adminPin = localStorage.getItem('jag_admin_pin') || null;
 let ownerSession = false; 
 let failedPinAttempts = 0;
 let pinLockedUntil = 0;
+let mainProductImageBase64 = "";
 
 const heroBanners = [
     { image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200", titleAr: "أناقة شتوية وصيفية متكاملة", titleEn: "Complete Seasonal Elegance" },
@@ -56,6 +57,30 @@ window.addEventListener('storage', function(e) {
     if (e.key === 'jag_products') {
         products = JSON.parse(e.newValue) || [];
         renderProducts();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    trackUserActivity();
+    initSlider();
+    renderProducts();
+    renderReviews();
+    renderCommunityChat();
+    updateCartCount();
+    addAdminPanelButton();
+
+    const mainImgInput = document.getElementById('newProdImageFile');
+    if (mainImgInput) {
+        mainImgInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    mainProductImageBase64 = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     }
 });
 
@@ -112,11 +137,11 @@ function renderProducts(itemsToRender = products) {
             <img src="${product.image}" alt="${title}" class="product-img" style="${product.isSoldOut ? 'filter: grayscale(80%);' : ''}">
             <div class="product-info">
                 <div class="product-title">${title}</div>
-                <div class="product-desc">${product.description || ''}</div>
+                <div class="product-desc" style="font-size:12px; color:#666; margin-bottom:8px;">${product.description || ''}</div>
                 <div class="price-box">
                     <span class="current-price">${product.isSoldOut ? 'نفذت الكمية' : 'يبدأ من ' + minPrice + ' ج.م'}</span>
                 </div>
-                <button class="view-details-btn" onclick="openProductDetails(${product.id})" style="${product.isSoldOut ? 'background: #777; cursor: not-allowed;' : ''}">
+                <button class="add-to-cart-btn" onclick="openProductDetails(${product.id})" style="${product.isSoldOut ? 'background: #777; cursor: not-allowed;' : ''}">
                     ${currentLang === 'ar' ? 'عرض واختيار المقاس واللون' : 'View Details'}
                 </button>
             </div>
@@ -640,311 +665,39 @@ function handleColorImagesSelection(event) {
 }
 
 function addAdminPanelButton() {
+    if (document.getElementById('adminPanelFloatBtn')) return;
     const btn = document.createElement('button');
+    btn.id = 'adminPanelFloatBtn';
     btn.innerHTML = "⚙️ لوحة التحكم للإدارة";
     btn.style.cssText = "position: fixed; bottom: 20px; left: 20px; background: var(--gold); color: var(--burgundy-dark); border: none; padding: 10px 15px; border-radius: 30px; font-weight: bold; cursor: pointer; z-index: 3000; box-shadow: 0 4px 10px rgba(0,0,0,0.2);";
     btn.onclick = checkOwnerAccess;
     document.body.appendChild(btn);
-
-    const modalHTML = `
-        <div class="modal" id="adminModal">
-            <div class="modal-content" style="max-width: 720px; max-height: 88vh;">
-                <span class="close-modal" onclick="closeAdminModal()">&times;</span>
-                <h2 style="color: var(--burgundy); margin-bottom: 15px; text-align: center;">لوحة التحكم والإدارة</h2>
-                <div style="text-align: center; margin-bottom: 12px;">
-                    <button onclick="logoutOwner()" style="background: none; border: 1px solid var(--burgundy); color: var(--burgundy); padding: 6px 14px; border-radius: 20px; cursor: pointer; font-size: 12px;"><i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج من وضع الإدارة</button>
-                </div>
-                
-                <div style="background: #fff3f3; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #ffcccc;">
-                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">تغيير رمز الأمان:</h4>
-                    <div style="display: flex; gap: 8px;">
-                        <input type="password" id="newPinInput" placeholder="الرمز الجديد (6 خانات على الأقل)" style="flex:1; padding:8px; border:1px solid #ccc; border-radius:4px;">
-                        <button onclick="changeAdminPin()" style="background:var(--burgundy); color:white; border:none; padding:8px 15px; border-radius:4px; cursor:pointer;">تحديث الرمز</button>
-                    </div>
-                </div>
-
-                <div style="background: #fdf8f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #e2d3b5;">
-                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">إضافة منتج جديد:</h4>
-                    <div class="form-group"><input type="text" id="newProdTitle" placeholder="اسم المنتج (مثال: فستان مخملي)"></div>
-                    <div class="form-group">
-                        <select id="newProdCategory" style="padding:8px; width:100%; border:1px solid #ccc; border-radius:4px;">
-                            <option value="dresses">فساتين (Dresses)</option>
-                            <option value="suits">بدل (Suits)</option>
-                            <option value="hoodies">هوديات (Hoodies)</option>
-                            <option value="pants">بناطيل (Pants)</option>
-                            <option value="kids">أطفال (Kids)</option>
-                            <option value="pajamas">بيجامات (Pajamas)</option>
-                            <option value="sets">طقمة (Sets)</option>
-                            <option value="jackets">جواكت (Jackets)</option>
-                            <option value="bundles">باكدج (Bundles)</option>
-                            <option value="offers">عروض خاصة (Offers)</option>
-                        </select>
-                    </div>
-                    <div class="form-group"><textarea id="newProdDesc" placeholder="وصف المنتج..." rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;"></textarea></div>
-                    <div class="form-group"><label>صورة المنتج الرئيسية:</label><input type="file" id="newProdImageFile" accept="image/*"></div>
-                    <div class="form-group"><label>صور الألوان المتاحة:</label><input type="file" id="newProdColorsFiles" accept="image/*" multiple onchange="handleColorImagesSelection(event)"></div>
-                    <div id="colorInputsContainer"></div>
-                    <div class="form-group"><input type="text" id="newProdPrices" placeholder="أسعار المقاسات (مثال: S:1200, M:1250, XL:1350)"></div>
-                    <button onclick="addNewProductFromPanel()" style="background: var(--burgundy); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;">إضافة المنتج للمتجر</button>
-                </div>
-
-                <!-- إدارة وتعديل وحذف المنتجات ووضع علامة نفذ -->
-                <div style="background: #f4f1ed; padding: 12px; border-radius: 8px; border: 1px solid #ddd;">
-                    <h4 style="color: var(--burgundy); margin-bottom: 8px;">إدارة وتعديل المنتجات الحالية:</h4>
-                    <div id="adminProductsListContainer" style="max-height: 280px; overflow-y: auto;"></div>
-                </div>
-            </div>
-        </div>
-    `;
-    const div = document.createElement('div');
-    div.innerHTML = modalHTML;
-    document.body.appendChild(div.firstElementChild);
 }
 
-function openAdminModal() {
-    const modal = document.getElementById('adminModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        renderAdminProductsList();
-    }
-}
-
-function closeAdminModal() {
-    const modal = document.getElementById('adminModal');
-    if (modal) modal.style.display = 'none';
-}
-
-function changeAdminPin() {
-    const pin = document.getElementById('newPinInput').value.trim();
-    if (pin.length < 6) { alert('الرمز يجب أن يكون 6 خانات على الأقل.'); return; }
-    adminPin = pin;
-    localStorage.setItem('jag_admin_pin', adminPin);
-    alert('تم تحديث رمز الأمان بنجاح.');
-    document.getElementById('newPinInput').value = '';
-}
-
-function renderAdminProductsList() {
-    const container = document.getElementById('adminProductsListContainer');
-    if(!container) return;
-    container.innerHTML = '';
-    if(products.length === 0) {
-        container.innerHTML = `<p style="text-align:center; color:#666;">لا توجد منتجات.</p>`;
-        return;
-    }
-    products.forEach((prod) => {
-        const item = document.createElement('div');
-        item.style.cssText = "display:flex; align-items:center; justify-content:space-between; background:white; padding:10px; margin-bottom:8px; border-radius:6px; border:1px solid #ddd; gap: 10px;";
-        item.innerHTML = `
-            <div style="display:flex; align-items:center; gap:10px; flex: 1;">
-                <img src="${prod.image}" style="width:45px; height:45px; object-fit:cover; border-radius:4px;">
-                <div style="flex:1;">
-                    <strong style="font-size:14px; color:var(--burgundy);">${prod.titleAr}</strong>
-                    <div style="font-size:11px; color:#666;">${prod.isSoldOut ? '<span style="color:red; font-weight:bold;">[نفذت الكمية]</span>' : 'متوفر'}</div>
-                </div>
-            </div>
-            <div style="display:flex; gap:5px; flex-wrap: wrap;">
-                <button onclick="openEditProductModal(${prod.id})" style="background:#17a2b8; color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;"><i class="fa-solid fa-pen"></i> تعديل</button>
-                <button onclick="toggleProductSoldOut(${prod.id})" style="background:${prod.isSoldOut ? '#28a745' : '#ffc107'}; color:#222; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px; font-weight:bold;">${prod.isSoldOut ? 'توفير' : 'نفذ'}</button>
-                <button onclick="deleteProduct(${prod.id})" style="background:#dc3545; color:white; border:none; padding:6px 10px; border-radius:4px; cursor:pointer; font-size:11px;"><i class="fa-solid fa-trash"></i></button>
-            </div>
-        `;
-        container.appendChild(item);
-    });
-}
-
-// نافذة تعديل المنتج
-function openEditProductModal(productId) {
-    const prod = products.find(p => p.id === productId);
-    if(!prod) return;
-
-    let sizesText = Object.keys(prod.sizes).map(k => `${k}:${prod.sizes[k].price}`).join(', ');
-
-    let editModal = document.getElementById('editProductModal');
-    if(!editModal) {
-        editModal = document.createElement('div');
-        editModal.id = 'editProductModal';
-        editModal.className = 'modal';
-        document.body.appendChild(editModal);
-    }
-
-    editModal.innerHTML = `
-        <div class="modal-content" style="max-width: 500px;">
-            <span class="close-modal" onclick="document.getElementById('editProductModal').style.display='none'">&times;</span>
-            <h3 style="color:var(--burgundy); margin-bottom:15px; text-align:center;">تعديل المنتج</h3>
-            <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editTitle" value="${prod.titleAr}"></div>
-            <div class="form-group"><label>الوصف:</label><textarea id="editDesc" rows="2" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px;">${prod.description || ''}</textarea></div>
-            <div class="form-group"><label>الأسعار والمقاسات (مثال: S:1200, M:1250):</label><input type="text" id="editPrices" value="${sizesText}"></div>
-            <button onclick="saveEditedProduct(${prod.id})" style="background:var(--burgundy); color:white; border:none; padding:10px; width:100%; border-radius:5px; font-weight:bold; cursor:pointer;">حفظ التعديلات</button>
-        </div>
-    `;
-    editModal.style.display = 'flex';
-}
-
-function saveEditedProduct(productId) {
-    const prod = products.find(p => p.id === productId);
-    if(!prod) return;
-
-    const newTitle = document.getElementById('editTitle').value.trim();
-    const newDesc = document.getElementById('editDesc').value.trim();
-    const newPricesStr = document.getElementById('editPrices').value.trim();
-
-    if(!newTitle || !newPricesStr) {
-        alert('الاسم والأسعار مطلوبة.');
-        return;
-    }
-
-    let sizesObj = {};
-    newPricesStr.split(',').forEach(pair => {
-        let parts = pair.split(':');
-        if(parts.length === 2) {
-            let sName = parts[0].trim().toUpperCase();
-            let sPrice = parseFloat(parts[1].trim());
-            if(!isNaN(sPrice)) {
-                sizesObj[sName] = { price: sPrice, oldPrice: 0, available: true };
-            }
-        }
-    });
-
-    prod.titleAr = newTitle;
-    prod.titleEn = newTitle;
-    prod.description = newDesc;
-    prod.sizes = sizesObj;
-
-    localStorage.setItem('jag_products', JSON.stringify(products));
-    renderProducts();
-    renderAdminProductsList();
-    document.getElementById('editProductModal').style.display = 'none';
-    alert('تم تعديل المنتج بنجاح!');
-}
-
-function toggleProductSoldOut(productId) {
-    const prod = products.find(p => p.id === productId);
-    if(prod) {
-        prod.isSoldOut = !prod.isSoldOut;
-        localStorage.setItem('jag_products', JSON.stringify(products));
-        renderProducts();
-        renderAdminProductsList();
-    }
-}
-
-function deleteProduct(productId) {
-    if(!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً؟')) return;
-    products = products.filter(p => p.id !== productId);
-    localStorage.setItem('jag_products', JSON.stringify(products));
-    renderProducts();
-    renderAdminProductsList();
-}
-
-function addNewProductFromPanel() {
-    const title = document.getElementById('newProdTitle').value.trim();
-    const category = document.getElementById('newProdCategory').value;
-    const desc = document.getElementById('newProdDesc').value.trim();
-    const pricesStr = document.getElementById('newProdPrices').value.trim();
-    const imageFile = document.getElementById('newProdImageFile').files[0];
-
-    if(!title || !imageFile || !pricesStr) {
-        alert('الرجاء إدخال اسم المنتج، الصورة الرئيسية، وأسعار المقاسات.');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        let mainImgUrl = e.target.result;
-        
-        let sizesObj = {};
-        pricesStr.split(',').forEach(pair => {
-            let parts = pair.split(':');
-            if(parts.length === 2) {
-                let sName = parts[0].trim().toUpperCase();
-                let sPrice = parseFloat(parts[1].trim());
-                if(!isNaN(sPrice)) {
-                    sizesObj[sName] = { price: sPrice, oldPrice: 0, available: true };
-                }
-            }
-        });
-
-        let colorsArr = [];
-        if(colorUploadsList.length > 0) {
-            colorUploadsList.forEach((col, idx) => {
-                let nameInput = document.getElementById(`colorName_${idx}`);
-                let cName = nameInput ? nameInput.value.trim() : col.name;
-                colorsArr.push({ name: cName, image: col.image });
-            });
-        }
-
-        const newProd = {
-            id: Date.now(),
-            titleAr: title,
-            titleEn: title,
-            category: category,
-            hasDiscount: false,
-            isSoldOut: false,
-            image: mainImgUrl,
-            description: desc,
-            colors: colorsArr,
-            sizes: sizesObj
-        };
-
-        products.unshift(newProd);
-        localStorage.setItem('jag_products', JSON.stringify(products));
-        renderProducts();
-        renderAdminProductsList();
-        alert('تمت إضافة المنتج بنجاح!');
-
-        document.getElementById('newProdTitle').value = '';
-        document.getElementById('newProdDesc').value = '';
-        document.getElementById('newProdPrices').value = '';
-        document.getElementById('newProdImageFile').value = '';
-        document.getElementById('newProdColorsFiles').value = '';
-        document.getElementById('colorInputsContainer').innerHTML = '';
-        colorUploadsList = [];
-    };
-    reader.readAsDataURL(imageFile);
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-    trackUserActivity();
-    initSlider();
-    renderProducts();
-    renderReviews();
-    renderCommunityChat();
-    updateOwnerUI();
-    updateCartCount();
-    addAdminPanelButton();
-});
-let mainProductImageBase64 = "";
-
-// قراءة الصورة الرئيسية للمنتج عند اختيارها
-document.addEventListener('DOMContentLoaded', () => {
-    const mainImgInput = document.getElementById('newProdImageFile');
-    if (mainImgInput) {
-        mainImgInput.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    mainProductImageBase64 = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-});
-
-// دالة إضافة المنتج الجديدة
-function addNewProductFromPanel() {
+// دالة إضافة المنتج المحسنة والآمنة
+async function addNewProductFromPanel() {
     const title = document.getElementById('newProdTitle').value.trim();
     const category = document.getElementById('newProdCategory').value;
     const description = document.getElementById('newProdDesc') ? document.getElementById('newProdDesc').value.trim() : '';
+    const imageInput = document.getElementById('newProdImageFile');
     
-    // جمع أسعار المقاسات
+    let imageSrc = mainProductImageBase64;
+    
+    if (!imageSrc && imageInput && imageInput.files && imageInput.files[0]) {
+        imageSrc = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.readAsDataURL(imageInput.files[0]);
+        });
+    }
+
     let sizes = {};
     let sizeKeys = ['S', 'M', 'L', 'XL', '2XL', '3XL'];
     let hasAnySize = false;
 
     sizeKeys.forEach(key => {
         let input = document.getElementById(`size_${key}`);
-        if (input && input.value.trim() !== '' && parseFloat(input.value) > 0) {
+        if (input && input.value.trim() !== '' && !isNaN(input.value) && parseFloat(input.value) > 0) {
             let price = parseFloat(input.value);
             sizes[key] = { price: price, oldPrice: 0, available: true };
             hasAnySize = true;
@@ -953,13 +706,11 @@ function addNewProductFromPanel() {
         }
     });
 
-    // التحقق من إدخال البيانات الأساسية
-    if (!title || !mainProductImageBase64 || !hasAnySize) {
+    if (!title || !imageSrc || !hasAnySize) {
         alert('الرجاء إدخال اسم المنتج، الصورة الرئيسية، وأسعار المقاسات.');
         return;
     }
 
-    // جمع الألوان المتاحة إن وجدت
     let colors = [];
     if (typeof colorUploadsList !== 'undefined' && colorUploadsList.length > 0) {
         colorUploadsList.forEach((col, idx) => {
@@ -976,7 +727,7 @@ function addNewProductFromPanel() {
         category: category,
         hasDiscount: false,
         isSoldOut: false,
-        image: mainProductImageBase64,
+        image: imageSrc,
         description: description,
         colors: colors,
         sizes: sizes
@@ -987,13 +738,17 @@ function addNewProductFromPanel() {
     renderProducts();
     renderAdminProductsList();
     
-    // تفريغ الحقول بعد الإضافة الناجحة
+    // تفريغ الحقول بعد الإضافة
     document.getElementById('newProdTitle').value = '';
     if(document.getElementById('newProdDesc')) document.getElementById('newProdDesc').value = '';
-    document.getElementById('newProdImageFile').value = '';
+    if(imageInput) imageInput.value = '';
     mainProductImageBase64 = '';
-    document.getElementById('newProdColorsFiles').value = '';
-    document.getElementById('colorInputsContainer').innerHTML = '';
+    
+    const colorsFilesEl = document.getElementById('newProdColorsFiles');
+    if(colorsFilesEl) colorsFilesEl.value = '';
+    const colorContainer = document.getElementById('colorInputsContainer');
+    if(colorContainer) colorContainer.innerHTML = '';
+    
     sizeKeys.forEach(key => {
         let input = document.getElementById(`size_${key}`);
         if(input) input.value = '';
@@ -1002,7 +757,6 @@ function addNewProductFromPanel() {
     alert('تمت إضافة المنتج بنجاح إلى المتجر!');
 }
 
-// عرض قائمة إدارة المنتجات داخل لوحة التحكم
 function renderAdminProductsList() {
     const container = document.getElementById('adminProductsListContainer');
     if (!container) return;
@@ -1025,7 +779,6 @@ function renderAdminProductsList() {
     });
 }
 
-// حذف منتج من لوحة التحكم
 function deleteProduct(id) {
     if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
     products = products.filter(p => p.id !== id);
@@ -1034,7 +787,6 @@ function deleteProduct(id) {
     renderAdminProductsList();
 }
 
-// فتح لوحة التحكم
 function openAdminModal() {
     const modal = document.getElementById('adminModal');
     if (modal) {
@@ -1043,13 +795,11 @@ function openAdminModal() {
     }
 }
 
-// إغلاق لوحة التحكم
 function closeAdminModal() {
     const modal = document.getElementById('adminModal');
     if (modal) modal.style.display = 'none';
 }
 
-// تغيير الرقم السري للإدارة
 function changeAdminPin() {
     const oldPinInput = document.getElementById('oldPinInput');
     const newPinInput = document.getElementById('newPinInput');
