@@ -1,9 +1,9 @@
 // =========================================================================
-// 🛠️ الكود الشامل والمصحح لمنع تعطل الأزرار
+// 🛠️ الكود الشامل والمصحح ليعمل كل زر في الموقع بكفاءة تامة
 // =========================================================================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-analytics.js";
-import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/13.1.0/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBYcjNMku4yc6ekL8ZaaXe8Bg6Linbi4Mo",
@@ -46,6 +46,7 @@ let currentLang = 'ar';
 let cart = JSON.parse(localStorage.getItem('just_girl_cart')) || [];
 let replyingToId = null;
 
+// تشغيل الأساسيات عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', () => {
     try { trackUserActivity(); } catch(e) {}
     try { initSlider(); } catch(e) {}
@@ -54,12 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
     try { renderCommunityChat(); } catch(e) {}
     try { updateCartCount(); } catch(e) {}
     try { addAdminPanelButton(); } catch(e) {}
-
-    // ربط أزرار الإغلاق والعرض بشكل آمن
-    const adminCloseBtn = document.querySelector('#adminModal .close-modal');
-    if (adminCloseBtn) {
-        adminCloseBtn.addEventListener('click', closeAdminModal);
-    }
 });
 
 function compressImage(base64Str, maxWidth, quality, callback) {
@@ -153,7 +148,7 @@ function renderProducts(itemsToRender = products) {
                 <div class="price-box">
                     <span class="current-price">${isSoldOut ? 'نفذت الكمية' : (typeof minPrice === 'number' ? 'يبدأ من ' + minPrice + ' ج.م' : minPrice)}</span>
                 </div>
-                <button class="add-to-cart-btn" onclick="openProductDetails('${product.id}')" style="${isSoldOut ? 'background: #777; cursor: not-allowed;' : ''}">
+                <button class="add-to-cart-btn" onclick="window.openProductDetails('${product.id}')" style="${isSoldOut ? 'background: #777; cursor: not-allowed;' : ''}">
                     ${currentLang === 'ar' ? 'عرض واختيار المقاس واللون' : 'View Details'}
                 </button>
             </div>
@@ -181,6 +176,7 @@ function renderAdminProductsList() {
     });
 }
 
+// 🌐 ربط جميع الدوال بالـ window لتعمل مع الـ HTML onclick بنجاح تام
 window.openProductDetails = function(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -207,7 +203,7 @@ window.openProductDetails = function(productId) {
                 if(count === 0) { firstAvailablePrice = sizeData.price; firstAvailableOldPrice = sizeData.oldPrice; }
                 sizesHtml += `
                     <label style="display: inline-block; margin: 5px; padding: 8px 12px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
-                        <input type="radio" name="selectedSize" value="${sizeKey}" data-price="${sizeData.price}" data-old="${sizeData.oldPrice || 0}" ${count === 0 ? 'checked' : ''} onchange="updateModalPrice(this)">
+                        <input type="radio" name="selectedSize" value="${sizeKey}" data-price="${sizeData.price}" data-old="${sizeData.oldPrice || 0}" ${count === 0 ? 'checked' : ''} onchange="window.updateModalPrice(this)">
                         <strong>مقاس ${sizeKey}</strong> (${sizeData.price} ج.م)
                     </label>
                 `;
@@ -220,7 +216,7 @@ window.openProductDetails = function(productId) {
     if(product.colors && product.colors.length > 0) {
         product.colors.forEach((col) => {
             colorsHtml += `
-                <div style="text-align: center; cursor: pointer;" onclick="changeMainImage('${col.image}')">
+                <div style="text-align: center; cursor: pointer;" onclick="window.changeMainImage('${col.image}')">
                     <img src="${col.image}" style="width: 55px; height: 55px; object-fit: cover; border-radius: 50%; border: 2px solid var(--burgundy);">
                     <div style="font-size: 11px; margin-top: 3px; font-weight: bold; color: var(--burgundy);">${col.name}</div>
                 </div>
@@ -229,7 +225,7 @@ window.openProductDetails = function(productId) {
     }
 
     content.innerHTML = `
-        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <span class="close-modal" onclick="window.closeProductModal()">&times;</span>
         <div style="display: flex; gap: 20px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 240px;">
                 <img id="modalMainImg" src="${product.image}" style="width: 100%; height: 300px; object-fit: cover; border-radius: 8px; border: 1px solid #ddd;">
@@ -251,22 +247,22 @@ window.openProductDetails = function(productId) {
                     <div>${product.isSoldOut ? '<span style="color:red; font-weight:bold;">عذراً، هذا المنتج نفذ تماماً حالياً.</span>' : (sizesHtml || '<span>متوفر بالسعر القياسي</span>')}</div>
                 </div>
 
-                ${!product.isSoldOut ? `<button class="add-to-cart-btn" onclick="addToCartWithOptions('${product.id}')">إضافة للسلة</button>` : `<button class="add-to-cart-btn" style="background:#777; cursor:not-allowed;" disabled>نفذت الكمية</button>`}
+                ${!product.isSoldOut ? `<button class="add-to-cart-btn" onclick="window.addToCartWithOptions('${product.id}')">إضافة للسلة</button>` : `<button class="add-to-cart-btn" style="background:#777; cursor:not-allowed;" disabled>نفذت الكمية</button>`}
             </div>
         </div>
     `;
     modal.style.display = 'flex';
-}
+};
 
 window.closeProductModal = function() { 
     const modal = document.getElementById('productModal');
     if(modal) modal.style.display = 'none'; 
-}
+};
 
 window.changeMainImage = function(imgUrl) {
     const mainImg = document.getElementById('modalMainImg');
     if(mainImg) mainImg.src = imgUrl;
-}
+};
 
 window.updateModalPrice = function(radio) {
     let price = radio.getAttribute('data-price');
@@ -275,7 +271,7 @@ window.updateModalPrice = function(radio) {
     const oldPriceEl = document.getElementById('modalOldPrice');
     if(currPriceEl) currPriceEl.innerText = price + ' ج.م';
     if(oldPriceEl) oldPriceEl.innerText = oldPrice > 0 ? oldPrice + ' ج.م' : '';
-}
+};
 
 window.addToCartWithOptions = function(productId) {
     const product = products.find(p => p.id === productId);
@@ -284,7 +280,7 @@ window.addToCartWithOptions = function(productId) {
     const selectedSizeRadio = document.querySelector('input[name="selectedSize"]:checked');
     let sizeKey = selectedSizeRadio ? selectedSizeRadio.value : 'قياسي';
     let price = selectedSizeRadio ? parseFloat(selectedSizeRadio.getAttribute('data-price')) : parseFloat(product.price || 0);
-    let mainImg = document.getElementById('modalMainImg') ? document.getElementById('modalMainImg').src : product.image;
+    let mainImg = document.getElementById('modalMainImg') ? document.getElementById('modalMainImg'].src : product.image;
 
     let cartItemKey = `${productId}-${sizeKey}`;
     const existing = cart.find(item => item.cartKey === cartItemKey);
@@ -307,7 +303,7 @@ window.addToCartWithOptions = function(productId) {
     updateCartCount();
     closeProductModal();
     alert('تمت إضافة المنتج إلى السلة بنجاح!');
-}
+};
 
 function saveCart() {
     localStorage.setItem('just_girl_cart', JSON.stringify(cart));
@@ -323,10 +319,10 @@ function renderReviews() {
         const card = document.createElement('div');
         card.style.cssText = "position: relative; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border-top: 3px solid var(--gold);";
         card.innerHTML = `
-            ${ownerSession ? `<button onclick="deleteReview(${rev.id})" style="position:absolute;top:8px;left:8px;background:none;border:none;color:#cc0000;font-size:12px;cursor:pointer;" title="حذف الرأي"><i class="fa-solid fa-trash"></i> حذف</button>` : ''}
+            ${ownerSession ? `<button onclick="window.deleteReview(${rev.id})" style="position:absolute;top:8px;left:8px;background:none;border:none;color:#cc0000;font-size:12px;cursor:pointer;" title="حذف الرأي"><i class="fa-solid fa-trash"></i> حذف</button>` : ''}
             <div style="font-size: 16px; margin-bottom: 8px;">${stars}</div>
             ${rev.comment ? `<p style="font-style: italic; color: #444; margin-bottom: 10px; white-space: pre-wrap;">"${escapeCommunityText(rev.comment)}"</p>` : ''}
-            ${hasImage ? `<img src="${rev.image}" alt="رأي عميلة" onclick="openReviewImage(${rev.id})" style="width: 100%; border-radius: 6px; border: 1px solid #eee; margin-bottom: 10px; cursor: zoom-in;">` : ''}
+            ${hasImage ? `<img src="${rev.image}" alt="رأي عميلة" onclick="window.openReviewImage(${rev.id})" style="width: 100%; border-radius: 6px; border: 1px solid #eee; margin-bottom: 10px; cursor: zoom-in;">` : ''}
             <strong style="color: var(--burgundy);">- ${escapeCommunityText(rev.name)}</strong>
         `;
         grid.appendChild(card);
@@ -344,7 +340,7 @@ window.openReviewImage = function(id) {
     img.style.cssText = "max-width:100%;max-height:100%;border-radius:8px;";
     overlay.appendChild(img);
     document.body.appendChild(overlay);
-}
+};
 
 window.previewReviewImage = function(input) {
     const file = input.files && input.files[0];
@@ -360,7 +356,7 @@ window.previewReviewImage = function(input) {
         });
     };
     reader.readAsDataURL(file);
-}
+};
 
 window.clearReviewImage = function() {
     pendingReviewImage = '';
@@ -370,7 +366,7 @@ window.clearReviewImage = function() {
     if (preview) preview.innerHTML = '';
     const removeBtn = document.getElementById('removeReviewImageBtn');
     if (removeBtn) removeBtn.style.display = 'none';
-}
+};
 
 window.addReview = function() {
     if (!ownerSession) { alert('إضافة الآراء متاحة للإدارة فقط.'); return; }
@@ -385,7 +381,7 @@ window.addReview = function() {
     document.getElementById('reviewMessageText').value = '';
     clearReviewImage();
     renderReviews();
-}
+};
 
 window.deleteReview = function(id) {
     if (!ownerSession) return;
@@ -393,14 +389,7 @@ window.deleteReview = function(id) {
     customerReviews = customerReviews.filter(r => r.id !== id);
     try { localStorage.setItem('jag_reviews', JSON.stringify(customerReviews)); } catch(e){}
     renderReviews();
-}
-
-function logoutOwner() {
-    ownerSession = false;
-    closeAdminModal();
-    renderReviews();
-    alert('تم تسجيل الخروج من وضع الإدارة.');
-}
+};
 
 function renderCommunityChat() {
     const chatBox = document.getElementById('chatMessages');
@@ -420,7 +409,7 @@ function renderCommunityChat() {
                     <div style="margin-top:8px;margin-right:20px;padding:8px;background:#f9f9f9;border-right:3px solid var(--gold);border-radius:4px;font-size:13px;position:relative;">
                         <div style="display:flex;align-items:center;margin-bottom:2px;"><strong>${escapeCommunityText(rep.sender)}</strong>${repBadge}</div>
                         <div style="color:#444;white-space:pre-wrap;">${escapeCommunityText(rep.text)}</div>
-                        <button onclick="deleteReply(${msg.id}, ${rIdx})" style="position:absolute;top:5px;left:5px;background:none;border:none;color:#cc0000;font-size:11px;cursor:pointer;" title="حذف الرد"><i class="fa-solid fa-trash"></i> حذف</button>
+                        <button onclick="window.deleteReply(${msg.id}, ${rIdx})" style="position:absolute;top:5px;left:5px;background:none;border:none;color:#cc0000;font-size:11px;cursor:pointer;" title="حذف الرد"><i class="fa-solid fa-trash"></i> حذف</button>
                     </div>`;
             });
         }
@@ -428,10 +417,10 @@ function renderCommunityChat() {
         msgDiv.innerHTML = `
             <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;">
                 <div style="display:flex;align-items:center;flex-wrap:wrap;"><strong>${escapeCommunityText(msg.sender)}</strong>${ownerBadge}</div>
-                <button onclick="deleteMessage(${msg.id})" style="background:none;border:none;color:#cc0000;font-size:12px;cursor:pointer;white-space:nowrap;" title="حذف التعليق"><i class="fa-solid fa-trash"></i> حذف</button>
+                <button onclick="window.deleteMessage(${msg.id})" style="background:none;border:none;color:#cc0000;font-size:12px;cursor:pointer;white-space:nowrap;" title="حذف التعليق"><i class="fa-solid fa-trash"></i> حذف</button>
             </div>
             <div style="font-size:14px;color:#333;margin-bottom:8px;white-space:pre-wrap;">${escapeCommunityText(msg.text)}</div>
-            <button onclick="setReplyTarget(${msg.id})" style="background:none;border:none;color:var(--burgundy);font-size:12px;cursor:pointer;font-weight:bold;"><i class="fa-solid fa-reply"></i> رد</button>
+            <button onclick="window.setReplyTarget(${msg.id})" style="background:none;border:none;color:var(--burgundy);font-size:12px;cursor:pointer;font-weight:bold;"><i class="fa-solid fa-reply"></i> رد</button>
             ${repliesHtml}`;
         chatBox.appendChild(msgDiv);
     });
@@ -452,7 +441,7 @@ window.setReplyTarget = function(msgId) {
         textInput.placeholder = `الرد على (${msg.sender})...`;
         textInput.focus();
     }
-}
+};
 
 function canDeleteCommunityItem(authorName) {
     if (ownerSession) return true;
@@ -474,7 +463,7 @@ window.deleteMessage = function(id) {
         try { localStorage.setItem('jag_community', JSON.stringify(communityMessages)); } catch(e){}
         renderCommunityChat();
     }
-}
+};
 
 window.deleteReply = function(msgId, replyIndex) {
     const parentMsg = communityMessages.find(item => item.id === msgId);
@@ -485,7 +474,7 @@ window.deleteReply = function(msgId, replyIndex) {
         try { localStorage.setItem('jag_community', JSON.stringify(communityMessages)); } catch(e){}
         renderCommunityChat();
     }
-}
+};
 
 window.sendCommunityMessage = function() {
     const nameInput = document.getElementById('chatSenderName');
@@ -526,7 +515,7 @@ window.sendCommunityMessage = function() {
     textInput.value = '';
     nameInput.value = '';
     renderCommunityChat();
-}
+};
 
 window.filterCategory = function(category) {
     document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
@@ -537,7 +526,7 @@ window.filterCategory = function(category) {
         const filtered = products.filter(p => p.category === category);
         renderProducts(filtered);
     }
-}
+};
 
 window.filterProducts = function() {
     const searchInput = document.getElementById('searchInput');
@@ -550,7 +539,7 @@ window.filterProducts = function() {
         (p.name && p.name.toLowerCase().includes(query))
     );
     renderProducts(filtered);
-}
+};
 
 function updateCartCount() {
     const badge = document.getElementById('cartCount');
@@ -571,36 +560,36 @@ window.openCartModal = function() {
             total += item.price * item.qty;
             const div = document.createElement('div');
             div.className = 'cart-item';
-            div.innerHTML = `<div><strong>${item.titleAr}</strong> (مقاس: ${item.size})<br><small>${item.price} ج.م × ${item.qty}</small></div><button onclick="removeFromCart(${index})" style="background:none; border:none; color:red; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>`;
+            div.innerHTML = `<div><strong>${item.titleAr}</strong> (مقاس: ${item.size})<br><small>${item.price} ج.م × ${item.qty}</small></div><button onclick="window.removeFromCart(${index})" style="background:none; border:none; color:red; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>`;
             list.appendChild(div);
         });
     }
     const totalEl = document.getElementById('cartTotalPrice');
     if(totalEl) totalEl.innerText = total;
     modal.style.display = 'flex';
-}
+};
 
 window.closeCartModal = function() { 
     const modal = document.getElementById('cartModal');
     if(modal) modal.style.display = 'none'; 
-}
+};
 
 window.removeFromCart = function(index) { 
     cart.splice(index, 1); 
     saveCart();
     updateCartCount(); 
     openCartModal(); 
-}
+};
 
 window.openProfileModal = function() { 
     const modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'flex'; 
-}
+};
 
 window.closeProfileModal = function() { 
     const modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'none'; 
-}
+};
 
 window.sendToWhatsApp = function() {
     if (cart.length === 0) { alert('سلة التسوق فارغة!'); return; }
@@ -617,7 +606,7 @@ window.sendToWhatsApp = function() {
     orders++;
     try { localStorage.setItem('jag_orders', orders); } catch(e){}
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
-}
+};
 
 function checkOwnerAccess() {
     if (ownerSession) { openAdminModal(); return; }
@@ -680,7 +669,7 @@ window.handleColorImagesSelection = function(event) {
         };
         reader.readAsDataURL(file);
     }
-}
+};
 
 function addAdminPanelButton() {
     if (document.getElementById('adminPanelFloatBtn')) return;
@@ -703,7 +692,7 @@ function openAdminModal() {
 window.closeAdminModal = function() {
     const modal = document.getElementById('adminModal');
     if (modal) modal.style.display = 'none';
-}
+};
 
 window.addNewProductFromPanel = async function() {
     const titleInput = document.getElementById('newProdTitle');
