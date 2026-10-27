@@ -128,12 +128,23 @@
         <div id="chatMessages" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <!-- تم حذف التلميح اللي كان بيكشف إن الباسورد بيتكتب في خانة الاسم -->
             <input type="text" id="chatSenderName" placeholder="اسمك..." style="width: 30%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
             <input type="text" id="chatInputText" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
             <button onclick="sendCommunityMessage()" style="background: #4A040D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
         </div>
     </div>
+
+    <!-- فوتر صغير فيه زرار دخول الإدارة (جديد) -->
+    <footer style="text-align: center; padding: 25px 10px; margin-top: 40px; color: #999; font-size: 13px;">
+        <span>© Just a Girl</span>
+        <span style="margin: 0 8px;">•</span>
+        <a href="#" id="adminLoginLink" onclick="openAdminLogin(); return false;" style="color: #999; text-decoration: none;">
+            <i class="fa-solid fa-lock"></i> الإدارة
+        </a>
+        <a href="#" id="adminLogoutLink" onclick="adminLogout(); return false;" style="display: none; color: #c00; text-decoration: none;">
+            <i class="fa-solid fa-right-from-bracket"></i> تسجيل خروج الإدارة
+        </a>
+    </footer>
 
     <!-- مودال التفاصيل -->
     <div class="modal" id="productModal"><div class="modal-content" id="productModalContent"></div></div>
@@ -173,6 +184,25 @@
             <p><strong>عدد الطلبات السابقة:</strong> <span id="orderCountDisplay">0</span> أوردر</p>
         </div>
     </div>
+
+    <!-- مودال تسجيل دخول الإدارة (جديد) -->
+    <div class="modal" id="adminLoginModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAdminLogin()">&times;</span>
+            <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">دخول الإدارة</h2>
+            <div class="form-group"><label>البريد الإلكتروني:</label><input type="email" id="adminEmail" autocomplete="username"></div>
+            <div class="form-group"><label>كلمة المرور:</label><input type="password" id="adminPassword" autocomplete="current-password"></div>
+            <p id="adminLoginError" style="color: #c00; font-size: 13px; min-height: 18px; margin: 8px 0;"></p>
+            <button class="checkout-btn" onclick="adminLogin()"><i class="fa-solid fa-right-to-bracket"></i> دخول</button>
+        </div>
+    </div>
+
+    <!-- مكتبات Firebase (جديد) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <!-- إعدادات الربط بـ Firebase (جديد) -->
+    <script src="firebase-config.js"></script>
 
     <!-- ربط ملف الجافاسكريبت الخارجي -->
     <script src="script.js"></script>
