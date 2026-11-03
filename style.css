@@ -1,0 +1,476 @@
+/* =========================================================================
+   👑 تعديلات الألوان والفخامة لمتجر Just a Girl
+   ======================================================================== */
+
+:root {
+    --burgundy: #4A040D;
+    --burgundy-dark: #2d0208;
+    --gold: #D4AF37;
+    --bg-light: #fdfbf7;
+    --white: #ffffff;
+    --text-dark: #333333;
+    --text-gray: #666666;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Cairo', sans-serif;
+}
+
+body {
+    background-color: var(--bg-light);
+    color: var(--text-dark);
+    direction: rtl;
+    text-align: right;
+}
+
+/* الشريط العلوي */
+.top-bar {
+    background-color: var(--burgundy);
+    color: var(--white);
+    text-align: center;
+    padding: 8px 10px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+}
+
+/* الهيدر الرئيسي */
+header {
+    background: var(--white);
+    padding: 15px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(74, 4, 13, 0.06);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo-container h1 {
+    font-family: 'Playfair Display', serif;
+    color: var(--burgundy);
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.search-bar {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+    margin: 0 20px;
+}
+
+.search-bar input {
+    width: 100%;
+    padding: 9px 35px 9px 15px;
+    border: 1px solid #e0d6c3;
+    border-radius: 20px;
+    outline: none;
+    font-size: 14px;
+    background: #fffcf7;
+}
+
+.search-bar i {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+}
+
+.header-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.action-btn {
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    color: var(--burgundy);
+    position: relative;
+}
+
+.badge-count {
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    background: var(--gold);
+    color: var(--white);
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 50%;
+    font-weight: bold;
+}
+
+/* 1. شريط الأقسام (خلفية برجندية فخمة وأزرار متناسقة) */
+nav#categoryNav {
+    background: var(--burgundy);
+    padding: 12px 5%;
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 3px solid var(--gold);
+    box-shadow: 0 4px 10px rgba(29, 28, 28, 0.15);
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+nav#categoryNav::-webkit-scrollbar {
+    height: 4px;
+}
+
+nav#categoryNav::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 2px;
+}
+
+/* الجمل الثابتة (لإزاحة الأقسام على الموبايل بخلفية متناسقة) */
+/* 1. لون الكلام في الجمل الثابتة (خليه أبيض واضح) */
+.nav-static-msg {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px dashed var(--gold);
+    color: #ffffff !important; /* لون النص أبيض */
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 12px;
+    pointer-events: none;
+    user-select: none;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+/* 2. لون الكلام داخل أزرار الأقسام (الكل، هوديات، إلخ) */
+nav#categoryNav button {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    padding: 8px 18px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #ffffff !important; /* لون الخط داخل الأزرار أبيض */
+    transition: 0.3s;
+    flex-shrink: 0;
+}
+nav#categoryNav button.active {
+    background: rgba(255, 255, 255, 0.25); /* خلفية بيضاء شفافة وخفيفة جداً */
+    color: #ffffff !important; /* لون الكلمة أبيض واضح ومميز */
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+nav#categoryNav button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff !important;
+}
+
+
+/* السلايدر الرئيسي */
+.hero-slider {
+    width: 100%;
+    height: 320px;
+    position: relative;
+    overflow: hidden;
+    background: var(--burgundy-dark);
+}
+
+.hero-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--white);
+}
+
+.hero-slide.active {
+    opacity: 1;
+}
+
+.hero-content {
+    background: rgba(74, 4, 13, 0.75);
+    padding: 20px 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(212, 175, 55, 0.5);
+}
+
+.hero-content h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 30px;
+    margin-bottom: 8px;
+    color: var(--white);
+}
+
+.hero-content p {
+    font-size: 14px;
+    color: #f3e9d2;
+    letter-spacing: 1px;
+}
+
+/* 2. بانر المميزات (خلفية برجندية فخمة وكتابة بيضاء وذهبية) */
+.features-banner {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 15px;
+    padding: 25px 5%;
+    background: var(--burgundy);
+    margin: 20px 0;
+    box-shadow: 0 4px 15px rgba(74, 4, 13, 0.2);
+}
+
+.feature-box {
+    text-align: center;
+    padding: 18px;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    transition: 0.3s;
+}
+
+.feature-box:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: var(--gold);
+}
+
+.feature-box i {
+    font-size: 26px;
+    color: var(--gold);
+    margin-bottom: 10px;
+}
+
+.feature-box h4 {
+    font-size: 15px;
+    color: var(--white);
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.feature-box p {
+    font-size: 12px;
+    color: #e6dcce;
+}
+
+.container {
+    padding: 20px 5%;
+}
+
+.section-title {
+    font-family: 'Playfair Display', serif;
+    color: var(--burgundy);
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-align: center;
+}
+
+/* شبكة المنتجات */
+.products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.product-card {
+    background: var(--white);
+    border: 1px solid #eee5d3;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.03);
+    display: flex;
+    flex-direction: column;
+}
+
+.product-img {
+    width: 100%;
+    height: 280px;
+    object-fit: cover;
+}
+
+.product-info {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.product-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--burgundy);
+    margin-bottom: 6px;
+}
+
+.product-desc {
+    font-size: 12px;
+    color: var(--text-gray);
+    margin-bottom: 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.price-box {
+    color: var(--burgundy);
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 12px;
+}
+
+.view-details-btn {
+    width: 100%;
+    background: var(--burgundy);
+    color: var(--white);
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 13px;
+    margin-top: auto;
+    transition: 0.2s;
+}
+
+.view-details-btn:hover {
+    background: var(--burgundy-dark);
+}
+
+/* النوافذ المنبثقة (المودال) */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    padding: 15px;
+}
+
+.modal-content {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    border-top: 4px solid var(--gold);
+}
+
+.close-modal {
+    position: absolute;
+    left: 18px;
+    top: 18px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--burgundy);
+    font-weight: bold;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--burgundy);
+}
+
+.form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #dcd2be;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fffcf7;
+    outline: none;
+}
+
+.terms-box {
+    background: var(--bg-light);
+    border: 1px solid var(--gold);
+    padding: 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    margin-bottom: 16px;
+}
+
+.checkout-btn {
+    width: 100%;
+    background: #25D366;
+    color: var(--white);
+    border: none;
+    padding: 13px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+/* زر لوحة التحكم العائم */
+#floatingAdminBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: var(--gold);
+    color: var(--burgundy);
+    border: none;
+    padding: 11px 18px;
+    border-radius: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 3000;
+    box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+    font-family: 'Cairo', sans-serif;
+    transition: 0.3s;
+}
+
+#floatingAdminBtn:hover {
+    background: #c5a02e;
+    transform: scale(1.05);
+}
+
+/* تجاوب الشاشات الصغيرة */
+@media (max-width: 768px) {
+    header {
+        flex-direction: column;
+        gap: 12px;
+        padding: 12px;
+    }
+    .search-bar {
+        max-width: 100%;
+        margin: 0;
+    }
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    .hero-slider {
+        height: 220px;
+    }
+}
