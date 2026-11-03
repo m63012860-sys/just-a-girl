@@ -1,4 +1,3 @@
-
 import { auth, db } from "./firebase.js";
 
 import {
@@ -13,7 +12,6 @@ import {
     collection,
     doc,
     addDoc,
-    setDoc,
     updateDoc,
     deleteDoc,
     onSnapshot,
@@ -27,17 +25,17 @@ import {
 ========================================================= */
 
 const WHATSAPP_NUMBER = "201283332160";
+const OWNER_UID = "QvzcJcAG9XUHaEJxOjGVbi3nTRL2";
 
 const STORAGE_KEYS = {
-    products: "jag_products",
-    reviews: "jag_reviews",
-    community: "jag_community",
     cart: "jag_cart"
 };
 
 let products = [];
 let reviews = [];
 let communityMessages = [];
+let orders = [];
+
 let cart = JSON.parse(localStorage.getItem(STORAGE_KEYS.cart) || "[]");
 
 let currentUser = null;
@@ -48,6 +46,7 @@ let selectedColor = null;
 let selectedReviewImage = "";
 let currentLanguage = "ar";
 let sliderInterval = null;
+let ordersUnsubscribe = null;
 
 /* =========================================================
    أدوات مساعدة
@@ -69,13 +68,8 @@ function escapeHtml(value = "") {
     })[char]);
 }
 
-function saveCart() {
-    localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(cart));
-    updateCartCount();
-}
-
 function isOwner() {
-    return currentUser !== null;
+    return currentUser?.uid === OWNER_UID;
 }
 
 function formatPrice(price) {
@@ -84,12 +78,23 @@ function formatPrice(price) {
 
 function safeImage(url) {
     if (!url) return "";
+
     try {
         const parsed = new URL(url);
-        return ["https:", "http:"].includes(parsed.protocol) ? parsed.href : "";
+        return parsed.protocol === "https:" ? parsed.href : "";
     } catch {
         return "";
     }
+}
+
+function saveCart() {
+    localStorage.setItem(STORAGE_KEYS.cart, JSON.stringify(cart));
+    updateCartCount();
+}
+
+function getCartTotal() {
+    return cart.reduce((sum, item) =>
+        sum + Number(item.price || 0) * Number(item.quantity || 0), 0);
 }
 
 /* =========================================================
@@ -98,6 +103,7 @@ function safeImage(url) {
 
 function listenToCollection(name, callback, sortField = null) {
     const ref = collection(db, name);
+
     const q = sortField
         ? query(ref, orderBy(sortField, "desc"))
         : ref;
@@ -109,7 +115,7 @@ function listenToCollection(name, callback, sortField = null) {
         })));
     }, error => {
         console.error(`Firestore ${name}:`, error);
-        showMessage("حدثت مشكلة في تحميل البيانات. تأكدي من اتصال الإنترنت وقواعد Firestore.");
+        showMessage(`حدثت مشكلة في تحميل ${name}. راجعي قواعد Firestore والإنترنت.`);
     });
 }
 
@@ -134,8 +140,34 @@ listenToCollection("community", data => {
 
 onAuthStateChanged(auth, user => {
     currentUser = user;
+
     updateOwnerUI();
     ensureAdminButton();
+
+    renderProducts();
+    renderReviews();
+    renderCommunityChat();
+
+    if (ordersUnsubscribe) {
+        ordersUnsubscribe();
+        ordersUnsubscribe = null;
+    }
+
+    if (isOwner()) {
+        ordersUnsubscribe = listenToCollection("orders", data => {
+            orders = data;
+
+            if ($("orderCountDisplay")) {
+                $("orderCountDisplay").textContent = orders.length;
+            }
+        }, "createdAt");
+    } else {
+        orders = [];
+
+        if ($("orderCountDisplay")) {
+            $("orderCountDisplay").textContent = "0";
+        }
+    }
 });
 
 async function loginAdmin() {
@@ -143,12 +175,17 @@ async function loginAdmin() {
     const password = $("adminPasswordInput")?.value;
 
     if (!email || !password) {
-        showMessage("اكتبي البريد الإلكتروني وكلمة المرور.");
-        return;
+        return showMessage("اكتبي البريد الإلكتروني وكلمة المرور.");
     }
 
     try {
-        await signInWithEmailAndPassword(auth, email, password);
+        const result = await signInWithEmailAndPassword(auth, email, password);
+
+        if (result.user.uid !== OWNER_UID) {
+            await signOut(auth);
+            return showMessage("هذا الحساب ليس حساب المالكة.");
+        }
+
         closeProfileModal();
         showMessage("تم تسجيل الدخول بنجاح.");
     } catch (error) {
@@ -172,9 +209,8 @@ async function logoutAdmin() {
 }
 
 async function updateAdminAccount() {
-    if (!currentUser) {
-        showMessage("يجب تسجيل الدخول أولًا.");
-        return;
+    if (!isOwner()) {
+        return showMessage("هذه الخاصية للمالكة فقط.");
     }
 
     const newEmail = $("newAdminEmail")?.value.trim();
@@ -187,21 +223,21 @@ async function updateAdminAccount() {
 
         if (newPassword) {
             if (newPassword.length < 6) {
-                showMessage("كلمة المرور يجب أن تكون 6 أحرف على الأقل.");
-                return;
+                return showMessage("كلمة المرور يجب أن تكون 6 أحرف على الأقل.");
             }
+
             await updatePassword(currentUser, newPassword);
         }
 
-        $("newAdminEmail").value = "";
-        $("newAdminPassword").value = "";
+        if ($("newAdminEmail")) $("newAdminEmail").value = "";
+        if ($("newAdminPassword")) $("newAdminPassword").value = "";
 
         showMessage("تم تحديث الحساب.");
     } catch (error) {
         console.error(error);
 
         if (error.code === "auth/requires-recent-login") {
-            showMessage("لأسباب أمنية، سجّلي الخروج ثم الدخول مرة أخرى قبل تغيير بيانات الحساب.");
+            showMessage("سجّلي الخروج ثم الدخول مرة أخرى قبل تغيير بيانات الحساب.");
         } else {
             showMessage("تعذر تحديث الحساب. راجعي البيانات وحاولي مرة أخرى.");
         }
@@ -209,36 +245,44 @@ async function updateAdminAccount() {
 }
 
 function updateOwnerUI() {
+    const owner = isOwner();
+
     const panel = $("adminPanelContainer");
     const reviewForm = $("ownerReviewForm");
     const loginForm = $("adminLoginForm");
     const settings = $("adminSettingsSection");
 
-    if (panel) panel.style.display = isOwner() ? "block" : "none";
-    if (reviewForm) reviewForm.style.display = isOwner() ? "block" : "none";
-    if (loginForm) loginForm.style.display = isOwner() ? "none" : "block";
-    if (settings) settings.style.display = isOwner() ? "block" : "none";
+    if (panel) panel.style.display = owner ? "block" : "none";
+    if (reviewForm) reviewForm.style.display = owner ? "block" : "none";
+    if (loginForm) loginForm.style.display = owner ? "none" : "block";
+    if (settings) settings.style.display = owner ? "block" : "none";
 }
 
 function ensureAdminButton() {
     if ($("floatingAdminBtn")) return;
 
     const button = document.createElement("button");
+
     button.id = "floatingAdminBtn";
     button.innerHTML = '<i class="fa-solid fa-user-shield"></i> الإدارة';
     button.onclick = openProfileModal;
+
     document.body.appendChild(button);
 }
 
 /* =========================================================
-   النوافذ
+   النوافذ والملف الشخصي
 ========================================================= */
 
 function openProfileModal() {
-    $("profileModal").style.display = "flex";
+    if ($("profileModal")) {
+        $("profileModal").style.display = "flex";
+    }
+
     updateOwnerUI();
 
     const visits = Number(localStorage.getItem("jag_visits") || 0) + 1;
+
     localStorage.setItem("jag_visits", visits);
 
     if ($("visitCountDisplay")) {
@@ -246,32 +290,36 @@ function openProfileModal() {
     }
 
     if ($("orderCountDisplay")) {
-        $("orderCountDisplay").textContent =
-            localStorage.getItem("jag_orders_count") || "0";
+        $("orderCountDisplay").textContent = isOwner() ? orders.length : "0";
     }
 }
 
 function closeProfileModal() {
-    $("profileModal").style.display = "none";
+    if ($("profileModal")) {
+        $("profileModal").style.display = "none";
+    }
 }
 
 function openAccountSettings() {
     if (!isOwner()) {
-        showMessage("هذه الخاصية للمالكة فقط.");
-        return;
+        return showMessage("هذه الخاصية للمالكة فقط.");
     }
 
-    $("profileModal").style.display = "flex";
-    updateOwnerUI();
-}
-
-function closeCartModal() {
-    $("cartModal").style.display = "none";
+    openProfileModal();
 }
 
 function openCartModal() {
     renderCart();
-    $("cartModal").style.display = "flex";
+
+    if ($("cartModal")) {
+        $("cartModal").style.display = "flex";
+    }
+}
+
+function closeCartModal() {
+    if ($("cartModal")) {
+        $("cartModal").style.display = "none";
+    }
 }
 
 /* =========================================================
@@ -285,24 +333,20 @@ function initSlider() {
     const slides = [
         {
             title: "Just a Girl",
-            text: "Your Style, Your Story",
-            image: ""
+            text: "Your Style, Your Story"
         },
         {
             title: "Elegance in Every Detail",
-            text: "اختاري إطلالتك المميزة",
-            image: ""
+            text: "اختاري إطلالتك المميزة"
         },
         {
             title: "Made for Your Style",
-            text: "أناقتك تبدأ من هنا",
-            image: ""
+            text: "أناقتك تبدأ من هنا"
         }
     ];
 
     slider.innerHTML = slides.map((slide, index) => `
-        <div class="hero-slide ${index === 0 ? "active" : ""}"
-             ${slide.image ? `style="background-image:url('${safeImage(slide.image)}')"` : ""}>
+        <div class="hero-slide ${index === 0 ? "active" : ""}">
             <div class="hero-content">
                 <h2>${slide.title}</h2>
                 <p>${slide.text}</p>
@@ -312,7 +356,9 @@ function initSlider() {
 
     let active = 0;
 
-    if (sliderInterval) clearInterval(sliderInterval);
+    if (sliderInterval) {
+        clearInterval(sliderInterval);
+    }
 
     sliderInterval = setInterval(() => {
         const items = slider.querySelectorAll(".hero-slide");
@@ -325,7 +371,7 @@ function initSlider() {
 }
 
 /* =========================================================
-   عرض المنتجات والبحث والأقسام
+   المنتجات والبحث والأقسام
 ========================================================= */
 
 function renderProducts() {
@@ -347,41 +393,75 @@ function renderProducts() {
     });
 
     if (!filtered.length) {
-        grid.innerHTML = "<p style='text-align:center;grid-column:1/-1'>لا توجد منتجات حاليًا في هذا القسم.</p>";
+        grid.innerHTML = `
+            <p style="text-align:center;grid-column:1/-1">
+                لا توجد منتجات حاليًا في هذا القسم.
+            </p>`;
         return;
     }
 
     grid.innerHTML = filtered.map(product => {
         const image = safeImage(product.image);
         const sizes = product.sizes || [];
-        const prices = sizes.map(s => Number(s.price || 0)).filter(Boolean);
-        const minPrice = prices.length ? Math.min(...prices) : Number(product.price || 0);
+
+        const prices = sizes
+            .map(size => Number(size.price || 0))
+            .filter(price => price > 0);
+
+        const minPrice = prices.length
+            ? Math.min(...prices)
+            : Number(product.price || 0);
 
         return `
-            <div class="product-card">
+            <div class="product-card" style="position:relative">
+
                 ${product.outOfStock ? `
                     <span style="position:absolute;top:10px;right:10px;background:#c00;color:white;padding:5px 9px;border-radius:5px;z-index:2">
                         غير متوفر
                     </span>` : ""}
+
                 <img class="product-img"
                      src="${image || "https://placehold.co/500x600/fdfbf7/4A040D?text=Just+a+Girl"}"
                      alt="${escapeHtml(product.name)}"
                      onerror="this.src='https://placehold.co/500x600/fdfbf7/4A040D?text=Just+a+Girl'">
+
                 <div class="product-info">
                     <h3 class="product-title">${escapeHtml(product.name)}</h3>
-                    <p class="product-desc">${escapeHtml(product.description || "")}</p>
+
+                    <p class="product-desc">
+                        ${escapeHtml(product.description || "")}
+                    </p>
+
                     <div class="price-box">
                         ${minPrice ? `يبدأ من ${formatPrice(minPrice)}` : "السعر حسب الاختيار"}
-                        ${product.oldPrice ? `<del style="color:#999;font-size:12px">${formatPrice(product.oldPrice)}</del>` : ""}
+
+                        ${product.oldPrice ? `
+                            <del style="color:#999;font-size:12px">
+                                ${formatPrice(product.oldPrice)}
+                            </del>` : ""}
                     </div>
-                    <button class="view-details-btn" onclick="openProductDetails('${product.id}')">
+
+                    <button class="view-details-btn"
+                        onclick="openProductDetails('${product.id}')">
                         عرض التفاصيل
                     </button>
+
                     ${isOwner() ? `
                         <div style="display:flex;gap:6px;margin-top:8px">
-                            <button onclick="openEditProductModal('${product.id}')" style="flex:1;padding:7px;background:#D4AF37;color:white;border:0;border-radius:5px;cursor:pointer">تعديل</button>
-                            <button onclick="toggleOutOfStock('${product.id}')" style="flex:1;padding:7px;background:#555;color:white;border:0;border-radius:5px;cursor:pointer">${product.outOfStock ? "متوفر" : "نفد"}</button>
-                            <button onclick="deleteProduct('${product.id}')" style="padding:7px;background:#c00;color:white;border:0;border-radius:5px;cursor:pointer">حذف</button>
+                            <button onclick="openEditProductModal('${product.id}')"
+                                style="flex:1;padding:7px;background:#D4AF37;color:white;border:0;border-radius:5px;cursor:pointer">
+                                تعديل
+                            </button>
+
+                            <button onclick="toggleOutOfStock('${product.id}')"
+                                style="flex:1;padding:7px;background:#555;color:white;border:0;border-radius:5px;cursor:pointer">
+                                ${product.outOfStock ? "متوفر" : "نفد"}
+                            </button>
+
+                            <button onclick="deleteProduct('${product.id}')"
+                                style="padding:7px;background:#c00;color:white;border:0;border-radius:5px;cursor:pointer">
+                                حذف
+                            </button>
                         </div>` : ""}
                 </div>
             </div>
@@ -408,18 +488,20 @@ function filterCategory(category) {
 
 function toggleLang() {
     currentLanguage = currentLanguage === "ar" ? "en" : "ar";
+
     if ($("langText")) {
         $("langText").textContent = currentLanguage === "ar" ? "EN" : "AR";
     }
+
     showMessage(
         currentLanguage === "en"
-            ? "English mode is being prepared. Product information remains as entered."
+            ? "English mode is not fully available yet."
             : "تم الرجوع للوضع العربي."
     );
 }
 
 /* =========================================================
-   تفاصيل المنتج واختيار المقاس واللون
+   تفاصيل المنتج والمقاسات والألوان
 ========================================================= */
 
 function openProductDetails(id) {
@@ -432,21 +514,30 @@ function openProductDetails(id) {
 
     const sizes = product.sizes || [];
     const colors = product.colors || [];
-
     const content = $("productModalContent");
+
+    if (!content) return;
 
     content.innerHTML = `
         <span class="close-modal" onclick="closeProductModal()">&times;</span>
-        <h2 style="color:#4A040D;margin-bottom:12px">${escapeHtml(product.name)}</h2>
+
+        <h2 style="color:#4A040D;margin-bottom:12px">
+            ${escapeHtml(product.name)}
+        </h2>
 
         <img id="detailProductImage"
              src="${safeImage(product.image) || "https://placehold.co/500x600"}"
              style="width:100%;max-height:300px;object-fit:contain;border-radius:8px">
 
-        <p style="margin:12px 0">${escapeHtml(product.description || "")}</p>
+        <p style="margin:12px 0">
+            ${escapeHtml(product.description || "")}
+        </p>
 
         ${sizes.length ? `
-            <h4 style="margin:12px 0 8px;color:#4A040D">اختاري المقاس:</h4>
+            <h4 style="margin:12px 0 8px;color:#4A040D">
+                اختاري المقاس:
+            </h4>
+
             <div style="display:flex;gap:8px;flex-wrap:wrap">
                 ${sizes.map((size, index) => `
                     <button class="size-choice"
@@ -458,24 +549,35 @@ function openProductDetails(id) {
                 `).join("")}
             </div>
         ` : `
-            <p style="margin:10px 0">السعر: ${formatPrice(product.price)}</p>
+            <p style="margin:10px 0">
+                السعر: ${formatPrice(product.price)}
+            </p>
         `}
 
         ${colors.length ? `
-            <h4 style="margin:15px 0 8px;color:#4A040D">اختاري اللون:</h4>
+            <h4 style="margin:15px 0 8px;color:#4A040D">
+                اختاري اللون:
+            </h4>
+
             <div style="display:flex;gap:10px;flex-wrap:wrap">
                 ${colors.map((color, index) => `
                     <button onclick="selectProductColor(${index})"
                         id="colorChoice${index}"
                         style="padding:7px;border:1px solid #ddd;background:white;border-radius:7px;cursor:pointer">
-                        ${color.image ? `<img src="${safeImage(color.image)}" style="width:55px;height:55px;object-fit:cover;display:block">` : ""}
+
+                        ${color.image ? `
+                            <img src="${safeImage(color.image)}"
+                                 style="width:55px;height:55px;object-fit:cover;display:block">
+                        ` : ""}
+
                         ${escapeHtml(color.name)}
                     </button>
                 `).join("")}
             </div>
         ` : ""}
 
-        <p id="selectedProductPrice" style="font-weight:bold;color:#4A040D;margin:15px 0">
+        <p id="selectedProductPrice"
+           style="font-weight:bold;color:#4A040D;margin:15px 0">
             ${sizes.length ? "اختاري المقاس لمعرفة السعر" : formatPrice(product.price)}
         </p>
 
@@ -490,7 +592,9 @@ function openProductDetails(id) {
 }
 
 function closeProductModal() {
-    $("productModal").style.display = "none";
+    if ($("productModal")) {
+        $("productModal").style.display = "none";
+    }
 }
 
 function selectProductSize(index) {
@@ -507,12 +611,15 @@ function selectProductSize(index) {
     });
 
     const chosen = $(`sizeChoice${index}`);
+
     if (chosen) {
         chosen.style.background = "#4A040D";
         chosen.style.color = "#fff";
     }
 
-    $("selectedProductPrice").textContent = formatPrice(size.price);
+    if ($("selectedProductPrice")) {
+        $("selectedProductPrice").textContent = formatPrice(size.price);
+    }
 }
 
 function selectProductColor(index) {
@@ -528,10 +635,14 @@ function selectProductColor(index) {
     });
 
     const chosen = $(`colorChoice${index}`);
-    if (chosen) chosen.style.border = "2px solid #4A040D";
+
+    if (chosen) {
+        chosen.style.border = "2px solid #4A040D";
+    }
 
     if (color.image && $("detailProductImage")) {
-        $("detailProductImage").src = safeImage(color.image);
+        $("detailProductImage").src =
+            safeImage(color.image) || $("detailProductImage").src;
     }
 }
 
@@ -539,22 +650,23 @@ function addToCartWithOptions() {
     if (!currentProduct) return;
 
     if (currentProduct.outOfStock) {
-        showMessage("هذا المنتج غير متوفر حاليًا.");
-        return;
+        return showMessage("هذا المنتج غير متوفر حاليًا.");
     }
 
     const sizes = currentProduct.sizes || [];
 
     if (sizes.length && !selectedSize) {
-        showMessage("اختاري المقاس أولًا.");
-        return;
+        return showMessage("اختاري المقاس أولًا.");
+    }
+
+    if ((currentProduct.colors || []).length && !selectedColor) {
+        return showMessage("اختاري اللون أولًا.");
     }
 
     const price = Number(selectedSize?.price ?? currentProduct.price ?? 0);
 
     if (!price || price < 0) {
-        showMessage("السعر غير محدد لهذا الاختيار.");
-        return;
+        return showMessage("السعر غير محدد لهذا الاختيار.");
     }
 
     const item = {
@@ -578,6 +690,7 @@ function addToCartWithOptions() {
 
     saveCart();
     closeProductModal();
+
     showMessage("تمت إضافة المنتج إلى السلة.");
 }
 
@@ -586,8 +699,12 @@ function addToCartWithOptions() {
 ========================================================= */
 
 function updateCartCount() {
-    const count = cart.reduce((sum, item) => sum + Number(item.quantity || 0), 0);
-    if ($("cartCount")) $("cartCount").textContent = count;
+    const count = cart.reduce((sum, item) =>
+        sum + Number(item.quantity || 0), 0);
+
+    if ($("cartCount")) {
+        $("cartCount").textContent = count;
+    }
 }
 
 function renderCart() {
@@ -595,33 +712,45 @@ function renderCart() {
     if (!list) return;
 
     if (!cart.length) {
-        list.innerHTML = "<p style='text-align:center;padding:20px'>السلة فارغة حاليًا.</p>";
-        $("cartTotalPrice").textContent = "0";
+        list.innerHTML = `
+            <p style="text-align:center;padding:20px">
+                السلة فارغة حاليًا.
+            </p>`;
+
+        if ($("cartTotalPrice")) {
+            $("cartTotalPrice").textContent = "0";
+        }
+
         return;
     }
 
     list.innerHTML = cart.map(item => `
         <div style="display:flex;gap:12px;align-items:center;border-bottom:1px solid #eee;padding:12px 0">
+
             <img src="${safeImage(item.image) || "https://placehold.co/80x90"}"
                  style="width:65px;height:75px;object-fit:cover;border-radius:6px">
+
             <div style="flex:1">
                 <strong>${escapeHtml(item.name)}</strong>
                 <p>المقاس: ${escapeHtml(item.size)}</p>
                 <p>اللون: ${escapeHtml(item.color)}</p>
                 <p>${formatPrice(item.price)} × ${item.quantity}</p>
+
                 <div style="display:flex;gap:8px;margin-top:5px">
                     <button onclick="changeCartQuantity('${item.cartId}',-1)">−</button>
                     <button onclick="changeCartQuantity('${item.cartId}',1)">+</button>
-                    <button onclick="removeFromCart('${item.cartId}')" style="color:#c00">حذف</button>
+                    <button onclick="removeFromCart('${item.cartId}')" style="color:#c00">
+                        حذف
+                    </button>
                 </div>
             </div>
         </div>
     `).join("");
 
-    const total = cart.reduce((sum, item) =>
-        sum + Number(item.price) * Number(item.quantity), 0);
-
-    $("cartTotalPrice").textContent = total.toLocaleString("ar-EG");
+    if ($("cartTotalPrice")) {
+        $("cartTotalPrice").textContent =
+            getCartTotal().toLocaleString("ar-EG");
+    }
 }
 
 function changeCartQuantity(cartId, amount) {
@@ -640,18 +769,18 @@ function changeCartQuantity(cartId, amount) {
 
 function removeFromCart(cartId) {
     cart = cart.filter(item => item.cartId !== cartId);
+
     saveCart();
     renderCart();
 }
 
 /* =========================================================
-   تأكيد الطلب عبر واتساب
+   حفظ الطلب في Firestore ثم فتح واتساب
 ========================================================= */
 
-function sendToWhatsApp() {
+async function sendToWhatsApp() {
     if (!cart.length) {
-        showMessage("السلة فارغة.");
-        return;
+        return showMessage("السلة فارغة.");
     }
 
     const name = $("clientName")?.value.trim();
@@ -660,70 +789,118 @@ function sendToWhatsApp() {
     const accepted = $("legalCheck")?.checked;
 
     if (!name || !phone || !address) {
-        showMessage("من فضلك املئي الاسم ورقم الهاتف والعنوان.");
-        return;
+        return showMessage("من فضلك املئي الاسم ورقم الهاتف والعنوان.");
     }
 
     if (!accepted) {
-        showMessage("يجب الموافقة على الشروط قبل إرسال الطلب.");
-        return;
+        return showMessage("يجب الموافقة على الشروط قبل إرسال الطلب.");
     }
 
-    const total = cart.reduce((sum, item) =>
-        sum + Number(item.price) * Number(item.quantity), 0);
+    if (name.length > 100 || phone.length > 30 || address.length > 500) {
+        return showMessage("راجعي البيانات المدخلة.");
+    }
 
-    let message = `طلب جديد من Just a Girl\n\n`;
-    message += `الاسم: ${name}\n`;
-    message += `الهاتف: ${phone}\n`;
-    message += `العنوان: ${address}\n\n`;
-    message += `تفاصيل الطلب:\n`;
+    const total = getCartTotal();
 
-    cart.forEach((item, index) => {
-        message += `\n${index + 1}. ${item.name}\n`;
-        message += `المقاس: ${item.size}\n`;
-        message += `اللون: ${item.color}\n`;
-        message += `السعر: ${item.price} جنيه\n`;
-        message += `الكمية: ${item.quantity}\n`;
-        message += `الإجمالي: ${item.price * item.quantity} جنيه\n`;
-    });
+    const orderItems = cart.map(item => ({
+        productId: String(item.productId || ""),
+        name: String(item.name || "").slice(0, 100),
+        size: String(item.size || "غير محدد").slice(0, 40),
+        color: String(item.color || "غير محدد").slice(0, 40),
+        price: Number(item.price || 0),
+        quantity: Number(item.quantity || 1),
+        image: safeImage(item.image)
+    }));
 
-    message += `\nالإجمالي الكلي: ${total} جنيه`;
-    message += `\nالديبوزيت المطلوب: 100 جنيه`;
-    message += `\nأوافق على شروط الحجز والشحن.`;
+    if (orderItems.some(item =>
+        !item.name ||
+        !Number.isFinite(item.price) ||
+        item.price <= 0 ||
+        !Number.isInteger(item.quantity) ||
+        item.quantity < 1
+    )) {
+        return showMessage("يوجد منتج ببيانات أو سعر غير صحيح. راجعي السلة.");
+    }
 
-    const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-    window.open(url, "_blank", "noopener,noreferrer");
+    const orderData = {
+        customerName: name,
+        customerPhone: phone,
+        customerAddress: address,
+        items: orderItems,
+        total,
+        deposit: 100,
+        status: "pending",
+        createdAt: serverTimestamp()
+    };
 
-    const count = Number(localStorage.getItem("jag_orders_count") || 0) + 1;
-    localStorage.setItem("jag_orders_count", count);
+    try {
+        // حفظ الطلب أولًا في قاعدة البيانات
+        const orderRef = await addDoc(collection(db, "orders"), orderData);
 
-    cart = [];
-    saveCart();
-    renderCart();
+        let message = `طلب جديد من Just a Girl\n`;
+        message += `رقم الطلب: ${orderRef.id}\n\n`;
+        message += `الاسم: ${name}\n`;
+        message += `الهاتف: ${phone}\n`;
+        message += `العنوان: ${address}\n\n`;
+        message += `تفاصيل الطلب:\n`;
 
-    $("clientName").value = "";
-    $("clientPhone").value = "";
-    $("clientAddress").value = "";
-    $("legalCheck").checked = false;
+        orderItems.forEach((item, index) => {
+            message += `\n${index + 1}. ${item.name}\n`;
+            message += `المقاس: ${item.size}\n`;
+            message += `اللون: ${item.color}\n`;
+            message += `السعر: ${item.price} جنيه\n`;
+            message += `الكمية: ${item.quantity}\n`;
+            message += `إجمالي المنتج: ${item.price * item.quantity} جنيه\n`;
+        });
 
-    showMessage("تم فتح واتساب برسالة الطلب. راجعي الرسالة واضغطي إرسال لإتمام الطلب.");
+        message += `\nالإجمالي الكلي: ${total} جنيه`;
+        message += `\nالديبوزيت المطلوب: 100 جنيه`;
+        message += `\nأوافق على شروط الحجز والشحن.`;
+
+        const url =
+            `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+
+        window.open(url, "_blank", "noopener,noreferrer");
+
+        // الطلب محفوظ حتى لو لم تُرسل رسالة واتساب بعد
+        showMessage(
+            `تم تسجيل الطلب في الموقع برقم ${orderRef.id}.\n` +
+            "راجعي رسالة واتساب واضغطي إرسال لإتمام التواصل."
+        );
+
+        // لا نفرغ السلة تلقائيًا؛ حتى لا تفقد العميلة طلبها قبل إتمام الإرسال.
+    } catch (error) {
+        console.error("Order save error:", error);
+
+        showMessage(
+            "لم يتم حفظ الطلب في الموقع، لذلك لم نفتح واتساب. " +
+            "راجعي قواعد Firestore واتصال الإنترنت."
+        );
+    }
 }
 
 /* =========================================================
-   إضافة وتعديل وحذف المنتجات - للإدارة فقط
+   إضافة وتعديل وحذف المنتجات
 ========================================================= */
 
 function openAddProductModal() {
-    if (!isOwner()) return showMessage("هذه الخاصية للمالكة فقط.");
+    if (!isOwner()) {
+        return showMessage("هذه الخاصية للمالكة فقط.");
+    }
 
     showProductEditor();
 }
 
 function openEditProductModal(id) {
-    if (!isOwner()) return showMessage("هذه الخاصية للمالكة فقط.");
+    if (!isOwner()) {
+        return showMessage("هذه الخاصية للمالكة فقط.");
+    }
 
     const product = products.find(item => item.id === id);
-    if (!product) return showMessage("المنتج غير موجود.");
+
+    if (!product) {
+        return showMessage("المنتج غير موجود.");
+    }
 
     showProductEditor(product);
 }
@@ -732,8 +909,24 @@ function showProductEditor(product = null) {
     const editing = Boolean(product);
     const content = $("productModalContent");
 
+    if (!content) return;
+
+    const categories = [
+        ["hoodies", "هوديات"],
+        ["pants", "بناطيل"],
+        ["kids", "أطفال"],
+        ["pajamas", "بيجامات"],
+        ["sets", "طقمة"],
+        ["dresses", "فساتين"],
+        ["suits", "بدل"],
+        ["jackets", "جواكت"],
+        ["bundles", "باكدج"],
+        ["offers", "عروض"]
+    ];
+
     content.innerHTML = `
         <span class="close-modal" onclick="closeProductModal()">&times;</span>
+
         <h2 style="color:#4A040D;margin-bottom:15px">
             ${editing ? "تعديل المنتج" : "إضافة منتج جديد"}
         </h2>
@@ -746,19 +939,11 @@ function showProductEditor(product = null) {
         <div class="form-group">
             <label>القسم</label>
             <select id="productCategoryInput">
-                ${[
-                    ["hoodies", "هوديات"],
-                    ["pants", "بناطيل"],
-                    ["kids", "أطفال"],
-                    ["pajamas", "بيجامات"],
-                    ["sets", "طقمة"],
-                    ["dresses", "فساتين"],
-                    ["suits", "بدل"],
-                    ["jackets", "جواكت"],
-                    ["bundles", "باكدج"],
-                    ["offers", "عروض"]
-                ].map(([value, label]) => `
-                    <option value="${value}" ${product?.category === value ? "selected" : ""}>${label}</option>
+                ${categories.map(([value, label]) => `
+                    <option value="${value}"
+                        ${product?.category === value ? "selected" : ""}>
+                        ${label}
+                    </option>
                 `).join("")}
             </select>
         </div>
@@ -770,27 +955,33 @@ function showProductEditor(product = null) {
 
         <div class="form-group">
             <label>رابط الصورة الرئيسية</label>
-            <input id="productImageInput" type="url" placeholder="https://..." value="${escapeHtml(product?.image || "")}">
+            <input id="productImageInput" type="url"
+                placeholder="https://..."
+                value="${escapeHtml(product?.image || "")}">
         </div>
 
         <div class="form-group">
-            <label>السعر الأساسي (لو مفيش مقاسات بأسعار مختلفة)</label>
-            <input id="productPriceInput" type="number" min="0" value="${Number(product?.price || 0)}">
+            <label>السعر الأساسي</label>
+            <input id="productPriceInput" type="number" min="0"
+                value="${Number(product?.price || 0)}">
         </div>
 
         <div class="form-group">
             <label>السعر القديم (اختياري)</label>
-            <input id="productOldPriceInput" type="number" min="0" value="${Number(product?.oldPrice || 0)}">
+            <input id="productOldPriceInput" type="number" min="0"
+                value="${Number(product?.oldPrice || 0)}">
         </div>
 
         <div class="form-group">
             <label>المقاسات والأسعار (كل سطر: المقاس,السعر)</label>
-            <textarea id="productSizesInput" rows="4" placeholder="S,450&#10;M,500&#10;L,550">${(product?.sizes || []).map(s => `${s.name},${s.price}`).join("\n")}</textarea>
+            <textarea id="productSizesInput" rows="4"
+                placeholder="S,450&#10;M,500&#10;L,550">${(product?.sizes || []).map(size => `${size.name},${size.price}`).join("\n")}</textarea>
         </div>
 
         <div class="form-group">
             <label>الألوان (كل سطر: اسم اللون,رابط الصورة اختياري)</label>
-            <textarea id="productColorsInput" rows="4" placeholder="أسود,https://...&#10;أوف وايت,https://...">${(product?.colors || []).map(c => `${c.name},${c.image || ""}`).join("\n")}</textarea>
+            <textarea id="productColorsInput" rows="4"
+                placeholder="أسود,https://...&#10;أوف وايت,https://...">${(product?.colors || []).map(color => `${color.name},${color.image || ""}`).join("\n")}</textarea>
         </div>
 
         <button onclick="saveProduct('${product?.id || ""}')"
@@ -803,24 +994,32 @@ function showProductEditor(product = null) {
 }
 
 function parseLines(text, type) {
-    return text.split("\n").map(line => line.trim()).filter(Boolean).map(line => {
-        const parts = line.split(",");
-        if (type === "size") {
-            return {
-                name: (parts[0] || "").trim(),
-                price: Number((parts[1] || "").trim())
-            };
-        }
+    return text
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+            const parts = line.split(",");
+            const name = (parts[0] || "").trim();
 
-        return {
-            name: (parts[0] || "").trim(),
-            image: safeImage((parts[1] || "").trim())
-        };
-    });
+            if (type === "size") {
+                return {
+                    name,
+                    price: Number((parts[1] || "").trim())
+                };
+            }
+
+            return {
+                name,
+                image: safeImage((parts[1] || "").trim())
+            };
+        });
 }
 
 async function saveProduct(id) {
-    if (!isOwner()) return showMessage("يجب تسجيل الدخول.");
+    if (!isOwner()) {
+        return showMessage("يجب تسجيل الدخول بحساب المالكة.");
+    }
 
     const name = $("productNameInput").value.trim();
     const category = $("productCategoryInput").value;
@@ -833,11 +1032,21 @@ async function saveProduct(id) {
     const colors = parseLines($("productColorsInput").value, "color");
 
     if (!name) return showMessage("اكتبي اسم المنتج.");
-    if (!image) return showMessage("أضيفي رابط صورة صحيح.");
-    if (!sizes.length && price <= 0) return showMessage("أضيفي سعرًا صحيحًا أو مقاسات بأسعارها.");
+    if (!image) return showMessage("أضيفي رابط صورة صحيح يبدأ بـ https.");
+    if (!sizes.length && price <= 0) {
+        return showMessage("أضيفي سعرًا صحيحًا أو مقاسات بأسعارها.");
+    }
 
-    if (sizes.some(size => !size.name || !Number.isFinite(size.price) || size.price <= 0)) {
-        return showMessage("راجعي المقاسات والأسعار. اكتبي كل مقاس وسعره في سطر.");
+    if (sizes.some(size =>
+        !size.name ||
+        !Number.isFinite(size.price) ||
+        size.price <= 0
+    )) {
+        return showMessage("راجعي المقاسات والأسعار.");
+    }
+
+    if (colors.some(color => !color.name)) {
+        return showMessage("راجعي أسماء الألوان.");
     }
 
     const productData = {
@@ -862,18 +1071,22 @@ async function saveProduct(id) {
                 outOfStock: false,
                 createdAt: serverTimestamp()
             });
+
             showMessage("تمت إضافة المنتج.");
         }
 
         closeProductModal();
     } catch (error) {
         console.error(error);
-        showMessage("تعذر حفظ المنتج. تأكدي من تسجيل الدخول وقواعد Firestore.");
+        showMessage("تعذر حفظ المنتج. راجعي قواعد Firestore.");
     }
 }
 
 async function deleteProduct(id) {
-    if (!isOwner()) return showMessage("هذه الخاصية للمالكة فقط.");
+    if (!isOwner()) {
+        return showMessage("هذه الخاصية للمالكة فقط.");
+    }
+
     if (!confirm("هل أنتِ متأكدة من حذف المنتج؟")) return;
 
     try {
@@ -906,77 +1119,130 @@ async function toggleOutOfStock(id) {
    التقييمات
 ========================================================= */
 
+function addReviewImageUrlField() {
+    const form = $("ownerReviewForm");
+
+    if (!form || $("reviewImageUrl")) return;
+
+    const wrapper = document.createElement("div");
+    wrapper.className = "form-group";
+
+    wrapper.innerHTML = `
+        <label for="reviewImageUrl">رابط صورة التقييم (اختياري)</label>
+        <input id="reviewImageUrl" type="url"
+            placeholder="https://...">
+        <small>رفع الصور من الجهاز مؤجل حاليًا.</small>
+    `;
+
+    form.appendChild(wrapper);
+}
+
 function renderReviews() {
     const grid = $("reviewsGrid");
     if (!grid) return;
 
     if (!reviews.length) {
-        grid.innerHTML = "<p style='text-align:center;grid-column:1/-1'>لا توجد تقييمات منشورة حتى الآن.</p>";
+        grid.innerHTML = `
+            <p style="text-align:center;grid-column:1/-1">
+                لا توجد تقييمات منشورة حتى الآن.
+            </p>`;
         return;
     }
 
-    grid.innerHTML = reviews.map(review => `
-        <div style="background:#fff;padding:18px;border:1px solid #eee5d3;border-radius:10px">
-            <strong style="color:#4A040D">${escapeHtml(review.name || "عميلة")}</strong>
-            <p style="color:#D4AF37;margin:7px 0">${"⭐".repeat(Math.min(5, Math.max(1, Number(review.stars || 5)))}</p>
-            <p>${escapeHtml(review.text || "")}</p>
-            ${review.image ? `
-                <img src="${safeImage(review.image)}"
-                     style="width:100%;max-height:280px;object-fit:contain;margin-top:10px;border-radius:7px">
-            ` : ""}
-            ${isOwner() ? `
-                <button onclick="deleteReview('${review.id}')"
-                    style="margin-top:10px;color:white;background:#c00;border:0;padding:7px 12px;border-radius:5px;cursor:pointer">
-                    حذف التقييم
-                </button>` : ""}
-        </div>
-    `).join("");
+    grid.innerHTML = reviews.map(review => {
+        const stars = Math.min(5, Math.max(1, Number(review.stars || 5)));
+
+        return `
+            <div style="background:#fff;padding:18px;border:1px solid #eee5d3;border-radius:10px">
+
+                <strong style="color:#4A040D">
+                    ${escapeHtml(review.name || "عميلة")}
+                </strong>
+
+                <p style="color:#D4AF37;margin:7px 0">
+                    ${"⭐".repeat(stars)}
+                </p>
+
+                <p>${escapeHtml(review.text || "")}</p>
+
+                ${review.image ? `
+                    <img src="${safeImage(review.image)}"
+                        style="width:100%;max-height:280px;object-fit:contain;margin-top:10px;border-radius:7px">
+                ` : ""}
+
+                ${isOwner() ? `
+                    <button onclick="deleteReview('${review.id}')"
+                        style="margin-top:10px;color:white;background:#c00;border:0;padding:7px 12px;border-radius:5px;cursor:pointer">
+                        حذف التقييم
+                    </button>` : ""}
+            </div>
+        `;
+    }).join("");
 }
 
 function previewReviewImage(input) {
-    const file = input.files?.[0];
+    if (input) input.value = "";
 
-    if (!file) return;
-
-    showMessage("رفع الصور من الجهاز غير متاح حاليًا. استخدمي رابط صورة منشورًا على خدمة استضافة صور، ثم أضيفيه في حقل رابط الصورة.");
-
-    input.value = "";
+    showMessage(
+        "رفع الصور من الجهاز مؤجل حاليًا. يمكنكِ إضافة رابط الصورة في حقل رابط صورة التقييم."
+    );
 }
 
 function clearReviewImage() {
     selectedReviewImage = "";
-    if ($("reviewImageInput")) $("reviewImageInput").value = "";
-    if ($("reviewImagePreview")) $("reviewImagePreview").innerHTML = "";
-    if ($("removeReviewImageBtn")) $("removeReviewImageBtn").style.display = "none";
+
+    if ($("reviewImageInput")) {
+        $("reviewImageInput").value = "";
+    }
+
+    if ($("reviewImageUrl")) {
+        $("reviewImageUrl").value = "";
+    }
+
+    if ($("reviewImagePreview")) {
+        $("reviewImagePreview").innerHTML = "";
+    }
+
+    if ($("removeReviewImageBtn")) {
+        $("removeReviewImageBtn").style.display = "none";
+    }
 }
 
 async function addReview() {
-    if (!isOwner()) return showMessage("إضافة التقييمات متاحة للمالكة فقط.");
+    if (!isOwner()) {
+        return showMessage("إضافة التقييمات متاحة للمالكة فقط.");
+    }
 
-    const name = $("reviewCustomerName").value.trim();
-    const text = $("reviewMessageText").value.trim();
-    const stars = Number($("reviewStars").value);
+    const name = $("reviewCustomerName")?.value.trim();
+    const text = $("reviewMessageText")?.value.trim();
+    const stars = Number($("reviewStars")?.value || 5);
+    const image = safeImage($("reviewImageUrl")?.value.trim());
 
     if (!name) return showMessage("اكتبي اسم العميلة.");
-    if (!text && !selectedReviewImage) return showMessage("أضيفي نص التقييم.");
+    if (!text && !image) return showMessage("أضيفي نص التقييم أو رابط صورته.");
+
+    if (stars < 1 || stars > 5) {
+        return showMessage("اختاري تقييمًا من نجمة إلى خمس نجوم.");
+    }
 
     try {
         await addDoc(collection(db, "reviews"), {
             name,
             text,
             stars,
-            image: selectedReviewImage,
+            image,
             createdAt: serverTimestamp()
         });
 
         $("reviewCustomerName").value = "";
         $("reviewMessageText").value = "";
+
         clearReviewImage();
 
         showMessage("تم نشر التقييم.");
     } catch (error) {
         console.error(error);
-        showMessage("تعذر نشر التقييم.");
+        showMessage("تعذر نشر التقييم. راجعي قواعد Firestore.");
     }
 }
 
@@ -993,7 +1259,7 @@ async function deleteReview(id) {
 }
 
 /* =========================================================
-   مجتمع العملاء
+   مجتمع العميلات والردود
 ========================================================= */
 
 function renderCommunityChat() {
@@ -1006,34 +1272,61 @@ function renderCommunityChat() {
         return timeA - timeB;
     });
 
-    container.innerHTML = sorted.map(message => `
-        <div style="background:white;border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px">
-            <strong style="color:#4A040D">${escapeHtml(message.sender || "عميلة")}</strong>
-            ${message.isOwner ? "<span style='color:#D4AF37;font-size:12px'> الإدارة</span>" : ""}
-            <p style="margin-top:5px;overflow-wrap:anywhere">${escapeHtml(message.text || "")}</p>
-            ${isOwner() ? `
-                <button onclick="deleteCommunityMsg('${message.id}')"
-                    style="margin-top:7px;color:#c00;background:none;border:0;cursor:pointer">
-                    حذف الرسالة
-                </button>` : ""}
-        </div>
-    `).join("");
+    container.innerHTML = sorted.map(message => {
+        const replies = Array.isArray(message.replies) ? message.replies : [];
+
+        return `
+            <div style="background:white;border:1px solid #eee;padding:12px;border-radius:8px;margin-bottom:10px">
+
+                <strong style="color:#4A040D">
+                    ${escapeHtml(message.sender || "عميلة")}
+                </strong>
+
+                ${message.isOwner
+                    ? "<span style='color:#D4AF37;font-size:12px'> الإدارة</span>"
+                    : ""}
+
+                <p style="margin-top:5px;overflow-wrap:anywhere">
+                    ${escapeHtml(message.text || "")}
+                </p>
+
+                ${replies.map(reply => `
+                    <div style="margin:10px 0 0 15px;padding:9px;border-right:3px solid #D4AF37;background:#fdfbf7">
+                        <strong style="color:#4A040D">رد الإدارة</strong>
+                        <p>${escapeHtml(reply.text || "")}</p>
+                    </div>
+                `).join("")}
+
+                ${isOwner() ? `
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+                        <button onclick="replyToCommunityMsg('${message.id}')"
+                            style="color:white;background:#4A040D;border:0;padding:7px 12px;border-radius:5px;cursor:pointer">
+                            رد
+                        </button>
+
+                        <button onclick="deleteCommunityMsg('${message.id}')"
+                            style="color:#c00;background:none;border:0;cursor:pointer">
+                            حذف الرسالة
+                        </button>
+                    </div>
+                ` : ""}
+            </div>
+        `;
+    }).join("");
 
     container.scrollTop = container.scrollHeight;
 }
 
 async function sendCommunityMessage() {
-    const sender = $("chatSenderName").value.trim();
-    const text = $("chatInputText").value.trim();
+    const sender = $("chatSenderName")?.value.trim();
+    const text = $("chatInputText")?.value.trim();
 
     if (!sender || !text) {
-        showMessage("اكتبي اسمك والرسالة.");
-        return;
+        return showMessage("اكتبي اسمك والرسالة.");
     }
 
     if (sender.length > 60 || text.length > 1000) {
-        showMessage("الاسم بحد أقصى 60 حرفًا والرسالة بحد أقصى 1000 حرف.");
-        return;
+        return showMessage("الاسم بحد أقصى 60 حرفًا والرسالة بحد أقصى 1000 حرف.");
     }
 
     try {
@@ -1048,7 +1341,38 @@ async function sendCommunityMessage() {
         $("chatInputText").value = "";
     } catch (error) {
         console.error(error);
-        showMessage("تعذر إرسال الرسالة. تأكدي من قواعد Firestore.");
+        showMessage("تعذر إرسال الرسالة. راجعي قواعد Firestore.");
+    }
+}
+
+async function replyToCommunityMsg(id) {
+    if (!isOwner()) {
+        return showMessage("الرد متاح للمالكة فقط.");
+    }
+
+    const message = communityMessages.find(item => item.id === id);
+    if (!message) return;
+
+    const replyText = prompt("اكتبي رد الإدارة:");
+
+    if (!replyText || !replyText.trim()) return;
+
+    const replies = Array.isArray(message.replies) ? [...message.replies] : [];
+
+    replies.push({
+        text: replyText.trim().slice(0, 1000),
+        createdAt: Date.now()
+    });
+
+    try {
+        await updateDoc(doc(db, "community", id), {
+            replies
+        });
+
+        showMessage("تم إضافة الرد.");
+    } catch (error) {
+        console.error(error);
+        showMessage("تعذر إضافة الرد.");
     }
 }
 
@@ -1066,7 +1390,6 @@ async function deleteCommunityMsg(id) {
 
 /* =========================================================
    ربط الدوال بأزرار HTML
-   مهم لأن script.js يعمل بنظام module
 ========================================================= */
 
 Object.assign(window, {
@@ -1106,6 +1429,7 @@ Object.assign(window, {
     deleteReview,
 
     sendCommunityMessage,
+    replyToCommunityMsg,
     deleteCommunityMsg
 });
 
@@ -1119,6 +1443,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderCart();
     ensureAdminButton();
     updateOwnerUI();
+    addReviewImageUrlField();
 });
 
 window.addEventListener("click", event => {
