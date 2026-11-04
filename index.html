@@ -217,5 +217,28 @@
     </div>
 
     <script src="script.js"></script>
+    <!-- 🌟 ربط مكتبات Firebase وسكريبت التهيئة -->
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAQm0s0mZDDdxvw4zM6y125sK9cA-PZwJo",
+        authDomain: "just-a-girl-622a4.firebaseapp.com",
+        projectId: "just-a-girl-622a4",
+        storageBucket: "just-a-girl-622a4.firebasestorage.app",
+        messagingSenderId: "375542341340",
+        appId: "1:375542341340:web:70b8010c6f10244769de19",
+        measurementId: "G-JNBVJ3YRX0"
+    };
+
+    // تهيئة السحابة وجعلها مجهزة لملف script.js
+    const app = initializeApp(firebaseConfig);
+    window.db = getFirestore(app);
+    window.firestoreTools = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc };
+</script>
+
+<!-- ملف السكريبت الرئيسي الخاص بكِ -->
+<script src="script.js"></script>
 </body>
 </html>
