@@ -686,7 +686,7 @@ function renderReviews() {
 }
 
 // =========================================================================
-// 💬 مجتمع العملاء
+// 💬 مجتمع العملاء (محدث بخاصية الردود وزر حذف الرد)
 // =========================================================================
 function renderCommunityChat() {
     const chatBox = document.getElementById('chatMessages');
@@ -698,7 +698,21 @@ function renderCommunityChat() {
         msgDiv.style.cssText = `margin-bottom:12px; padding:14px; border-radius:8px; background:${msg.isOwner ? '#fff5f5' : '#ffffff'}; border:1px solid ${msg.isOwner ? '#ffcccc' : '#eee'}; position:relative;`;
         
         let ownerBadge = msg.isOwner ? `<span style="background:#4A040D; color:#D4AF37; font-size:11px; padding:3px 8px; border-radius:4px; font-weight:bold; margin-right:8px;">👑 Just a Girl (المالك) ✨</span>` : '';
-        let deleteBtnHtml = `<button onclick="deleteCommunityMsg(${msg.id})" style="position:absolute; top:12px; left:12px; background:none; border:none; color:#cc0000; font-size:12px; cursor:pointer;" title="حذف الرسالة"><i class="fa-solid fa-trash"></i> حذف</button>`;
+        let deleteBtnHtml = `<button onclick="deleteCommunityMsg(${msg.id})" style="position:absolute; top:12px; left:12px; background:none; border:none; color:#cc0000; font-size:12px; cursor:pointer;" title="حذف الرسالة">حذف</button>`;
+
+        // بناء الردود مع زر حذف خاص بكل رد
+        let repliesHtml = '';
+        if (msg.replies && msg.replies.length > 0) {
+            msg.replies.forEach(rep => {
+                let repOwnerBadge = rep.isOwner ? `<span style="background:#4A040D; color:#D4AF37; font-size:10px; padding:2px 6px; border-radius:3px; margin-right:5px;">👑 المالك</span>` : '';
+                repliesHtml += `
+                    <div style="margin-top:8px; margin-right:20px; padding:8px 12px; background:#fdfbf7; border-right:3px solid #D4AF37; border-radius:4px; font-size:13px; position:relative;">
+                        <div><strong>${escapeHtml(rep.sender)}</strong> ${repOwnerBadge}: ${escapeHtml(rep.text)}</div>
+                        <button onclick="deleteReply(${msg.id}, ${rep.id})" style="position:absolute; top:8px; left:8px; background:none; border:none; color:#cc0000; font-size:11px; cursor:pointer;" title="حذف الرد">حذف</button>
+                    </div>
+                `;
+            });
+        }
 
         msgDiv.innerHTML = `
             <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
@@ -707,11 +721,94 @@ function renderCommunityChat() {
                 </div>
                 ${deleteBtnHtml}
             </div>
-            <div style="font-size:14px; color:#444; line-height:1.5; white-space:pre-wrap;">${escapeHtml(msg.text)}</div>
+            <div style="font-size:14px; color:#444; line-height:1.5; white-space:pre-wrap; margin-bottom:8px;">${escapeHtml(msg.text)}</div>
+            
+            <div style="margin-top:5px;">
+                <button onclick="toggleReplyBox(${msg.id})" style="background:none; border:none; color:#D4AF37; font-size:12px; cursor:pointer; font-weight:bold;">💬 رد</button>
+            </div>
+
+            <div id="repliesContainer_${msg.id}" style="margin-top:6px;">
+                ${repliesHtml}
+            </div>
+
+            <div id="replyBox_${msg.id}" style="display:none; margin-top:8px; display:flex; gap:6px;">
+                <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; width:100px;">
+                <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; flex:1;">
+                <button onclick="sendReplyToMessage(${msg.id})" style="background:#4A040D; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:12px; cursor:pointer;">إرسال الرد</button>
+            </div>
         `;
         chatBox.appendChild(msgDiv);
     });
     chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// دالة حذف الرد المحدد
+function deleteReply(msgId, replyId) {
+    let msg = communityMessages.find(m => m.id === msgId);
+    if (!msg || !msg.replies) return;
+
+    let rep = msg.replies.find(r => r.id === replyId);
+    if (!rep) return;
+
+    if (ownerSession) {
+        if (confirm('هل أنتِ متأكدة من حذف هذا الرد بصفتك مالكة؟')) {
+            msg.replies = msg.replies.filter(r => r.id !== replyId);
+            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+            renderCommunityChat();
+        }
+    } else {
+        let enterName = prompt('لحذف ردك، اكتبي نفس الاسم الذي استخدمتيه عند كتابة الرد:');
+        if (enterName && enterName.trim().toLowerCase() === rep.sender.toLowerCase()) {
+            msg.replies = msg.replies.filter(r => r.id !== replyId);
+            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+            renderCommunityChat();
+        } else {
+            alert('الاسم غير صحيح، لا يمكنك حذف رد شخص آخر.');
+        }
+    }
+}
+
+function toggleReplyBox(msgId) {
+    let box = document.getElementById(`replyBox_${msgId}`);
+    if (box) {
+        box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+    }
+}
+
+function sendReplyToMessage(msgId) {
+    let nameInput = document.getElementById(`replyName_${msgId}`);
+    let textInput = document.getElementById(`replyText_${msgId}`);
+    if (!textInput || !textInput.value.trim()) {
+        alert('يرجى كتابة نص الرد.');
+        return;
+    }
+
+    let senderName = nameInput ? nameInput.value.trim() : "";
+    let isOwnerFlag = false;
+
+    if (ownerSession) {
+        senderName = 'Just a Girl (المالك)';
+        isOwnerFlag = true;
+    } else {
+        if (!senderName) {
+            alert('يرجى إدخال اسمك قبل الرد.');
+            return;
+        }
+    }
+
+    let msg = communityMessages.find(m => m.id === msgId);
+    if (msg) {
+        if (!msg.replies) msg.replies = [];
+        msg.replies.push({
+            id: Date.now(),
+            sender: senderName,
+            text: textInput.value.trim(),
+            isOwner: isOwnerFlag
+        });
+
+        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+        renderCommunityChat();
+    }
 }
 
 function escapeHtml(text) {
@@ -764,7 +861,7 @@ function sendCommunityMessage() {
 
 function filterCategory(category) {
     document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-    if(window.event && window.event.target) window.event.target.classList.add('class');
+    if(window.event && window.event.target) window.event.target.classList.add('active');
     if (category === 'all') renderProducts(products);
     else renderProducts(products.filter(p => p.category === category));
 }
