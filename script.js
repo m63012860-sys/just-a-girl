@@ -39,6 +39,7 @@ let communityMessages = JSON.parse(localStorage.getItem('jag_community')) || [
 let cart = JSON.parse(localStorage.getItem('jag_cart')) || [];
 let currentBase64Image = "";
 let colorUploadsList = [];
+let selectedSizeForCart = "";
 
 document.addEventListener('DOMContentLoaded', () => {
     initSlider();
@@ -83,7 +84,7 @@ function initSlider() {
 }
 
 // =========================================================================
-// 🛍️ عرض وإدارة المنتجات
+// 🛍️ عرض وإدارة المنتجات (تعديل، حذف، نفذ)
 // =========================================================================
 function renderProducts(itemsToRender = products) {
     const grid = document.getElementById('productsGrid');
@@ -108,9 +109,9 @@ function renderProducts(itemsToRender = products) {
         if (ownerSession) {
             adminControlsHtml = `
                 <div style="display: flex; gap: 5px; margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 8px;">
-                    <button onclick="openEditProductModal(${product.id})" style="flex:1; background:#D4AF37; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">تعديل</button>
-                    <button onclick="deleteProduct(${product.id})" style="flex:1; background:#c00; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">حذف</button>
-                    <button onclick="toggleOutOfStock(${product.id})" style="flex:1; background:#555; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${product.outOfStock ? 'إتاحة' : 'نفذ'}</button>
+                    <button type="button" onclick="openEditProductModal(${product.id})" style="flex:1; background:#D4AF37; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">تعديل</button>
+                    <button type="button" onclick="deleteProduct(${product.id})" style="flex:1; background:#c00; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">حذف</button>
+                    <button type="button" onclick="toggleOutOfStock(${product.id})" style="flex:1; background:#555; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${product.outOfStock ? 'إتاحة' : 'نفذ'}</button>
                 </div>
             `;
         }
@@ -130,6 +131,7 @@ function renderProducts(itemsToRender = products) {
     });
 }
 
+// 1. فتح نافذة إضافة منتج
 function openAddProductModal() {
     if (!ownerSession) { alert('متاحة للإدارة فقط.'); return; }
     let modal = document.getElementById('productModal');
@@ -167,8 +169,9 @@ function openAddProductModal() {
         </div>
 
         <div class="form-group">
-            <label>رفع الصورة الرئيسية من الجهاز:</label>
-            <input type="file" id="mainImageFile" accept="image/*" onchange="handleMainImageUpload(event)" style="padding:5px;">
+            <label>رفع الصورة الرئيسية من الجهاز أو رابط خارجي:</label>
+            <input type="file" id="mainImageFile" accept="image/*" onchange="handleMainImageUpload(event)" style="padding:5px; margin-bottom:5px;">
+            <input type="text" id="mainImgUrlInput" placeholder="أو ائتي برابط صورة مباشرة (URL)..." oninput="handleMainImageUrl(event)" style="padding:7px; width:100%; border:1px solid #ccc; border-radius:4px; font-size:13px;">
             <div id="mainImgPreviewContainer" style="margin-top:8px;">
                 <img id="mainImgPreview" src="${currentBase64Image}" style="width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #ddd;">
             </div>
@@ -208,6 +211,84 @@ function openAddProductModal() {
     addColorUploadField();
 }
 
+// 2. تعديل منتج قائم
+function openEditProductModal(productId) {
+    if (!ownerSession) return;
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    let modal = document.getElementById('productModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'productModal';
+        modal.className = 'modal';
+        modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
+        document.body.appendChild(modal);
+    }
+
+    let firstPrice = 500;
+    for(let s in product.sizes) {
+        if(product.sizes[s].price) { firstPrice = product.sizes[s].price; break; }
+    }
+
+    const content = document.getElementById('productModalContent');
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">تعديل المنتج</h2>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editProdTitle" value="${product.titleAr}"></div>
+        <div class="form-group"><label>السعر الافتراضي (ج.م):</label><input type="number" id="editProdPrice" value="${firstPrice}"></div>
+        <div class="form-group"><label>رابط الصورة:</label><input type="text" id="editProdImg" value="${product.image}"></div>
+        <div class="form-group"><label>الوصف:</label><textarea id="editProdDesc">${product.description || ''}</textarea></div>
+        <button onclick="saveEditedProduct(${product.id})" style="width:100%; background:#D4AF37; color:#fff; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer;">تحديث بيانات المنتج</button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function saveEditedProduct(productId) {
+    let product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    let newTitle = document.getElementById('editProdTitle').value.trim();
+    let newPrice = parseFloat(document.getElementById('editProdPrice').value) || 0;
+    let newImg = document.getElementById('editProdImg').value.trim();
+    let newDesc = document.getElementById('editProdDesc').value.trim();
+
+    if (newTitle) { product.titleAr = newTitle; product.titleEn = newTitle; }
+    if (newPrice > 0) {
+        for(let s in product.sizes) {
+            product.sizes[s].price = newPrice;
+            break;
+        }
+    }
+    if (newImg) { product.image = newImg; }
+    product.description = newDesc;
+
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    closeProductModal();
+    renderProducts(products);
+    alert('تم تحديث المنتج بنجاح!');
+}
+
+// 3. حذف منتج
+function deleteProduct(productId) {
+    if (!ownerSession) return;
+    if (!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً؟')) return;
+    products = products.filter(p => p.id !== productId);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    renderProducts(products);
+}
+
+// 4. تفعيل أو إلغاء حالة نفذ / إتاحة
+function toggleOutOfStock(productId) {
+    if (!ownerSession) return;
+    let product = products.find(p => p.id === productId);
+    if (product) {
+        product.outOfStock = !product.outOfStock;
+        localStorage.setItem('jag_products', JSON.stringify(products));
+        renderProducts(products);
+    }
+}
+
 function handleMainImageUpload(event) {
     const file = event.target.files[0];
     if (file) {
@@ -217,6 +298,14 @@ function handleMainImageUpload(event) {
             document.getElementById('mainImgPreview').src = currentBase64Image;
         };
         reader.readAsDataURL(file);
+    }
+}
+
+function handleMainImageUrl(event) {
+    let urlVal = event.target.value.trim();
+    if(urlVal) {
+        currentBase64Image = urlVal;
+        document.getElementById('mainImgPreview').src = urlVal;
     }
 }
 
@@ -232,6 +321,7 @@ function addColorUploadField() {
     div.innerHTML = `
         <input type="text" placeholder="اسم اللون (مثال: برجندي)" id="color_name_${index}" oninput="updateColorData(${index})" style="flex:1; padding:7px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
         <input type="file" accept="image/*" onchange="handleColorImageUpload(event, ${index})" style="font-size:11px; width:120px;">
+        <input type="text" placeholder="أو رابط URL" id="color_url_${index}" oninput="updateColorUrl(${index})" style="width:90px; padding:6px; font-size:11px; border:1px solid #ccc; border-radius:4px;">
         <img id="color_preview_${index}" src="" style="width:32px; height:32px; object-fit:cover; border-radius:4px; display:none; border:1px solid #ddd;">
         <button type="button" onclick="removeColorField(${index})" style="background:#c00; color:#fff; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; font-size:11px;">حذف</button>
     `;
@@ -241,6 +331,16 @@ function addColorUploadField() {
 function updateColorData(index) {
     let nameVal = document.getElementById(`color_name_${index}`).value;
     if(colorUploadsList[index]) colorUploadsList[index].name = nameVal;
+}
+
+function updateColorUrl(index) {
+    let urlVal = document.getElementById(`color_url_${index}`).value.trim();
+    if(colorUploadsList[index] && urlVal) {
+        colorUploadsList[index].image = urlVal;
+        let prevImg = document.getElementById(`color_preview_${index}`);
+        prevImg.src = urlVal;
+        prevImg.style.display = 'block';
+    }
 }
 
 function handleColorImageUpload(event, index) {
@@ -300,10 +400,10 @@ function saveNewAdvancedProduct() {
     localStorage.setItem('jag_products', JSON.stringify(products));
     closeProductModal();
     renderProducts(products);
-    alert('تم إضافة المنتج بنجاح!');
+    alert('تم إضافة المنتج بكافة مقاساته وألوانه بنجاح!');
 }
 
-// 🌟 تفاصيل المنتج مع خاصية تغيير الصورة الرئيسية بالضغط على الألوان والرجوع للأصل
+// 🌟 تفاصيل المنتج مع أزرار المقاسات التفاعلية وتغيير الصور عبر الألوان
 function openProductDetails(productId) {
     const product = products.find(p => p.id === productId);
     if (!product) return;
@@ -312,21 +412,31 @@ function openProductDetails(productId) {
     const content = document.getElementById('productModalContent');
     if(!modal || !content) return;
 
-    let sizesHtml = '';
+    let availableSizesKeys = Object.keys(product.sizes || {}).filter(s => product.sizes[s].available && product.sizes[s].price > 0);
+    selectedSizeForCart = availableSizesKeys.length > 0 ? availableSizesKeys[0] : "";
+    let initialPrice = selectedSizeForCart ? product.sizes[selectedSizeForCart].price : 500;
+
+    let sizesButtonsHtml = '';
     Object.keys(product.sizes || {}).forEach(sKey => {
         let sData = product.sizes[sKey];
-        if(sData.available) {
-            sizesHtml += `<span style="display:inline-block; background:#f7f4ed; border:1px solid #D4AF37; padding:4px 8px; border-radius:5px; margin:2px; font-size:12px;">${sKey}: <strong>${sData.price} ج.م</strong></span>`;
+        if(sData.available && sData.price > 0) {
+            let isSelected = (sKey === selectedSizeForCart);
+            sizesButtonsHtml += `
+                <button type="button" onclick="selectProductSize('${sKey}', ${sData.price}, this)" 
+                    class="size-btn" 
+                    style="background: ${isSelected ? '#4A040D' : '#f7f4ed'}; color: ${isSelected ? '#fff' : '#4A040D'}; border: 1px solid #D4AF37; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s;">
+                    ${sKey}: ${sData.price} ج.م
+                </button>`;
         }
     });
 
     let colorsHtml = '';
     if(product.colors && product.colors.length > 0) {
-        product.colors.forEach((col, idx) => {
+        product.colors.forEach(col => {
             if(col.image) {
                 colorsHtml += `
                     <div onclick="changeProductDisplayImage('${col.image}', '${col.name}')" style="text-align:center; display:inline-block; margin:4px; cursor:pointer;" title="عرض لون ${col.name}">
-                        <img src="${col.image}" style="width:40px; height:40px; object-fit:cover; border-radius:50%; border:2px solid #D4AF37; transition:0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                        <img src="${col.image}" style="width:40px; height:40px; object-fit:cover; border-radius:50%; border:2px solid #D4AF37;">
                         <div style="font-size:10px; color:#4A040D; font-weight:bold;">${col.name}</div>
                     </div>`;
             }
@@ -344,10 +454,22 @@ function openProductDetails(productId) {
             <div style="flex: 1; min-width: 220px;">
                 <h2 style="color: #4A040D; margin-bottom: 6px; font-family:'Playfair Display',serif;">${product.titleAr}</h2>
                 <p style="font-size: 12px; color: #666; margin-bottom: 10px; line-height:1.4;">${product.description || ''}</p>
-                <div style="margin-bottom: 8px;"><strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:3px;">المقاسات المتاحة:</strong> ${sizesHtml}</div>
-                ${colorsHtml ? `<div style="margin-bottom: 10px;"><strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:3px;">الألوان المتوفرة (اضغط لعرض اللون):</strong> <div style="display:flex; gap:6px; flex-wrap:wrap;">${colorsHtml}</div></div>` : ''}
-                <button class="view-details-btn" onclick="addToCartWithOptions(${product.id})" ${product.outOfStock ? 'disabled style="background:#ccc;"' : ''}>
-                    ${product.outOfStock ? 'نفذت الكمية' : 'إضافة للسلة'}
+                
+                <div style="margin-bottom: 10px; font-size: 15px; font-weight: bold; color: #4A040D;">
+                    السعر الحالي: <span id="dynamicPriceDisplay">${initialPrice}</span> ج.م
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:4px;">اختر المقاس المطلـوب:</strong> 
+                    <div style="display:flex; gap:5px; flex-wrap:wrap;" id="productSizesContainer">
+                        ${sizesButtonsHtml}
+                    </div>
+                </div>
+
+                ${colorsHtml ? `<div style="margin-bottom: 10px;"><strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:3px;">الألوان المتوفرة:</strong> <div style="display:flex; gap:6px; flex-wrap:wrap;">${colorsHtml}</div></div>` : ''}
+                
+                <button class="view-details-btn" onclick="addToCartWithSelectedSize(${product.id})" ${product.outOfStock ? 'disabled style="background:#ccc;"' : ''}>
+                    ${product.outOfStock ? 'نفذت الكمية' : 'إضافة للسلة بالمقاس المحدد'}
                 </button>
             </div>
         </div>
@@ -355,7 +477,49 @@ function openProductDetails(productId) {
     modal.style.display = 'flex';
 }
 
-// وظائف تغيير الصورة والرجوع للأصل
+function selectProductSize(sizeKey, priceVal, btnElement) {
+    selectedSizeForCart = sizeKey;
+    const container = document.getElementById('productSizesContainer');
+    if(container) {
+        Array.from(container.children).forEach(btn => {
+            btn.style.background = '#f7f4ed';
+            btn.style.color = '#4A040D';
+        });
+    }
+    btnElement.style.background = '#4A040D';
+    btnElement.style.color = '#fff';
+
+    const priceDisplay = document.getElementById('dynamicPriceDisplay');
+    if(priceDisplay) {
+        priceDisplay.innerText = priceVal;
+    }
+}
+
+function addToCartWithSelectedSize(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product || product.outOfStock) return;
+
+    if (!selectedSizeForCart || !product.sizes[selectedSizeForCart]) {
+        alert('يرجى اختيار المقاس أولاً.');
+        return;
+    }
+
+    let chosenSizeData = product.sizes[selectedSizeForCart];
+    
+    cart.push({ 
+        id: product.id, 
+        titleAr: product.titleAr, 
+        size: selectedSizeForCart, 
+        price: chosenSizeData.price, 
+        qty: 1 
+    });
+
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    closeProductModal();
+    alert(`تمت إضافة "${product.titleAr}" (مقاس ${selectedSizeForCart}) بسعر ${chosenSizeData.price} ج.م إلى السلة بنجاح!`);
+}
+
 function changeProductDisplayImage(imgUrl, colorName) {
     const mainImg = document.getElementById('mainDetailImage');
     const indicator = document.getElementById('colorNameIndicator');
@@ -373,22 +537,6 @@ function resetToOriginalImage(originalImgUrl) {
 function closeProductModal() { 
     const modal = document.getElementById('productModal');
     if(modal) modal.style.display = 'none'; 
-}
-
-function addToCartWithOptions(productId) {
-    const product = products.find(p => p.id === productId);
-    if (!product || product.outOfStock) return;
-    
-    let firstPrice = 500;
-    for(let s in product.sizes) {
-        if(product.sizes[s].price) { firstPrice = product.sizes[s].price; break; }
-    }
-
-    cart.push({ id: product.id, titleAr: product.titleAr, price: firstPrice, qty: 1 });
-    localStorage.setItem('jag_cart', JSON.stringify(cart));
-    updateCartCount();
-    closeProductModal();
-    alert('تمت الإضافة للسلة بنجاح!');
 }
 
 function updateCartCount() {
@@ -410,7 +558,7 @@ function openCartModal() {
             total += item.price * item.qty;
             list.innerHTML += `
                 <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                    <div><strong>${item.titleAr}</strong> (${item.price} ج.م)</div>
+                    <div><strong>${item.titleAr}</strong> ${item.size ? `(مقاس: ${item.size})` : ''} - <strong>${item.price} ج.م</strong></div>
                     <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer;">حذف</button>
                 </div>
             `;
@@ -585,7 +733,7 @@ function deleteCommunityMsg(id) {
         if (enterName && enterName.trim().toLowerCase() === msg.sender.toLowerCase()) {
             communityMessages = communityMessages.filter(m => m.id !== id);
             localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-            renderCommunityChat.apply();
+            renderCommunityChat();
         } else {
             alert('الاسم غير صحيح.');
         }
@@ -616,7 +764,7 @@ function sendCommunityMessage() {
 
 function filterCategory(category) {
     document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-    if(window.event && window.event.target) window.event.target.classList.add('active');
+    if(window.event && window.event.target) window.event.target.classList.add('class');
     if (category === 'all') renderProducts(products);
     else renderProducts(products.filter(p => p.category === category));
 }
