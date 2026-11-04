@@ -34,12 +34,10 @@
         </div>
     </header>
 
-    <!-- قائمة الأقسام مع الجملة الترحيبية في البداية لزيح كلمة الكل لقدام -->
+    <!-- قائمة الأقسام مع الجملة الترحيبية -->
     <nav id="categoryNav">
         <div class="nav-static-msg">✨اختيارك الأمثل للأناقة والتميز Just a Girl✨</div>
-       <div class="nav-static-msg">🛍️ اختيارك الأمثل للأناقة والتميز Just a Girl</div>
-    
-        
+        <div class="nav-static-msg">🛍️ اختيارك الأمثل للأناقة والتميز Just a Girl</div>
         
         <button class="active" onclick="filterCategory('all')">الكل (All)</button>
         <button onclick="filterCategory('hoodies')">هوديات (Hoodies)</button>
@@ -185,7 +183,7 @@
         </div>
     </div>
 
-    <!-- مودال الملف الشخصي وتسجيل دخول الإدارة (إيميل وباسورد فقط بدون أي رمز سري) -->
+    <!-- مودال الملف الشخصي وتسجيل دخول الإدارة -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeProfileModal()">&times;</span>
@@ -203,42 +201,40 @@
             </div>
             
             <div id="adminSettingsSection" style="display: none;">
-    <h3 style="color: #4A040D; font-size: 16px; margin-bottom: 10px;">إعدادات حساب الإدارة</h3>
-    <div class="form-group"><label>الإيميل الجديد:</label><input type="email" id="newAdminEmail" placeholder="البريد الجديد"></div>
-    <div class="form-group"><label>كلمة المرور الجديدة:</label><input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة"></div>
-    <button onclick="updateAdminAccount()" style="width: 100%; background: #D4AF37; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">حفظ التعديلات</button>
-    
-    <!-- زر تسجيل الخروج المضاف والجاهز للعمل -->
-    <button onclick="logoutOwner()" style="width: 100%; background: #c00; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
-        <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
-    </button>
-</div>
+                <h3 style="color: #4A040D; font-size: 16px; margin-bottom: 10px;">إعدادات حساب الإدارة</h3>
+                <div class="form-group"><label>الإيميل الجديد:</label><input type="email" id="newAdminEmail" placeholder="البريد الجديد"></div>
+                <div class="form-group"><label>كلمة المرور الجديدة:</label><input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة"></div>
+                <button onclick="updateAdminAccount()" style="width: 100%; background: #D4AF37; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">حفظ التعديلات</button>
+                
+                <button onclick="logoutOwner()" style="width: 100%; background: #c00; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+                </button>
+            </div>
         </div>
     </div>
 
-    <script src="script.js"></script>
     <!-- 🌟 ربط مكتبات Firebase وسكريبت التهيئة -->
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyAQm0s0mZDDdxvw4zM6y125sK9cA-PZwJo",
-        authDomain: "just-a-girl-622a4.firebaseapp.com",
-        projectId: "just-a-girl-622a4",
-        storageBucket: "just-a-girl-622a4.firebasestorage.app",
-        messagingSenderId: "375542341340",
-        appId: "1:375542341340:web:70b8010c6f10244769de19",
-        measurementId: "G-JNBVJ3YRX0"
-    };
+        const firebaseConfig = {
+            apiKey: "AIzaSyAQm0s0mZDDdxvw4zM6y125sK9cA-PZwJo",
+            authDomain: "just-a-girl-622a4.firebaseapp.com",
+            projectId: "just-a-graph-622a4", <!-- تأكدي من projectId الخاص بك -->
+            projectId: "just-a-girl-622a4",
+            storageBucket: "just-a-girl-622a4.firebasestorage.app",
+            messagingSenderId: "375542341340",
+            appId: "1:375542341340:web:70b8010c6f10244769de19",
+            measurementId: "G-JNBVJ3YRX0"
+        };
 
-    // تهيئة السحابة وجعلها مجهزة لملف script.js
-    const app = initializeApp(firebaseConfig);
-    window.db = getFirestore(app);
-    window.firestoreTools = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc };
-</script>
+        const app = initializeApp(firebaseConfig);
+        window.db = getFirestore(app);
+        window.firestoreTools = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc };
+    </script>
 
-<!-- ملف السكريبت الرئيسي الخاص بكِ -->
-<script src="script.js"></script>
+    <!-- ملف السكريبت الرئيسي (يُستدعى مرة واحدة في النهاية) -->
+    <script src="script.js"></script>
 </body>
 </html>
