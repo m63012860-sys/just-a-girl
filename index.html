@@ -137,7 +137,7 @@
             </button>
         </div>
 
-        <div id="reviewsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
+        <div id="reviewsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
     </div>
 
     <!-- مجتمع العملاء -->
@@ -145,11 +145,11 @@
         <h2 class="section-title" style="text-align: center; display: block;">مجتمع Just a Girl 💬</h2>
         <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px;">مساحة لتبادل الآراء والاستفسارات بين العملاء.</p>
         
-        <div id="chatMessages" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
+        <div id="communityChatBox" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <input type="text" id="chatSenderName" placeholder="اسمك..." style="width: 30%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-            <input type="text" id="chatInputText" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <input type="text" id="communityInput" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
             <button onclick="sendCommunityMessage()" style="background: #4A040D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
         </div>
     </div>
@@ -221,7 +221,6 @@
         const firebaseConfig = {
             apiKey: "AIzaSyAQm0s0mZDDdxvw4zM6y125sK9cA-PZwJo",
             authDomain: "just-a-girl-622a4.firebaseapp.com",
-            projectId: "just-a-graph-622a4", <!-- تأكدي من projectId الخاص بك -->
             projectId: "just-a-girl-622a4",
             storageBucket: "just-a-girl-622a4.firebasestorage.app",
             messagingSenderId: "375542341340",
@@ -234,7 +233,7 @@
         window.firestoreTools = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc };
     </script>
 
-    <!-- ملف السكريبت الرئيسي (يُستدعى مرة واحدة في النهاية) -->
+    <!-- ملف السكريبت الرئيسي -->
     <script src="script.js"></script>
 </body>
 </html>
