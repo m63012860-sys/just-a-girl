@@ -150,7 +150,7 @@ function initSlider() {
 }
 
 // =========================================================================
-// 🛍️ عرض وإدارة المنتجات
+// 🛍️ عرض وإدارة المنتجات (تعديل، حذف، نفذ، ألوان، مقاسات)
 // =========================================================================
 function renderProducts(itemsToRender = products) {
     const grid = document.getElementById('productsGrid');
@@ -197,11 +197,287 @@ function renderProducts(itemsToRender = products) {
     });
 }
 
-function updateCartCount() {
-    const badge = document.getElementById('cartCount');
-    if(badge) badge.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+// 1. فتح نافذة إضافة منتج جديد بكامل الميزات
+function openAddProductModal() {
+    if (!ownerSession) { alert('متاحة للإدارة فقط.'); return; }
+    let modal = document.getElementById('productModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'productModal';
+        modal.className = 'modal';
+        modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
+        document.body.appendChild(modal);
+    }
+
+    currentBase64Image = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500";
+    colorUploadsList = [];
+
+    const content = document.getElementById('productModalContent');
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px; font-family:'Playfair Display', serif;">إضافة منتج جديد</h2>
+        
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="addProdTitle" placeholder="مثال: سوت ميلتون"></div>
+        
+        <div class="form-group"><label>القسم:</label>
+            <select id="addProdCat" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+                <option value="hoodies">هوديات (Hoodies)</option>
+                <option value="pants">بناطيل (Pants)</option>
+                <option value="kids">أطفال (Kids)</option>
+                <option value="pajamas">بيجامات (Pajamas)</option>
+                <option value="sets">أطقم وسوت (Sets / Suits)</option>
+                <option value="dresses">الفساتين (Dresses)</option>
+                <option value="suits">البدل (Suits)</option>
+                <option value="jackets">الجواكت (Jackets)</option>
+                <option value="bundles">باكدج (Bundles)</option>
+                <option value="offers">عروض خاصة</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>رفع الصورة الرئيسية أو رابط مباشر:</label>
+            <input type="file" id="mainImageFile" accept="image/*" onchange="handleMainImageUpload(event)" style="padding:5px; margin-bottom:5px;">
+            <input type="text" id="mainImgUrlInput" placeholder="أو ائتي برابط صورة مباشرة (URL)..." oninput="handleMainImageUrl(event)" style="padding:7px; width:100%; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+            <div id="mainImgPreviewContainer" style="margin-top:8px;">
+                <img id="mainImgPreview" src="${currentBase64Image}" style="width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #ddd;">
+            </div>
+        </div>
+
+        <div class="form-group"><label>وصف المنتج:</label><textarea id="addProdDesc" placeholder="تفاصيل الخامات والمميزات..."></textarea></div>
+        
+        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
+        <h4 style="color:#4A040D; margin-bottom:8px;">أسعار المقاسات:</h4>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
+            <div><label style="font-size:12px;">1 سنة:</label><input type="number" id="price_1y" placeholder="0"></div>
+            <div><label style="font-size:12px;">2 سنة:</label><input type="number" id="price_2y" placeholder="0"></div>
+            <div><label style="font-size:12px;">3 سنوات:</label><input type="number" id="price_3y" placeholder="0"></div>
+            <div><label style="font-size:12px;">4 سنوات:</label><input type="number" id="price_4y" placeholder="0"></div>
+            <div><label style="font-size:12px;">6 سنوات:</label><input type="number" id="price_6y" placeholder="0"></div>
+            <div><label style="font-size:12px;">8 سنوات:</label><input type="number" id="price_8y" placeholder="0"></div>
+            <div><label style="font-size:12px;">10 سنوات:</label><input type="number" id="price_10y" placeholder="0"></div>
+            <div><label style="font-size:12px;">12 سنة:</label><input type="number" id="price_12y" placeholder="0"></div>
+            <div><label style="font-size:12px;">XS:</label><input type="number" id="price_XS" placeholder="0"></div>
+            <div><label style="font-size:12px;">S:</label><input type="number" id="price_S" placeholder="0"></div>
+            <div><label style="font-size:12px;">M:</label><input type="number" id="price_M" placeholder="0"></div>
+            <div><label style="font-size:12px;">L:</label><input type="number" id="price_L" placeholder="0"></div>
+            <div><label style="font-size:12px;">XL:</label><input type="number" id="price_XL" placeholder="0"></div>
+            <div><label style="font-size:12px;">2XL:</label><input type="number" id="price_2XL" placeholder="0"></div>
+            <div><label style="font-size:12px;">3XL:</label><input type="number" id="price_3XL" placeholder="0"></div>
+            <div><label style="font-size:12px;">Free Size:</label><input type="number" id="price_Free" placeholder="0"></div>
+        </div>
+
+        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
+        <h4 style="color:#4A040D; margin-bottom:8px;">ألوان المنتج (حتى 25 لوناً):</h4>
+        <div id="colorUploadsContainer" style="max-height: 180px; overflow-y: auto; border: 1px dashed #D4AF37; padding: 10px; border-radius: 6px; margin-bottom: 15px;"></div>
+        <button type="button" onclick="addColorUploadField()" style="background:#f7f4ed; border:1px solid #D4AF37; color:#4A040D; padding:8px; border-radius:5px; font-weight:bold; cursor:pointer; width:100%; margin-bottom:15px;">+ إضافة لون جديد</button>
+
+        <button onclick="saveNewAdvancedProduct()" style="width:100%; background:#4A040D; color:#fff; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer;">حفظ ونشر المنتج</button>
+    `;
+    modal.style.display = 'flex';
+    addColorUploadField();
 }
 
+function handleMainImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentBase64Image = e.target.result;
+            document.getElementById('mainImgPreview').src = currentBase64Image;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function handleMainImageUrl(event) {
+    let urlVal = event.target.value.trim();
+    if(urlVal) {
+        currentBase64Image = urlVal;
+        document.getElementById('mainImgPreview').src = urlVal;
+    }
+}
+
+function addColorUploadField() {
+    if (colorUploadsList.length >= 25) { alert('الحد الأقصى 25 لوناً.'); return; }
+    const index = colorUploadsList.length;
+    colorUploadsList.push({ name: '', image: '' });
+
+    const container = document.getElementById('colorUploadsContainer');
+    const div = document.createElement('div');
+    div.id = `color_row_${index}`;
+    div.style.cssText = "display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background:#fff; padding:6px; border-radius:5px; border:1px solid #eee;";
+    div.innerHTML = `
+        <input type="text" placeholder="اسم اللون (مثال: بني، بيج)" id="color_name_${index}" oninput="updateColorData(${index})" style="flex:1; padding:7px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+        <input type="file" accept="image/*" onchange="handleColorImageUpload(event, ${index})" style="font-size:11px; width:120px;">
+        <input type="text" placeholder="أو رابط URL" id="color_url_${index}" oninput="updateColorUrl(${index})" style="width:90px; padding:6px; font-size:11px; border:1px solid #ccc; border-radius:4px;">
+        <img id="color_preview_${index}" src="" style="width:32px; height:32px; object-fit:cover; border-radius:4px; display:none; border:1px solid #ddd;">
+        <button type="button" onclick="removeColorField(${index})" style="background:#c00; color:#fff; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; font-size:11px;">حذف</button>
+    `;
+    container.appendChild(div);
+}
+
+function updateColorData(index) {
+    let nameVal = document.getElementById(`color_name_${index}`).value;
+    if(colorUploadsList[index]) colorUploadsList[index].name = nameVal;
+}
+
+function updateColorUrl(index) {
+    let urlVal = document.getElementById(`color_url_${index}`).value.trim();
+    if(colorUploadsList[index] && urlVal) {
+        colorUploadsList[index].image = urlVal;
+        let prevImg = document.getElementById(`color_preview_${index}`);
+        prevImg.src = urlVal;
+        prevImg.style.display = 'block';
+    }
+}
+
+function handleColorImageUpload(event, index) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            colorUploadsList[index].image = e.target.result;
+            let prevImg = document.getElementById(`color_preview_${index}`);
+            prevImg.src = e.target.result;
+            prevImg.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeColorField(index) {
+    const row = document.getElementById(`color_row_${index}`);
+    if (row) row.remove();
+    colorUploadsList[index] = null;
+}
+
+function saveNewAdvancedProduct() {
+    let title = document.getElementById('addProdTitle').value.trim();
+    let category = document.getElementById('addProdCat').value;
+    let description = document.getElementById('addProdDesc').value.trim();
+
+    if (!title) { alert('يرجى إدخال اسم المنتج.'); return; }
+
+    let sizeKeys = ["1y", "2y", "3y", "4y", "6y", "8y", "10y", "12y", "XS", "S", "M", "L", "XL", "2XL", "3XL", "Free"];
+    let sizesObj = {};
+    sizeKeys.forEach(s => {
+        let inputEl = document.getElementById(`price_${s}`);
+        let pVal = inputEl ? parseFloat(inputEl.value) || 0 : 0;
+        if(pVal > 0) sizesObj[s] = { price: pVal, oldPrice: 0, available: true };
+    });
+
+    if(Object.keys(sizesObj).length === 0) sizesObj["Free"] = { price: 470, oldPrice: 0, available: true };
+
+    let finalColors = colorUploadsList.filter(c => c !== null && (c.name || c.image));
+    if(finalColors.length === 0) finalColors = [{ name: "الأساسي", image: currentBase64Image }];
+
+    let newProduct = {
+        id: Date.now().toString(),
+        titleAr: title,
+        titleEn: title,
+        category: category,
+        hasDiscount: false,
+        image: currentBase64Image,
+        description: description,
+        outOfStock: false,
+        colors: finalColors,
+        sizes: sizesObj
+    };
+
+    products.unshift(newProduct);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+
+    if (window.db && window.firestoreTools) {
+        const { doc, setDoc } = window.firestoreTools;
+        setDoc(doc(window.db, "products", newProduct.id), newProduct);
+    }
+
+    closeProductModal();
+    renderProducts(products);
+    alert('تم إضافة المنتج بكافة مقاساته وألوانه بنجاح!');
+}
+
+// 2. تعديل منتج قائم
+function openEditProductModal(productId) {
+    if (!ownerSession) return;
+    const product = products.find(p => p.id == productId);
+    if (!product) return;
+
+    let modal = document.getElementById('productModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'productModal';
+        modal.className = 'modal';
+        modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
+        document.body.appendChild(modal);
+    }
+
+    let firstPrice = 500;
+    for(let s in product.sizes) {
+        if(product.sizes[s].price) { firstPrice = product.sizes[s].price; break; }
+    }
+
+    const content = document.getElementById('productModalContent');
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">تعديل المنتج</h2>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editProdTitle" value="${product.titleAr}"></div>
+        <div class="form-group"><label>السعر الافتراضي (ج.م):</label><input type="number" id="editProdPrice" value="${firstPrice}"></div>
+        <div class="form-group"><label>رابط الصورة:</label><input type="text" id="editProdImg" value="${product.image}"></div>
+        <div class="form-group"><label>الوصف:</label><textarea id="editProdDesc">${product.description || ''}</textarea></div>
+        <button onclick="saveEditedProduct('${product.id}')" style="width:100%; background:#D4AF37; color:#fff; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer;">تحديث بيانات المنتج</button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function saveEditedProduct(productId) {
+    let product = products.find(p => p.id == productId);
+    if (!product) return;
+
+    let newTitle = document.getElementById('editProdTitle').value.trim();
+    let newPrice = parseFloat(document.getElementById('editProdPrice').value) || 0;
+    let newImg = document.getElementById('editProdImg').value.trim();
+    let newDesc = document.getElementById('editProdDesc').value.trim();
+
+    if (newTitle) { product.titleAr = newTitle; product.titleEn = newTitle; }
+    if (newPrice > 0) {
+        for(let s in product.sizes) {
+            product.sizes[s].price = newPrice;
+            break;
+        }
+    }
+    if (newImg) { product.image = newImg; }
+    product.description = newDesc;
+
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    closeProductModal();
+    renderProducts(products);
+    alert('تم تحديث المنتج بنجاح!');
+}
+
+// 3. حذف منتج
+function deleteProduct(productId) {
+    if (!ownerSession) return;
+    if (!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً؟')) return;
+    products = products.filter(p => p.id != productId);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    renderProducts(products);
+}
+
+// 4. تفعيل أو إلغاء حالة نفذ / إتاحة
+function toggleOutOfStock(productId) {
+    if (!ownerSession) return;
+    let product = products.find(p => p.id == productId);
+    if (product) {
+        product.outOfStock = !product.outOfStock;
+        localStorage.setItem('jag_products', JSON.stringify(products));
+        renderProducts(products);
+    }
+}
+
+// =========================================================================
+// 🌟 تفاصيل المنتج مع أزرار المقاسات التفاعلية وتغيير الصور عبر الألوان
+// =========================================================================
 function openProductDetails(productId) {
     const product = products.find(p => p.id == productId);
     if (!product) return;
@@ -335,4 +611,163 @@ function resetToOriginalImage(originalImgUrl) {
 function closeProductModal() { 
     const modal = document.getElementById('productModal');
     if(modal) modal.style.display = 'none'; 
+}
+
+// =========================================================================
+// 🛒 إدارة سلة الشراء والطلب
+// =========================================================================
+function updateCartCount() {
+    const badge = document.getElementById('cartCount');
+    if(badge) badge.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
+}
+
+function openCartModal() {
+    let modal = document.getElementById('cartModal');
+    const list = document.getElementById('cartItemsList');
+    if(!modal || !list) return;
+    list.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:#666;">السلة فارغة.</p>`;
+    } else {
+        cart.forEach((item, index) => {
+            total += item.price * item.qty;
+            list.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                    <div><strong>${item.titleAr}</strong> ${item.size ? `(مقاس: ${item.size})` : ''} - <strong>${item.price} ج.م</strong></div>
+                    <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer;">حذف</button>
+                </div>
+            `;
+        });
+    }
+    const totalEl = document.getElementById('cartTotalPrice');
+    if(totalEl) totalEl.innerText = total;
+    modal.style.display = 'flex';
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    openCartModal();
+}
+
+function checkoutWhatsApp() {
+    if (cart.length === 0) { alert('السلة فارغة.'); return; }
+    let msg = "مرحباً Just a/Girl، أرغب في طلب المنتجات التالية:%0A";
+    let total = 0;
+    cart.forEach((item, idx) => {
+        msg += `${idx + 1}. ${item.titleAr} - مقاس: ${item.size || 'عام'} - السعر: ${item.price} ج.م%0A`;
+        total += item.price * item.qty;
+    });
+    msg += `%0Aالإجمالي الكلي: ${total} ج.م (باستثناء الشحن)`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
+}
+
+// =========================================================================
+// 💬 نظام مجتمع العملاء والآراء
+// =========================================================================
+function renderCommunityChat() {
+    const chatBox = document.getElementById('communityChatBox');
+    if(!chatBox) return;
+    chatBox.innerHTML = '';
+    communityMessages.forEach((msg) => {
+        chatBox.innerHTML += `
+            <div style="margin-bottom: 12px; background: ${msg.isOwner ? '#fcf8f2' : '#fff'}; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
+                <strong>${msg.sender}:</strong>
+                <p style="margin: 5px 0 0 0; font-size: 13px; color: #444;">${msg.text}</p>
+            </div>
+        `;
+    });
+}
+
+function sendCommunityMessage() {
+    const input = document.getElementById('communityInput');
+    if(!input || !input.value.trim()) return;
+    let text = input.value.trim();
+    let senderName = ownerSession ? "Just a Girl (المالك)" : "زائر للموقع";
+    
+    let newMsg = { id: Date.now().toString(), sender: senderName, text: text, isOwner: ownerSession, replies: [] };
+    communityMessages.push(newMsg);
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+    
+    if (window.db && window.firestoreTools) {
+        const { doc, setDoc } = window.firestoreTools;
+        setDoc(doc(window.db, "community", newMsg.id), newMsg);
+    }
+
+    input.value = '';
+    renderCommunityChat();
+}
+
+function renderReviews() {
+    const container = document.getElementById('reviewsContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    customerReviews.forEach(rev => {
+        container.innerHTML += `
+            <div class="review-card" style="background:#fff; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
+                <div style="color:#D4AF37; margin-bottom:5px;">${'★'.repeat(rev.rating)}</div>
+                <p style="font-size:13px; color:#444; margin-bottom:8px;">"${rev.comment}"</p>
+                <strong style="font-size:12px; color:#4A040D;">- ${rev.name}</strong>
+            </div>
+        `;
+    });
+}
+
+// =========================================================================
+// 🔐 إدارة الأدمن والتحكم
+// =========================================================================
+function openProfileModal() {
+    let modal = document.getElementById('profileModal');
+    if(!modal) return;
+    let loginSection = document.getElementById('adminLoginSection');
+    let panelSection = document.getElementById('adminPanelSection');
+    
+    if(ownerSession) {
+        if(loginSection) loginSection.style.display = 'none';
+        if(panelSection) panelSection.style.display = 'block';
+    } else {
+        if(loginSection) loginSection.style.display = 'block';
+        if(panelSection) panelSection.style.display = 'none';
+    }
+    modal.style.display = 'flex';
+}
+
+function adminLogin() {
+    let emailInput = document.getElementById('adminEmailInput').value.trim();
+    let passInput = document.getElementById('adminPassInput').value.trim();
+    
+    if(emailInput === adminEmail && passInput === adminPass) {
+        ownerSession = true;
+        localStorage.setItem('jag_owner_session', 'true');
+        alert('تم تسجيل الدخول بنجاح كمالكة للبراند!');
+        closeProfileModal();
+        renderProducts(products);
+        updateOwnerUI();
+    } else {
+        alert('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+    }
+}
+
+function adminLogout() {
+    ownerSession = false;
+    localStorage.setItem('jag_owner_session', 'false');
+    alert('تم تسجيل الخروج بنجاح.');
+    closeProfileModal();
+    renderProducts(products);
+    updateOwnerUI();
+}
+
+function updateOwnerUI() {
+    let addProdBtn = document.getElementById('addProductMainBtn');
+    if(addProdBtn) {
+        addProdBtn.style.display = ownerSession ? 'inline-block' : 'none';
+    }
+}
+
+function closeProfileModal() {
+    let modal = document.getElementById('profileModal');
+    if(modal) modal.style.display = 'none';
 }
