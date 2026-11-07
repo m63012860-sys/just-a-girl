@@ -447,6 +447,127 @@ function openProfileModal() {
     if(modal) modal.style.display = 'flex';
 }
 // =========================================================================
+// 🔍 تفاصيل المنتج وعرضه في المودال
+// =========================================================================
+function openProductDetails(productId) {
+    const product = products.find(p => p.id == productId);
+    if (!product) return;
+
+    let modal = document.getElementById('productModal');
+    let content = document.getElementById('productModalContent');
+    if(!modal || !content) return;
+
+    let availableSizesKeys = Object.keys(product.sizes || {}).filter(s => product.sizes[s].available && product.sizes[s].price > 0);
+    let initialPrice = availableSizesKeys.length > 0 ? product.sizes[availableSizesKeys[0]].price : 470;
+
+    let sizesButtonsHtml = '';
+    Object.keys(product.sizes || {}).forEach(sKey => {
+        let sData = product.sizes[sKey];
+        if(sData.available && sData.price > 0) {
+            sizesButtonsHtml += `
+                <button type="button" style="background: #f7f4ed; color: #4A040D; border: 1px solid #D4AF37; padding: 5px 10px; border-radius: 6px; font-weight: bold;">
+                    ${sKey}: ${sData.price} ج.م
+                </button>`;
+        }
+    });
+
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()" style="position: absolute; top: 10px; left: 15px; font-size: 24px; cursor: pointer; color: #4A040D; font-weight: bold;">&times;</span>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px; text-align: center;">
+                <img src="${product.image}" style="width: 100%; height: 240px; object-fit: cover; border-radius: 8px;">
+            </div>
+            <div style="flex: 1; min-width: 200px;">
+                <h2 style="color: #4A040D; margin-bottom: 8px;">${product.titleAr}</h2>
+                <p style="font-size: 13px; color: #666; margin-bottom: 10px;">${product.description || ''}</p>
+                <div style="font-size: 15px; font-weight: bold; color: #4A040D; margin-bottom: 10px;">
+                    السعر: ${initialPrice} ج.م
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <strong style="font-size: 12px; color:#4A040D;">المقاسات المتوفرة:</strong>
+                    <div style="display:flex; gap:5px; margin-top:5px; flex-wrap:wrap;">${sizesButtonsHtml}</div>
+                </div>
+                <button onclick="addToCartQuick('${product.id}')" style="width: 100%; background: #4A040D; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px;">
+                    إضافة إلى السلة
+                </button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+}
+
+function addToCartQuick(productId) {
+    const product = products.find(p => p.id == productId);
+    if (!product) return;
+    
+    cart.push({
+        id: product.id,
+        titleAr: product.titleAr,
+        price: 470,
+        qty: 1,
+        size: "Free"
+    });
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    closeProductModal();
+    alert(`تمت إضافة "${product.titleAr}" إلى السلة بنجاح!`);
+}
+
+// =========================================================================
+// 🛒 فتح وإدارة سلة التسوق (العربة)
+// =========================================================================
+function openCartModal() {
+    let modal = document.getElementById('cartModal');
+    let list = document.getElementById('cartItemsList');
+    if(!modal || !list) return;
+
+    list.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:#666; padding:20px;">السلة فارغة حالياً.</p>`;
+    } else {
+        cart.forEach((item, index) => {
+            total += item.price * item.qty;
+            list.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:8px;">
+                    <div><strong>${item.titleAr}</strong> - <strong>${item.price} ج.م</strong></div>
+                    <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">حذف</button>
+                </div>
+            `;
+        });
+    }
+    let totalEl = document.getElementById('cartTotalPrice');
+    if(totalEl) totalEl.innerText = total;
+    modal.style.display = 'flex';
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    openCartModal();
+}
+
+// =========================================================================
+// 🏷️ دالة فلترة الأقسام الجديدة (للرجالي والبلوزات وغيرها)
+// =========================================================================
+function filterCategory(categoryName) {
+    const buttons = document.querySelectorAll('#categoryNav button');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    if (event && event.target) {
+        event.target.classList.add('active');
+    }
+
+    if (categoryName === 'all') {
+        renderProducts(products);
+    } else {
+        const filtered = products.filter(p => p.category === categoryName);
+        renderProducts(filtered);
+    }
+}
+
+}// =========================================================================
 // ❌ دوال إغلاق النوافذ (لعلاج زرار X والعربة والتفاصيل)
 // =========================================================================
 function closeProductModal() { 
