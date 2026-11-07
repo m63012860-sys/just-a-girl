@@ -33,18 +33,7 @@ const heroBanners = [
    ========================================================================= */
 
 let products = JSON.parse(localStorage.getItem('jag_products')) || [
-    { 
-        id: 1, 
-        titleAr: "هودي شتوي أنيق", 
-        titleEn: "Elegant Winter Hoodie", 
-        category: "hoodies", 
-        hasDiscount: true, 
-        image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500",
-        description: "هودي خامة ممتازة وتلبيس راقي ومريح.",
-        outOfStock: false,
-        colors: [{ name: "أسود", image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500" }],
-        sizes: { "M": { price: 650, oldPrice: 750, available: true } }
-    },
+   
     { 
         id: "2", 
         titleAr: "سوت ميلتون", 
@@ -686,32 +675,99 @@ function checkoutWhatsApp() {
 }
 
 // =========================================================================
-// 💬 نظام مجتمع العملاء والآراء
+// 💬 نظام مجتمع العملاء (مع الردود الفردية وإمكانية الحذف للمالكة)
 // =========================================================================
+
+// 1. عرض الرسائل مع الردود وأزرار التحكم
 function renderCommunityChat() {
     const chatBox = document.getElementById('communityChatBox');
-    if(!chatBox) return;
+    if (!chatBox) return;
     chatBox.innerHTML = '';
+
+    if (communityMessages.length === 0) {
+        chatBox.innerHTML = `<p style="text-align:center; color:#888; font-size:13px; padding:20px;">لا توجد استفسارات حالياً. كوني أول من يشارك! ✨</p>`;
+        return;
+    }
+
     communityMessages.forEach((msg) => {
+        let repliesHtml = '';
+        if (msg.replies && msg.replies.length > 0) {
+            msg.replies.forEach((rep) => {
+                repliesHtml += `
+                    <div style="margin-top: 8px; margin-right: 20px; background: ${rep.isOwner ? '#fff0f2' : '#f9f9f9'}; padding: 8px 12px; border-radius: 6px; border-right: 3px solid ${rep.isOwner ? '#4A040D' : '#D4AF37'};">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size: 12px; color: ${rep.isOwner ? '#4A040D' : '#333'};">
+                                ${rep.sender} ${rep.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:1px 6px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
+                            </strong>
+                            ${ownerSession ? `<button onclick="deleteCommunityReply('${msg.id}', '${rep.id}')" style="background:none; border:none; color:#c00; font-size:11px; cursor:pointer;">حذف الرد</button>` : ''}
+                        </div>
+                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #444;">${rep.text}</p>
+                    </div>
+                `;
+            });
+        }
+
+        let deleteBtnHtml = ownerSession 
+            ? `<button onclick="deleteCommunityMessage('${msg.id}')" style="background:none; border:none; color:#c00; font-size:12px; cursor:pointer; font-weight:bold;">حذف</button>` 
+            : '';
+
         chatBox.innerHTML += `
-            <div style="margin-bottom: 12px; background: ${msg.isOwner ? '#fcf8f2' : '#fff'}; padding: 10px; border-radius: 6px; border: 1px solid #eee;">
-                <strong>${msg.sender}:</strong>
-                <p style="margin: 5px 0 0 0; font-size: 13px; color: #444;">${msg.text}</p>
+            <div style="margin-bottom: 15px; background: ${msg.isOwner ? '#fff5f7' : '#fff'}; padding: 12px; border-radius: 8px; border: 1px solid #eee; position:relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="color: #4A040D; font-size: 14px;">
+                        ${msg.sender} ${msg.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
+                    </strong>
+                    ${deleteBtnHtml}
+                </div>
+                
+                <p style="margin: 0 0 8px 0; font-size: 13px; color: #333; line-height: 1.5;">${msg.text}</p>
+                
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                    <button onclick="toggleReplyBox('${msg.id}')" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:12px; font-weight:bold;">
+                        <i class="fa-regular fa-comment-dots"></i> 💬 رد
+                    </button>
+                </div>
+
+                <!-- صندوق كتابة الرد التفاعلي (مخفي افتراضياً) -->
+                <div id="replyBox_${msg.id}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="width: 30%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                        <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                        <button onclick="sendCommunityReply('${msg.id}')" style="background: #4A040D; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">إرسال الرد</button>
+                    </div>
+                </div>
+
+                <!-- شجرة الردود المستلمة -->
+                <div class="replies-container">
+                    ${repliesHtml}
+                </div>
             </div>
         `;
     });
 }
 
+// 2. إرسال استفسار رئيسي جديد
 function sendCommunityMessage() {
     const input = document.getElementById('communityInput');
-    if(!input || !input.value.trim()) return;
+    const nameInput = document.getElementById('chatSenderName');
+    if (!input || !input.value.trim()) return;
+
     let text = input.value.trim();
-    let senderName = ownerSession ? "Just a Girl (المالك)" : "زائر للموقع";
-    
-    let newMsg = { id: Date.now().toString(), sender: senderName, text: text, isOwner: ownerSession, replies: [] };
+    let senderName = nameInput && nameInput.value.trim() 
+        ? nameInput.value.trim() 
+        : (ownerSession ? "Just a Girl (المالك)" : "زائرة لمياء");
+
+    let newMsg = {
+        id: Date.now().toString(),
+        sender: senderName,
+        text: text,
+        isOwner: ownerSession,
+        replies: []
+    };
+
     communityMessages.push(newMsg);
     localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-    
+
     if (window.db && window.firestoreTools) {
         const { doc, setDoc } = window.firestoreTools;
         setDoc(doc(window.db, "community", newMsg.id), newMsg);
@@ -721,21 +777,80 @@ function sendCommunityMessage() {
     renderCommunityChat();
 }
 
-function renderReviews() {
-    const container = document.getElementById('reviewsContainer');
-    if(!container) return;
-    container.innerHTML = '';
-    customerReviews.forEach(rev => {
-        container.innerHTML += `
-            <div class="review-card" style="background:#fff; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
-                <div style="color:#D4AF37; margin-bottom:5px;">${'★'.repeat(rev.rating)}</div>
-                <p style="font-size:13px; color:#444; margin-bottom:8px;">"${rev.comment}"</p>
-                <strong style="font-size:12px; color:#4A040D;">- ${rev.name}</strong>
-            </div>
-        `;
-    });
+// 3. إظهار/إخفاء مربع الرد الخاص برسامة محددة
+function toggleReplyBox(msgId) {
+    const box = document.getElementById(`replyBox_${msgId}`);
+    if (box) {
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
 }
 
+// 4. إرسال رد على رسالة معينة
+function sendCommunityReply(msgId) {
+    const nameEl = document.getElementById(`replyName_${msgId}`);
+    const textEl = document.getElementById(`replyText_${msgId}`);
+    
+    if (!textEl || !textEl.value.trim()) return;
+
+    let replyText = textEl.value.trim();
+    let replySender = (nameEl && nameEl.value.trim()) 
+        ? nameEl.value.trim() 
+        : (ownerSession ? "Just a Girl (المالك)" : "عميلة");
+
+    let msg = communityMessages.find(m => m.id == msgId);
+    if (msg) {
+        if (!msg.replies) msg.replies = [];
+        let newReply = {
+            id: Date.now().toString(),
+            sender: replySender,
+            text: replyText,
+            isOwner: ownerSession
+        };
+        msg.replies.push(newReply);
+        
+        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+
+        if (window.db && window.firestoreTools) {
+            const { doc, setDoc } = window.firestoreTools;
+            setDoc(doc(window.db, "community", msg.id), msg);
+        }
+
+        renderCommunityChat();
+    }
+}
+
+// 5. حذف رسالة رئيسية (للمالكة فقط)
+function deleteCommunityMessage(msgId) {
+    if (!ownerSession) return;
+    if (!confirm('هل أنتِ متأكدة من حذف هذه الرسالة وكل الردود عليها؟')) return;
+
+    communityMessages = communityMessages.filter(m => m.id != msgId);
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+
+    if (window.db && window.firestoreTools) {
+        const { doc, deleteDoc } = window.firestoreTools;
+        deleteDoc(doc(window.db, "community", msgId.toString()));
+    }
+
+    renderCommunityChat();
+}
+
+// 6. حذف رد محدد (للمالكة فقط)
+function deleteCommunityReply(msgId, replyId) {
+    if (!ownerSession) return;
+    let msg = communityMessages.find(m => m.id == msgId);
+    if (msg && msg.replies) {
+        msg.replies = msg.replies.filter(r => r.id != replyId);
+        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+
+        if (window.db && window.firestoreTools) {
+            const { doc, setDoc } = window.firestoreTools;
+            setDoc(doc(window.db, "community", msg.id), msg);
+        }
+
+        renderCommunityChat();
+    }
+}
 // =========================================================================
 // 🔐 إدارة الأدمن والتحكم
 // =========================================================================
