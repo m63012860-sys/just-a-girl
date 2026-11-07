@@ -12,15 +12,58 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
 
+/* =========================================================================
+   📌 دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
+   =========================================================================
+    { 
+        id: "2", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 2، 3، 4...)
+        titleAr: "اكتبي اسم المنتج بالعربي هنا", 
+        titleEn: "Product Name in English", 
+        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
+        hasDiscount: false, // اكتبي true لو عليه خصم، أو false لو السعر عادي
+        image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
+        description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
+        outOfStock: false, // false لو متاح، و true لو خلصان
+        
+        // الألوان الأساسية (تقدري تغيري الروابط وتسيبي الأسماء زي ما هي أو تعدليها)
+        colors: [
+            { name: "أسود", image: "رابط_صورة_اللون_الأسود.jpg" },
+            { name: "برجندي", image: "رابط_صورة_اللون_البرجندي.jpg" },
+            { name: "بيج", image: "رابط_صورة_اللون_البيج.jpg" }
+        ],
+        
+        // جميع المقاسات جاهزة أمامك (اكتبي السعر بالأرقام، أو اجعلي السعر 0 والـ available بـ false لو مش نازل)
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 600, available: true },   // مثال لمقاس متوفر بسعر 600
+            "M": { price: 650, available: true },   // مثال لمقاس متوفر بسعر 650
+            "L": { price: 700, available: true },   // مثال لمقاس متوفر بسعر 700
+            "XL": { price: 750, available: true },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 0, available: false }
+        }
+    },
+   ========================================================================= */
+
+   
 let products = JSON.parse(localStorage.getItem('jag_products')) || [
     { 
-        id: "2", 
+        id: "1", 
         titleAr: "سوت ميلتون", 
         titleEn: "Milton Suit", 
         category: "sets", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/Jzt12Dk2/IMG-20261107-131936-540.jpg", 
-        description: "بيلبس لحد 95 كيلو 🫶 أبعاد 💖 الخامة ميلتون لايت",
+        description: "بيلبس لحد 95 كيلو 🫶 أبعاد 💖 الخامة ميلتون         لايت",
         outOfStock: false,
         colors: [
             { name: "بنى", image: "https://i.postimg.cc/mgqbfLYq/IMG-20261107-131942-088.jpg" },
@@ -48,6 +91,38 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "Free": { price: 470, available: true }
         }
     }
+    { 
+        id: "2", 
+        titleAr: "سويت شيرت كاجوال", 
+        titleEn: "College Sweatshirt", 
+        category: "blouses", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/dVqkx8PP/IMG-20261107-131821-682.jpg", 
+        description:"جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
+        outOfStock: false,
+        colors: [
+            { name: "بنى", image: "https://i.postimg1107-131821-101.jpg" },
+            { name: "برجندي", image: "https://i.postimg.cc/139njpxj/IMG-20261107-131821-409.jpg" },
+            { name: "اسود ", image: "https://i.postimg.cc/ZnpB1HK1/IMG-20261107-131820-991.jpg" },
+          
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 440, available: true }
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
@@ -60,10 +135,12 @@ let communityMessages = JSON.parse(localStorage.getItem('jag_community')) || [
 ];
 
 let cart = JSON.parse(localStorage.getItem('jag_cart')) || [];
+let currentBase64Image = "";
+let colorUploadsList = [];
 let selectedSizeForCart = "";
 
 // =========================================================================
-// 🌐 تشغيل الدوال عند تحميل الصفحة
+// 🌐 جلب البيانات سحابياً من Firebase عند فتح الموقع
 // =========================================================================
 async function loadCloudData() {
     if (window.db && window.firestoreTools) {
@@ -77,8 +154,17 @@ async function loadCloudData() {
                 });
                 renderProducts(products);
             }
+
+            const chatSnap = await getDocs(collection(window.db, "community"));
+            if (!chatSnap.empty) {
+                communityMessages = [];
+                chatSnap.forEach(doc => {
+                    communityMessages.push({ id: doc.id, ...doc.data() });
+                });
+                renderCommunityChat();
+            }
         } catch (error) {
-            console.log("الاعتماد على التخزين المحلي:", error);
+            console.log("جاري الاعتماد على التخزين المحلي مؤقتاً:", error);
         }
     }
 }
@@ -90,8 +176,20 @@ document.addEventListener('DOMContentLoaded', () => {
     renderReviews();
     renderCommunityChat();
     updateOwnerUI();
+    ensureAdminButton();
     loadCloudData();
 });
+
+function ensureAdminButton() {
+    let btn = document.getElementById('floatingAdminBtn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'floatingAdminBtn';
+        btn.innerHTML = "⚙️ لوحة التحكم والإدارة";
+        btn.onclick = () => openProfileModal();
+        document.body.appendChild(btn);
+    }
+}
 
 function initSlider() {
     const slider = document.getElementById('heroSlider');
@@ -115,7 +213,7 @@ function initSlider() {
 }
 
 // =========================================================================
-// 🛍️ عرض وإدارة المنتجات وتفاصيلها
+// 🛍️ عرض وإدارة المنتجات
 // =========================================================================
 function renderProducts(itemsToRender = products) {
     const grid = document.getElementById('productsGrid');
@@ -123,18 +221,29 @@ function renderProducts(itemsToRender = products) {
     grid.innerHTML = '';
     
     if (itemsToRender.length === 0) {
-        grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding: 40px; color:#666;">لا توجد منتجات مضافة في هذا القسم حالياً.</p>`;
+        grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; padding: 40px; color:#666;">لا توجد منتجات مضافة حالياً.</p>`;
         return;
     }
 
     itemsToRender.forEach(product => {
         let availableSizes = Object.values(product.sizes || {}).filter(s => s.available && s.price > 0);
         let pricesArr = availableSizes.map(s => s.price);
-        let minPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : 470;
+        let minPrice = pricesArr.length > 0 ? Math.min(...pricesArr) : 0;
 
         const card = document.createElement('div');
         card.className = 'product-card';
         card.style.position = 'relative';
+
+        let adminControlsHtml = '';
+        if (ownerSession) {
+            adminControlsHtml = `
+                <div style="display: flex; gap: 5px; margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 8px;">
+                    <button type="button" onclick="openEditProductModal('${product.id}')" style="flex:1; background:#D4AF37; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">تعديل</button>
+                    <button type="button" onclick="deleteProduct('${product.id}')" style="flex:1; background:#c00; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">حذف</button>
+                    <button type="button" onclick="toggleOutOfStock('${product.id}')" style="flex:1; background:#555; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${product.outOfStock ? 'إتاحة' : 'نفذ'}</button>
+                </div>
+            `;
+        }
 
         card.innerHTML = `
             ${product.outOfStock ? '<span style="position:absolute; top:10px; left:10px; background:#c00; color:#fff; padding:3px 8px; font-size:12px; border-radius:4px; font-weight:bold; z-index:2;">نفذ</span>' : ''}
@@ -144,175 +253,256 @@ function renderProducts(itemsToRender = products) {
                 <div class="product-desc">${product.description || ''}</div>
                 <div class="price-box">يبدأ من ${minPrice} ج.م</div>
                 <button class="view-details-btn" onclick="openProductDetails('${product.id}')">عرض والتفاصيل</button>
+                ${adminControlsHtml}
             </div>
         `;
         grid.appendChild(card);
     });
 }
 
+function openAddProductModal() {
+    if (!ownerSession) { alert('متاحة للإدارة فقط.'); return; }
+    let modal = document.getElementById('productModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'productModal';
+        modal.className = 'modal';
+        modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
+        document.body.appendChild(modal);
+    }
+    modal.style.display = 'flex';
+}
+
+function deleteProduct(productId) {
+    if (!ownerSession) return;
+    if (!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً؟')) return;
+    products = products.filter(p => p.id != productId);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    renderProducts(products);
+}
+
+function toggleOutOfStock(productId) {
+    if (!ownerSession) return;
+    let product = products.find(p => p.id == productId);
+    if (product) {
+        product.outOfStock = !product.outOfStock;
+        localStorage.setItem('jag_products', JSON.stringify(products));
+        renderProducts(products);
+    }
+}
+
 function openProductDetails(productId) {
     const product = products.find(p => p.id == productId);
     if (!product) return;
-
     let modal = document.getElementById('productModal');
-    let content = document.getElementById('productModalContent');
+    const content = document.getElementById('productModalContent');
     if(!modal || !content) return;
-
-    let availableSizesKeys = Object.keys(product.sizes || {}).filter(s => product.sizes[s].available && product.sizes[s].price > 0);
-    selectedSizeForCart = availableSizesKeys.length > 0 ? availableSizesKeys[0] : "";
-    let initialPrice = selectedSizeForCart ? product.sizes[selectedSizeForCart].price : 470;
-
-    let sizesButtonsHtml = '';
-    Object.keys(product.sizes || {}).forEach(sKey => {
-        let sData = product.sizes[sKey];
-        if(sData.available && sData.price > 0) {
-            let isSelected = (sKey === selectedSizeForCart);
-            sizesButtonsHtml += `
-                <button type="button" onclick="selectProductSize('${sKey}', ${sData.price}, this)" 
-                    style="background: ${isSelected ? '#4A040D' : '#f7f4ed'}; color: ${isSelected ? '#fff' : '#4A040D'}; border: 1px solid #D4AF37; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
-                    ${sKey}: ${sData.price} ج.م
-                </button>`;
-        }
-    });
-
-    content.innerHTML = `
-        <span class="close-modal" onclick="closeProductModal()" style="position: absolute; top: 10px; left: 15px; font-size: 24px; cursor: pointer; color: #4A040D; font-weight: bold;">&times;</span>
-        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 200px; text-align: center;">
-                <img src="${product.image}" style="width: 100%; height: 240px; object-fit: cover; border-radius: 8px;">
-            </div>
-            <div style="flex: 1; min-width: 200px;">
-                <h2 style="color: #4A040D; margin-bottom: 8px;">${product.titleAr}</h2>
-                <p style="font-size: 13px; color: #666; margin-bottom: 10px;">${product.description || ''}</p>
-                <div style="font-size: 15px; font-weight: bold; color: #4A040D; margin-bottom: 10px;">
-                    السعر: <span id="dynamicPriceDisplay">${initialPrice}</span> ج.م
-                </div>
-                <div style="margin-bottom: 10px;">
-                    <strong style="font-size: 12px; color:#4A040D; display:block; margin-bottom:5px;">اختر المقاس:</strong>
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;" id="productSizesContainer">${sizesButtonsHtml}</div>
-                </div>
-                <button onclick="addToCartWithSelectedSize('${product.id}')" style="width: 100%; background: #4A040D; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 10px;">
-                    إضافة إلى السلة
-                </button>
-            </div>
-        </div>
-    `;
     modal.style.display = 'flex';
 }
 
-function selectProductSize(sizeKey, priceVal, btnElement) {
-    selectedSizeForCart = sizeKey;
-    const container = document.getElementById('productSizesContainer');
-    if(container) {
-        Array.from(container.children).forEach(btn => {
-            btn.style.background = '#f7f4ed';
-            btn.style.color = '#4A040D';
-        });
-    }
-    btnElement.style.background = '#4A040D';
-    btnElement.style.color = '#fff';
-
-    const priceDisplay = document.getElementById('dynamicPriceDisplay');
-    if(priceDisplay) priceDisplay.innerText = priceVal;
-}
-
-function addToCartWithSelectedSize(productId) {
-    const product = products.find(p => p.id == productId);
-    if (!product) return;
-
-    if (!selectedSizeForCart || !product.sizes[selectedSizeForCart]) {
-        alert('يرجى اختيار المقاس أولاً.');
-        return;
-    }
-
-    let chosenSizeData = product.sizes[selectedSizeForCart];
-    cart.push({ 
-        id: product.id, 
-        titleAr: product.titleAr, 
-        size: selectedSizeForCart, 
-        price: chosenSizeData.price, 
-        qty: 1 
-    });
-
-    localStorage.setItem('jag_cart', JSON.stringify(cart));
-    updateCartCount();
-    closeProductModal();
-    alert(`تمت إضافة "${product.titleAr}" (مقاس ${selectedSizeForCart}) إلى السلة بنجاح!`);
+function closeProductModal() { 
+    const modal = document.getElementById('productModal');
+    if(modal) modal.style.display = 'none'; 
 }
 
 // =========================================================================
-// 🛒 إدارة سلة التسوق والعربة
+// 🛒 إدارة سلة الشراء والطلب
 // =========================================================================
-function openCartModal() {
-    let modal = document.getElementById('cartModal');
-    let list = document.getElementById('cartItemsList');
-    if(!modal || !list) return;
-
-    list.innerHTML = '';
-    let total = 0;
-
-    if (cart.length === 0) {
-        list.innerHTML = `<p style="text-align:center; color:#666; padding:20px;">السلة فارغة حالياً.</p>`;
-    } else {
-        cart.forEach((item, index) => {
-            total += item.price * item.qty;
-            list.innerHTML += `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:8px;">
-                    <div><strong>${item.titleAr}</strong> ${item.size ? `(مقاس: ${item.size})` : ''} - <strong>${item.price} ج.م</strong></div>
-                    <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer; font-weight:bold;">حذف</button>
-                </div>
-            `;
-        });
-    }
-    let totalEl = document.getElementById('cartTotalPrice');
-    if(totalEl) totalEl.innerText = total;
-    modal.style.display = 'flex';
-}
-
-function removeFromCart(index) {
-    cart.splice(index, 1);
-    localStorage.setItem('jag_cart', JSON.stringify(cart));
-    updateCartCount();
-    openCartModal();
-}
-
 function updateCartCount() {
     const badge = document.getElementById('cartCount');
     if(badge) badge.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
 }
 
-function checkoutWhatsApp() {
-    if (cart.length === 0) { alert('السلة فارغة.'); return; }
-    let msg = "مرحباً Just a Girl، أرغب في طلب المنتجات التالية:%0A";
-    let total = 0;
-    cart.forEach((item, idx) => {
-        msg += `${idx + 1}. ${item.titleAr} (${item.size}) - السعر: ${item.price} ج.م%0A`;
-        total += item.price * item.qty;
+// =========================================================================
+// 💬 نظام مجتمع العملاء (مع الردود الفردية وإمكانية الحذف للمالكة)
+// =========================================================================
+function renderCommunityChat() {
+    const chatBox = document.getElementById('communityChatBox');
+    if (!chatBox) return;
+    chatBox.innerHTML = '';
+
+    if (communityMessages.length === 0) {
+        chatBox.innerHTML = `<p style="text-align:center; color:#888; font-size:13px; padding:20px;">لا توجد استفسارات حالياً. كوني أول من يشارك! ✨</p>`;
+        return;
+    }
+
+    communityMessages.forEach((msg) => {
+        let repliesHtml = '';
+        if (msg.replies && msg.replies.length > 0) {
+            msg.replies.forEach((rep) => {
+                repliesHtml += `
+                    <div style="margin-top: 8px; margin-right: 20px; background: ${rep.isOwner ? '#fff0f2' : '#f9f9f9'}; padding: 8px 12px; border-radius: 6px; border-right: 3px solid ${rep.isOwner ? '#4A040D' : '#D4AF37'};">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <strong style="font-size: 12px; color: ${rep.isOwner ? '#4A040D' : '#333'};">
+                                ${rep.sender} ${rep.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:1px 6px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
+                            </strong>
+                            ${ownerSession ? `<button onclick="deleteCommunityReply('${msg.id}', '${rep.id}')" style="background:none; border:none; color:#c00; font-size:11px; cursor:pointer;">حذف الرد</button>` : ''}
+                        </div>
+                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #444;">${rep.text}</p>
+                    </div>
+                `;
+            });
+        }
+
+        let deleteBtnHtml = ownerSession 
+            ? `<button onclick="deleteCommunityMessage('${msg.id}')" style="background:none; border:none; color:#c00; font-size:12px; cursor:pointer; font-weight:bold;">حذف</button>` 
+            : '';
+
+        chatBox.innerHTML += `
+            <div style="margin-bottom: 15px; background: ${msg.isOwner ? '#fff5f7' : '#fff'}; padding: 12px; border-radius: 8px; border: 1px solid #eee; position:relative;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <strong style="color: #4A040D; font-size: 14px;">
+                        ${msg.sender} ${msg.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
+                    </strong>
+                    ${deleteBtnHtml}
+                </div>
+                
+                <p style="margin: 0 0 8px 0; font-size: 13px; color: #333; line-height: 1.5;">${msg.text}</p>
+                
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                    <button onclick="toggleReplyBox('${msg.id}')" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:12px; font-weight:bold;">
+                        <i class="fa-regular fa-comment-dots"></i> 💬 رد
+                    </button>
+                </div>
+
+                <div id="replyBox_${msg.id}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="width: 30%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                        <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                        <button onclick="sendCommunityReply('${msg.id}')" style="background: #4A040D; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">إرسال الرد</button>
+                    </div>
+                </div>
+
+                <div class="replies-container">
+                    ${repliesHtml}
+                </div>
+            </div>
+        `;
     });
-    msg += `%0Aالإجمالي الكلي: ${total} ج.م`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, '_blank');
 }
 
-// =========================================================================
-// 🏷️ دالة فلترة الأقسام (الكل، رجالي، بلوزات، إلخ)
-// =========================================================================
-function filterCategory(categoryName) {
-    const buttons = document.querySelectorAll('#categoryNav button');
-    buttons.forEach(btn => btn.classList.remove('active'));
-    if (event && event.target) {
-        event.target.classList.add('active');
+function sendCommunityMessage() {
+    const input = document.getElementById('communityInput');
+    const nameInput = document.getElementById('chatSenderName');
+    if (!input || !input.value.trim()) return;
+
+    let text = input.value.trim();
+    let senderName = nameInput && nameInput.value.trim() 
+        ? nameInput.value.trim() 
+        : (ownerSession ? "Just a Girl (المالك)" : "زائرة للموقع");
+
+    let newMsg = {
+        id: Date.now().toString(),
+        sender: senderName,
+        text: text,
+        isOwner: ownerSession,
+        replies: []
+    };
+
+    communityMessages.push(newMsg);
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+
+    if (window.db && window.firestoreTools) {
+        const { doc, setDoc } = window.firestoreTools;
+        setDoc(doc(window.db, "community", newMsg.id), newMsg);
     }
 
-    if (categoryName === 'all') {
-        renderProducts(products);
-    } else {
-        const filtered = products.filter(p => p.category === categoryName);
-        renderProducts(filtered);
+    input.value = '';
+    renderCommunityChat();
+}
+
+function toggleReplyBox(msgId) {
+    const box = document.getElementById(`replyBox_${msgId}`);
+    if (box) {
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
     }
 }
 
+function sendCommunityReply(msgId) {
+    const nameEl = document.getElementById(`replyName_${msgId}`);
+    const textEl = document.getElementById(`replyText_${msgId}`);
+    
+    if (!textEl || !textEl.value.trim()) return;
+
+    let replyText = textEl.value.trim();
+    let replySender = (nameEl && nameEl.value.trim()) 
+        ? nameEl.value.trim() 
+        : (ownerSession ? "Just a Girl (المالك)" : "عميلة");
+
+    let msg = communityMessages.find(m => m.id == msgId);
+    if (msg) {
+        if (!msg.replies) msg.replies = [];
+        let newReply = {
+            id: Date.now().toString(),
+            sender: replySender,
+            text: replyText,
+            isOwner: ownerSession
+        };
+        msg.replies.push(newReply);
+        
+        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+
+        if (window.db && window.firestoreTools) {
+            const { doc, setDoc } = window.firestoreTools;
+            setDoc(doc(window.db, "community", msg.id), msg);
+        }
+
+        renderCommunityChat();
+    }
+}
+
+function deleteCommunityMessage(msgId) {
+    if (!ownerSession) return;
+    if (!confirm('هل أنتِ متأكدة من حذف هذه الرسالة وكل الردود عليها؟')) return;
+
+    communityMessages = communityMessages.filter(m => m.id != msgId);
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+
+    if (window.db && window.firestoreTools) {
+        const { doc, deleteDoc } = window.firestoreTools;
+        deleteDoc(doc(window.db, "community", msg.id.toString()));
+    }
+
+    renderCommunityChat();
+}
+
+function deleteCommunityReply(msgId, replyId) {
+    if (!ownerSession) return;
+    let msg = communityMessages.find(m => m.id == msgId);
+    if (msg && msg.replies) {
+        msg.replies = msg.replies.filter(r => r.id != replyId);
+        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+
+        if (window.db && window.firestoreTools) {
+            const { doc, setDoc } = window.firestoreTools;
+            setDoc(doc(window.db, "community", msg.id), msg);
+        }
+
+        renderCommunityChat();
+    }
+}
+
+function renderReviews() {
+    const container = document.getElementById('reviewsContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    customerReviews.forEach(rev => {
+        container.innerHTML += `
+            <div class="review-card" style="background:#fff; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
+                <div style="color:#D4AF37; margin-bottom:5px;">${'★'.repeat(rev.rating)}</div>
+                <p style="font-size:13px; color:#444; margin-bottom:8px;">"${rev.comment}"</p>
+                <strong style="font-size:12px; color:#4A040D;">- ${rev.name}</strong>
+            </div>
+        `;
+    });
+}
+
+function openProfileModal() {
+    let modal = document.getElementById('profileModal');
+    if(modal) modal.style.display = 'flex';
+}
 // =========================================================================
-// ❌ دوال إغلاق النوافذ (زر X)
+// ❌ دوال إغلاق النوافذ (لعلاج زرار X والعربة والتفاصيل)
 // =========================================================================
 function closeProductModal() { 
     const modal = document.getElementById('productModal');
@@ -327,34 +517,4 @@ function closeCartModal() {
 function closeProfileModal() {
     let modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'none';
-}
-
-function openProfileModal() {
-    let modal = document.getElementById('profileModal');
-    if(modal) modal.style.display = 'flex';
-}
-
-function updateOwnerUI() {
-    let reviewForm = document.getElementById('ownerReviewForm');
-    let adminPanel = document.getElementById('adminPanelContainer');
-    if(reviewForm) reviewForm.style.display = ownerSession ? 'block' : 'none';
-    if(adminPanel) adminPanel.style.display = ownerSession ? 'block' : 'none';
-}
-
-function renderReviews() {
-    const container = document.getElementById('reviewsContainer');
-    if(!container) return;
-    container.innerHTML = `
-        <div style="background:#fff; padding:15px; border-radius:8px; border:1px solid #eee;">
-            <div style="color:#D4AF37; margin-bottom:5px;">★★★★★</div>
-            <p style="font-size:13px; color:#444;">"الخامات تحفة والمعاينة كانت ممتازة جداً!"</p>
-            <strong style="font-size:12px; color:#4A040D;">- سارة محمد</strong>
-        </div>
-    `;
-}
-
-function renderCommunityChat() {
-    const chatBox = document.getElementById('communityChatBox');
-    if (!chatBox) return;
-    chatBox.innerHTML = `<p style="text-align:center; color:#888; font-size:13px; padding:10px;">مرحباً بك في مجتمع Just a Girl ✨</p>`;
 }
