@@ -25,6 +25,47 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         colors: [{ name: "أسود", image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500" }],
         sizes: { "M": { price: 650, oldPrice: 750, available: true } }
     }
+    { 
+        id: "2", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 2، 3، 4...)
+        titleAr: "سوت ميلتون", 
+        titleEn: "سوت ميلتون", 
+        category: "sets", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
+        hasDiscount: false, // اكتبي true لو عليه خصم، أو false لو السعر عادي
+        image: "https://i.postimg.cc/Jzt12Dk2/IMG-20261107-131936-540.jpg", 
+        description: "بيلبس لحد 95 كيلو🫶أبعاد💖❤️الخامه ميلتون لايت ",
+        outOfStock: false, // false لو متاح، و true لو خلصان
+        
+        // الألوان الأساسية التلاتة (تقدري تغيري الروابط وتسيبي الأسماء زي ما هي أو تعدليها)
+        colors: [
+            { name: "بنى", image:" https://i.postimg.cc/mgqbfLYq/IMG-20261107-131942-088.jpg" },
+            { name: "برجندي", image: "https://i.postimg.cc/Jzt12Dk2/IMG-20261107-131936-540.jpg" },
+            { name: "بيج", image: "https://i.postimg.cc/vmJH9YDJ/IMG-20261107-131936-134.jpg" }
+            { name: "جرين ", image: "https://i.postimg.cc/TYtd0qpc/IMG-20261107-131936-307.jpg" }
+            { name: "بينك", image: "https://i.postimg.cc/K84ZHkMD/IMG-20261107-131936-360.jpg" }
+        ],
+        
+        // جميع المقاسات جاهزة أمامك (اكتبي السعر بالأرقام، أو اكتبي "غير متوفر" لو المقاس مش نازل)
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },   // مثال لمقاس متوفر بسعر 600
+            "M": { price: 0, available:false  },   // مثال لمقاس متوفر بسعر 650
+            "L": { price: 0, available: false },   // مثال لمقاس متوفر بسعر 700
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": {price :470, available: true }
+        }
+    },
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
