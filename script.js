@@ -446,3 +446,20 @@ function openProfileModal() {
     let modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'flex';
 }
+// =========================================================================
+// ❌ دوال إغلاق النوافذ (لعلاج زرار X والعربة والتفاصيل)
+// =========================================================================
+function closeProductModal() { 
+    const modal = document.getElementById('productModal');
+    if(modal) modal.style.display = 'none'; 
+}
+
+function closeCartModal() {
+    let modal = document.getElementById('cartModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function closeProfileModal() {
+    let modal = document.getElementById('profileModal');
+    if(modal) modal.style.display = 'none';
+}
