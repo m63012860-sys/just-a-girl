@@ -11,9 +11,7 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200", titleAr: "أناقة شتوية وصيفية متكاملة", titleEn: "Complete Seasonal Elegance" },
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
-
-let products = JSON.parse(localStorage.getItem('jag_products')) || [
-    { 
+  { 
         /* =========================================================================
    📌 دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
    =========================================================================
@@ -56,6 +54,8 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
     },
    ========================================================================= */
     },
+let products = JSON.parse(localStorage.getItem('jag_products')) || [
+  
     { 
         id: "2", 
         titleAr: "سوت ميلتون", 
