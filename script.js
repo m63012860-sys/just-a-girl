@@ -14,16 +14,47 @@ const heroBanners = [
 
 let products = JSON.parse(localStorage.getItem('jag_products')) || [
     { 
-        id: 1, 
-        titleAr: "هودي شتوي أنيق", 
-        titleEn: "Elegant Winter Hoodie", 
-        category: "hoodies", 
-        hasDiscount: true, 
-        image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500",
-        description: "هودي خامة ممتازة وتلبيس راقي ومريح.",
-        outOfStock: false,
-        colors: [{ name: "أسود", image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=500" }],
-        sizes: { "M": { price: 650, oldPrice: 750, available: true } }
+        /* =========================================================================
+   📌 دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
+   =========================================================================
+    { 
+        id: "2", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 2، 3، 4...)
+        titleAr: "اكتبي اسم المنتج بالعربي هنا", 
+        titleEn: "Product Name in English", 
+        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
+        hasDiscount: false, // اكتبي true لو عليه خصم، أو false لو السعر عادي
+        image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
+        description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
+        outOfStock: false, // false لو متاح، و true لو خلصان
+        
+        // الألوان الأساسية (تقدري تغيري الروابط وتسيبي الأسماء زي ما هي أو تعدليها)
+        colors: [
+            { name: "أسود", image: "رابط_صورة_اللون_الأسود.jpg" },
+            { name: "برجندي", image: "رابط_صورة_اللون_البرجندي.jpg" },
+            { name: "بيج", image: "رابط_صورة_اللون_البيج.jpg" }
+        ],
+        
+        // جميع المقاسات جاهزة أمامك (اكتبي السعر بالأرقام، أو اجعلي السعر 0 والـ available بـ false لو مش نازل)
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 600, available: true },   // مثال لمقاس متوفر بسعر 600
+            "M": { price: 650, available: true },   // مثال لمقاس متوفر بسعر 650
+            "L": { price: 700, available: true },   // مثال لمقاس متوفر بسعر 700
+            "XL": { price: 750, available: true },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 0, available: false }
+        }
+    },
+   ========================================================================= */
     },
     { 
         id: "2", 
