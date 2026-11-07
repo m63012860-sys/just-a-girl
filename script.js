@@ -12,49 +12,6 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
 
-/* =========================================================================
-   📌 دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
-   =========================================================================
-    { 
-        id: "2", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 2، 3، 4...)
-        titleAr: "اكتبي اسم المنتج بالعربي هنا", 
-        titleEn: "Product Name in English", 
-        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
-        hasDiscount: false, // اكتبي true لو عليه خصم، أو false لو السعر عادي
-        image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
-        description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
-        outOfStock: false, // false لو متاح، و true لو خلصان
-        
-        // الألوان الأساسية (تقدري تغيري الروابط وتسيبي الأسماء زي ما هي أو تعدليها)
-        colors: [
-            { name: "أسود", image: "رابط_صورة_اللون_الأسود.jpg" },
-            { name: "برجندي", image: "رابط_صورة_اللون_البرجندي.jpg" },
-            { name: "بيج", image: "رابط_صورة_اللون_البيج.jpg" }
-        ],
-        
-        // جميع المقاسات جاهزة أمامك (اكتبي السعر بالأرقام، أو اجعلي السعر 0 والـ available بـ false لو مش نازل)
-        sizes: { 
-            "1y": { price: 0, available: false },
-            "2y": { price: 0, available: false },
-            "3y": { price: 0, available: false },
-            "4y": { price: 0, available: false },
-            "6y": { price: 0, available: false },
-            "8y": { price: 0, available: false },
-            "10y": { price: 0, available: false },
-            "12y": { price: 0, available: false },
-            "XS": { price: 0, available: false },
-            "S": { price: 600, available: true },   // مثال لمقاس متوفر بسعر 600
-            "M": { price: 650, available: true },   // مثال لمقاس متوفر بسعر 650
-            "L": { price: 700, available: true },   // مثال لمقاس متوفر بسعر 700
-            "XL": { price: 750, available: true },
-            "2XL": { price: 0, available: false },
-            "3XL": { price: 0, available: false },
-            "Free": { price: 0, available: false }
-        }
-    },
-   ========================================================================= */
-
-   
 let products = JSON.parse(localStorage.getItem('jag_products')) || [
     { 
         id: "1", 
@@ -63,7 +20,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         category: "sets", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/Jzt12Dk2/IMG-20261107-131936-540.jpg", 
-        description: "بيلبس لحد 95 كيلو 🫶 أبعاد 💖 الخامة ميلتون         لايت",
+        description: "بيلبس لحد 95 كيلو 🫶 أبعاد 💖 الخامة ميلتون لايت",
         outOfStock: false,
         colors: [
             { name: "بنى", image: "https://i.postimg.cc/mgqbfLYq/IMG-20261107-131942-088.jpg" },
@@ -90,7 +47,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "3XL": { price: 0, available: false },
             "Free": { price: 470, available: true }
         }
-    }
+    },
     { 
         id: "2", 
         titleAr: "سويت شيرت كاجوال", 
@@ -98,13 +55,12 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         category: "blouses", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/dVqkx8PP/IMG-20261107-131821-682.jpg", 
-        description:"جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
+        description: "جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
         outOfStock: false,
         colors: [
-            { name: "بنى", image: "https://i.postimg1107-131821-101.jpg" },
+            { name: "بنى", image: "https://i.postimg.cc/139njpxj/IMG-20261107-131821-409.jpg" },
             { name: "برجندي", image: "https://i.postimg.cc/139njpxj/IMG-20261107-131821-409.jpg" },
-            { name: "اسود ", image: "https://i.postimg.cc/ZnpB1HK1/IMG-20261107-131820-991.jpg" },
-          
+            { name: "اسود", image: "https://i.postimg.cc/ZnpB1HK1/IMG-20261107-131820-991.jpg" }
         ],
         sizes: { 
             "1y": { price: 0, available: false },
@@ -123,6 +79,8 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "2XL": { price: 0, available: false },
             "3XL": { price: 0, available: false },
             "Free": { price: 440, available: true }
+        }
+    }
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
@@ -314,7 +272,7 @@ function updateCartCount() {
 }
 
 // =========================================================================
-// 💬 نظام مجتمع العملاء (مع الردود الفردية وإمكانية الحذف للمالكة)
+// 💬 نظام مجتمع العملاء
 // =========================================================================
 function renderCommunityChat() {
     const chatBox = document.getElementById('communityChatBox');
@@ -352,169 +310,156 @@ function renderCommunityChat() {
             <div style="margin-bottom: 15px; background: ${msg.isOwner ? '#fff5f7' : '#fff'}; padding: 12px; border-radius: 8px; border: 1px solid #eee; position:relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <strong style="color: #4A040D; font-size: 14px;">
-                        ${msg.sender} ${msg.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
+                        ${msg.sender} ${msg.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:5px;">✨ (المالك)</span>' : ''}
                     </strong>
                     ${deleteBtnHtml}
                 </div>
-                
-                <p style="margin: 0 0 8px 0; font-size: 13px; color: #333; line-height: 1.5;">${msg.text}</p>
-                
-                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
-                    <button onclick="toggleReplyBox('${msg.id}')" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:12px; font-weight:bold;">
-                        <i class="fa-regular fa-comment-dots"></i> 💬 رد
-                    </button>
-                </div>
-
-                <div id="replyBox_${msg.id}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
-                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-                        <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="width: 30%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
-                        <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
-                        <button onclick="sendCommunityReply('${msg.id}')" style="background: #4A040D; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">إرسال الرد</button>
-                    </div>
-                </div>
-
-                <div class="replies-container">
-                    ${repliesHtml}
-                </div>
+                <p style="margin: 0; font-size: 13px; color: #333;">${msg.text}</p>
+                ${repliesHtml}
             </div>
         `;
     });
 }
-
-function sendCommunityMessage() {
-    const input = document.getElementById('communityInput');
-    const nameInput = document.getElementById('chatSenderName');
-    if (!input || !input.value.trim()) return;
-
-    let text = input.value.trim();
-    let senderName = nameInput && nameInput.value.trim() 
-        ? nameInput.value.trim() 
-        : (ownerSession ? "Just a Girl (المالك)" : "زائرة للموقع");
-
-    let newMsg = {
-        id: Date.now().toString(),
-        sender: senderName,
-        text: text,
-        isOwner: ownerSession,
-        replies: []
-    };
-
-    communityMessages.push(newMsg);
-    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-
-    if (window.db && window.firestoreTools) {
-        const { doc, setDoc } = window.firestoreTools;
-        setDoc(doc(window.db, "community", newMsg.id), newMsg);
-    }
-
-    input.value = '';
-    renderCommunityChat();
-}
-
-function toggleReplyBox(msgId) {
-    const box = document.getElementById(`replyBox_${msgId}`);
-    if (box) {
-        box.style.display = box.style.display === 'none' ? 'block' : 'none';
-    }
-}
-
-function sendCommunityReply(msgId) {
-    const nameEl = document.getElementById(`replyName_${msgId}`);
-    const textEl = document.getElementById(`replyText_${msgId}`);
+// =========================================================================
+// ➕ دوال الإدارة والتحكم في المنتجات والفلترة
+// =========================================================================
+function filterCategory(cat) {
+    document.querySelectorAll('#categoryNav button').forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
     
-    if (!textEl || !textEl.value.trim()) return;
-
-    let replyText = textEl.value.trim();
-    let replySender = (nameEl && nameEl.value.trim()) 
-        ? nameEl.value.trim() 
-        : (ownerSession ? "Just a Girl (المالك)" : "عميلة");
-
-    let msg = communityMessages.find(m => m.id == msgId);
-    if (msg) {
-        if (!msg.replies) msg.replies = [];
-        let newReply = {
-            id: Date.now().toString(),
-            sender: replySender,
-            text: replyText,
-            isOwner: ownerSession
-        };
-        msg.replies.push(newReply);
-        
-        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-
-        if (window.db && window.firestoreTools) {
-            const { doc, setDoc } = window.firestoreTools;
-            setDoc(doc(window.db, "community", msg.id), msg);
-        }
-
-        renderCommunityChat();
+    const title = document.getElementById('catalogTitle');
+    if (cat === 'all') {
+        if(title) title.innerText = "تجميعة المنتجات";
+        renderProducts(products);
+    } else {
+        if(title) title.innerText = event.target.innerText;
+        const filtered = products.filter(p => p.category === cat);
+        renderProducts(filtered);
     }
 }
 
-function deleteCommunityMessage(msgId) {
+function filterProducts() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = products.filter(p => 
+        p.titleAr.toLowerCase().includes(query) || 
+        (p.description && p.description.toLowerCase().includes(query))
+    );
+    renderProducts(filtered);
+}
+
+function openEditProductModal(productId) {
     if (!ownerSession) return;
-    if (!confirm('هل أنتِ متأكدة من حذف هذه الرسالة وكل الردود عليها؟')) return;
+    const product = products.find(p => p.id == productId);
+    if (!product) return;
 
-    communityMessages = communityMessages.filter(m => m.id != msgId);
-    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+    let modal = document.getElementById('productModal');
+    let content = document.getElementById('productModalContent');
+    if(!modal || !content) return;
 
-    if (window.db && window.firestoreTools) {
-        const { doc, deleteDoc } = window.firestoreTools;
-        deleteDoc(doc(window.db, "community", msg.id.toString()));
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">تعديل المنتج</h2>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editTitle" value="${product.titleAr}"></div>
+        <div class="form-group"><label>رابط الصورة الرئيسية:</label><input type="text" id="editImage" value="${product.image}"></div>
+        <div class="form-group"><label>الوصف:</label><textarea id="editDesc">${product.description || ''}</textarea></div>
+        <button onclick="saveEditedProduct('${product.id}')" style="width:100%; background:#4A040D; color:#fff; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer;">حفظ التعديلات</button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function saveEditedProduct(productId) {
+    let product = products.find(p => p.id == productId);
+    if (product) {
+        product.titleAr = document.getElementById('editTitle').value;
+        product.image = document.getElementById('editImage').value;
+        product.description = document.getElementById('editDesc').value;
+        
+        localStorage.setItem('jag_products', JSON.stringify(products));
+        closeProductModal();
+        renderProducts(products);
+        alert('تم تعديل المنتج بنجاح! ✨');
     }
+}
 
+function loginAdmin() {
+    let email = document.getElementById('adminEmailInput').value;
+    let pass = document.getElementById('adminPasswordInput').value;
+
+    if (email === adminEmail && pass === adminPass) {
+        ownerSession = true;
+        localStorage.setItem('jag_owner_session', 'true');
+        alert('أهلاً بكِ يا ملكة البراند! تم تسجيل الدخول بنجاح 👑');
+        closeProfileModal();
+        updateOwnerUI();
+        renderProducts(products);
+        renderCommunityChat();
+    } else {
+        alert('البريد الإلكتروني أو كلمة المرور غير صحيحة!');
+    }
+}
+
+function logoutAdmin() {
+    ownerSession = false;
+    localStorage.setItem('jag_owner_session', 'false');
+    alert('تم تسجيل الخروج بنجاح.');
+    closeProfileModal();
+    updateOwnerUI();
+    renderProducts(products);
     renderCommunityChat();
 }
 
-function deleteCommunityReply(msgId, replyId) {
-    if (!ownerSession) return;
-    let msg = communityMessages.find(m => m.id == msgId);
-    if (msg && msg.replies) {
-        msg.replies = msg.replies.filter(r => r.id != replyId);
-        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-
-        if (window.db && window.firestoreTools) {
-            const { doc, setDoc } = window.firestoreTools;
-            setDoc(doc(window.db, "community", msg.id), msg);
-        }
-
-        renderCommunityChat();
+function updateOwnerUI() {
+    const adminPanel = document.getElementById('adminPanelContainer');
+    if (adminPanel) {
+        adminPanel.style.display = ownerSession ? 'block' : 'none';
     }
-}
-
-function renderReviews() {
-    const container = document.getElementById('reviewsContainer');
-    if(!container) return;
-    container.innerHTML = '';
-    customerReviews.forEach(rev => {
-        container.innerHTML += `
-            <div class="review-card" style="background:#fff; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
-                <div style="color:#D4AF37; margin-bottom:5px;">${'★'.repeat(rev.rating)}</div>
-                <p style="font-size:13px; color:#444; margin-bottom:8px;">"${rev.comment}"</p>
-                <strong style="font-size:12px; color:#4A040D;">- ${rev.name}</strong>
-            </div>
-        `;
-    });
 }
 
 function openProfileModal() {
-    let modal = document.getElementById('profileModal');
+    const modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'flex';
-}
-// =========================================================================
-// ❌ دوال إغلاق النوافذ (لعلاج زرار X والعربة والتفاصيل)
-// =========================================================================
-function closeProductModal() { 
-    const modal = document.getElementById('productModal');
-    if(modal) modal.style.display = 'none'; 
-}
-
-function closeCartModal() {
-    let modal = document.getElementById('cartModal');
-    if(modal) modal.style.display = 'none';
 }
 
 function closeProfileModal() {
-    let modal = document.getElementById('profileModal');
+    const modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'none';
+}
+
+function openCartModal() {
+    const modal = document.getElementById('cartModal');
+    if(modal) modal.style.display = 'flex';
+}
+
+function closeCartModal() {
+    const modal = document.getElementById('cartModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function sendCommunityMessage() {
+    let sender = document.getElementById('chatSenderName').value.trim();
+    let text = document.getElementById('communityInput').value.trim();
+
+    if(!sender || !text) {
+        alert('برجاء إرسال الاسم ورسالتك أولاً.');
+        return;
+    }
+
+    communityMessages.push({
+        id: Date.now().toString(),
+        sender: sender,
+        text: text,
+        isOwner: false,
+        replies: []
+    });
+
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+    document.getElementById('communityInput').value = '';
+    renderCommunityChat();
+}
+
+function deleteCommunityMessage(msgId) {
+    if(!ownerSession) return;
+    communityMessages = communityMessages.filter(m => m.id != msgId);
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+    renderCommunityChat();
 }
