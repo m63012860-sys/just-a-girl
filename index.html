@@ -34,10 +34,12 @@
         </div>
     </header>
 
-    <!-- قائمة الأقسام مع الجملة الترحيبية -->
+    <!-- قائمة الأقسام مع الجملة الترحيبية في البداية لزيح كلمة الكل لقدام -->
     <nav id="categoryNav">
         <div class="nav-static-msg">✨اختيارك الأمثل للأناقة والتميز Just a Girl✨</div>
-        <div class="nav-static-msg">🛍️ اختيارك الأمثل للأناقة والتميز Just a Girl</div>
+       <div class="nav-static-msg">🛍️ اختيارك الأمثل للأناقة والتميز Just a Girl</div>
+    
+        
         
         <button class="active" onclick="filterCategory('all')">الكل (All)</button>
         <button onclick="filterCategory('hoodies')">هوديات (Hoodies)</button>
@@ -139,7 +141,7 @@
             </button>
         </div>
 
-        <div id="reviewsContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
+        <div id="reviewsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
     </div>
 
     <!-- مجتمع العملاء -->
@@ -147,11 +149,11 @@
         <h2 class="section-title" style="text-align: center; display: block;">مجتمع Just a Girl 💬</h2>
         <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 20px;">مساحة لتبادل الآراء والاستفسارات بين العملاء.</p>
         
-        <div id="communityChatBox" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
+        <div id="chatMessages" style="height: 280px; overflow-y: auto; border: 1px solid #eee; padding: 15px; border-radius: 5px; background: #fafafa; margin-bottom: 15px;"></div>
 
         <div style="display: flex; gap: 10px; flex-wrap: wrap;">
             <input type="text" id="chatSenderName" placeholder="اسمك..." style="width: 30%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
-            <input type="text" id="communityInput" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+            <input type="text" id="chatInputText" placeholder="اكتب رسالتك أو استفسارك هنا..." style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
             <button onclick="sendCommunityMessage()" style="background: #4A040D; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold;">إرسال</button>
         </div>
     </div>
@@ -185,7 +187,7 @@
         </div>
     </div>
 
-    <!-- مودال الملف الشخصي وتسجيل دخول الإدارة -->
+    <!-- مودال الملف الشخصي وتسجيل دخول الإدارة (إيميل وباسورد فقط بدون أي رمز سري) -->
     <div class="modal" id="profileModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeProfileModal()">&times;</span>
@@ -203,46 +205,19 @@
             </div>
             
             <div id="adminSettingsSection" style="display: none;">
-                <h3 style="color: #4A040D; font-size: 16px; margin-bottom: 10px;">إعدادات حساب الإدارة</h3>
-                <div class="form-group"><label>الإيميل الجديد:</label><input type="email" id="newAdminEmail" placeholder="البريد الجديد"></div>
-                <div class="form-group"><label>كلمة المرور الجديدة:</label><input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة"></div>
-                <button onclick="updateAdminAccount()" style="width: 100%; background: #D4AF37; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">حفظ التعديلات</button>
-                
-                <button onclick="logoutOwner()" style="width: 100%; background: #c00; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
-                    <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
-                </button>
-            </div>
+    <h3 style="color: #4A040D; font-size: 16px; margin-bottom: 10px;">إعدادات حساب الإدارة</h3>
+    <div class="form-group"><label>الإيميل الجديد:</label><input type="email" id="newAdminEmail" placeholder="البريد الجديد"></div>
+    <div class="form-group"><label>كلمة المرور الجديدة:</label><input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة"></div>
+    <button onclick="updateAdminAccount()" style="width: 100%; background: #D4AF37; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">حفظ التعديلات</button>
+    
+    <!-- زر تسجيل الخروج المضاف والجاهز للعمل -->
+    <button onclick="logoutOwner()" style="width: 100%; background: #c00; color: #fff; border: none; padding: 10px; border-radius: 5px; font-weight: bold; cursor: pointer;">
+        <i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج
+    </button>
+</div>
         </div>
     </div>
 
-    <!-- 🌟 ربط مكتبات Firebase وسكريبت التهيئة -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyAQm0s0mZDDdxvw4zM6y125sK9cA-PZwJo",
-            authDomain: "just-a-girl-622a4.firebaseapp.com",
-            projectId: "just-a-girl-622a4",
-            storageBucket: "just-a-girl-622a4.firebasestorage.app",
-            messagingSenderId: "375542341340",
-            appId: "1:375542341340:web:70b8010c6f10244769de19",
-            measurementId: "G-JNBVJ3YRX0"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        window.db = getFirestore(app);
-        window.firestoreTools = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, setDoc };
-    </script>
-
-  <!-- مودال تفاصيل المنتج وإضافته -->
-    <div class="modal" id="productModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000;">
-        <div class="modal-content" id="productModalContent" style="background: #fff; padding: 25px; border-radius: 10px; width: 90%; max-width: 600px; position: relative; max-height: 90vh; overflow-y: auto;">
-            <!-- محتوى المنتج هيتولد هنا تلقائياً عند الضغط على عرض والتفاصيل -->
-        </div>
-    </div>
-
-    <!-- ملف السكريبت الرئيسي -->
     <script src="script.js"></script>
 </body>
 </html>
