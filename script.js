@@ -965,3 +965,35 @@ function filterCategory(category) {
     if (category === 'all') renderProducts(products);
     else renderProducts(products.filter(p => p.category === category));
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. فتح النافذة عند الضغط على أي زر عرض والتفاصيل
+    document.addEventListener('click', function(e) {
+        const detailBtn = e.target.closest('button');
+        if (detailBtn && detailBtn.textContent.includes('عرض والتفاصيل')) {
+            const modalOverlay = document.querySelector('.modal-overlay');
+            if (modalOverlay) {
+                modalOverlay.style.display = 'flex';
+            }
+        }
+    });
+
+    // 2. إغلاق النافذة عند الضغط على زر الإغلاق (X)
+    document.addEventListener('click', function(e) {
+        if (e.target.classList.contains('close-btn') || e.target.closest('.close-btn')) {
+            const modalOverlay = document.querySelector('.modal-overlay');
+            if (modalOverlay) {
+                modalOverlay.style.display = 'none';
+            }
+        }
+    });
+
+    // 3. إغلاق النافذة عند النقر في المساحة الفارغة خارج صندوق التفاصيل
+    window.addEventListener('click', function(e) {
+        const modalOverlay = document.querySelector('.modal-overlay');
+        if (modalOverlay && e.target === modalOverlay) {
+            modalOverlay.style.display = 'none';
+        }
+    });
+});
