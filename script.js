@@ -997,3 +997,52 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
+// دالة فتح وتعبئة تفاصيل المنتج
+function showProductDetails(product) {
+    const modal = document.getElementById('productModal');
+    const container = document.getElementById('modalDynamicDetails');
+    
+    // بناء هيكل التفاصيل داخل النافذة
+    container.innerHTML = `
+        <div class="product-modal-body">
+            <div class="product-modal-image">
+                <img src="${product.image}" alt="${product.title}">
+            </div>
+            <div class="product-modal-info">
+                <h3>${product.title}</h3>
+                <p class="product-desc">${product.description || 'خامة ممتازة وراعية ومريحة'}</p>
+                <div class="product-price">السعر الحالي: <span>${product.price} ج.م</span></div>
+                
+                <div class="option-group">
+                    <label>اختر المقاس المطلوب:</label>
+                    <div class="size-options">
+                        <button class="size-btn active">Free Size</button>
+                    </div>
+                </div>
+
+                <button class="add-to-cart-btn" onclick="addToCart('${product.id}')">
+                    <i class="fa-solid fa-cart-plus"></i> إضافة للسلة بالمقاس المحدد
+                </button>
+            </div>
+        </div>
+    `;
+    
+    modal.style.display = 'flex';
+}
+
+// دالة إغلاق مودال المنتج
+function closeProductModal() {
+    const modal = document.getElementById('productModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// إغلاق النافذة عند النقر خارج المحتوى
+window.onclick = function(event) {
+    const productModal = document.getElementById('productModal');
+    const cartModal = document.getElementById('cartModal');
+    const profileModal = document.getElementById('profileModal');
+    
+    if (event.target === productModal) closeProductModal();
+    if (event.target === cartModal) closeCartModal();
+    if (event.target === profileModal) closeProfileModal();
+};
