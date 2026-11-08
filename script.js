@@ -12,8 +12,7 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
 
-/* =========================================================================
-   📌 دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
+/*📌    دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
    =========================================================================
     { 
         id: "2", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 2، 3، 4...)
@@ -55,7 +54,7 @@ const heroBanners = [
    ========================================================================= */
 
    
-let products = JSON.parse(localStorage.getItem('jag_products')) || [
+    let products = JSON.parse(localStorage.getItem('jag_products')) || [
     { 
         id: "1", 
         titleAr: "سوت ميلتون", 
@@ -90,7 +89,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "3XL": { price: 0, available: false },
             "Free": { price: 470, available: true }
         }
-    }
+    },
     { 
         id: "2", 
         titleAr: "سويت شيرت كاجوال", 
@@ -123,6 +122,9 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "2XL": { price: 0, available: false },
             "3XL": { price: 0, available: false },
             "Free": { price: 440, available: true }
+     
+        } 
+    }
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
@@ -139,36 +141,6 @@ let currentBase64Image = "";
 let colorUploadsList = [];
 let selectedSizeForCart = "";
 
-// =========================================================================
-// 🌐 جلب البيانات سحابياً من Firebase عند فتح الموقع
-// =========================================================================
-async function loadCloudData() {
-    if (window.db && window.firestoreTools) {
-        try {
-            const { collection, getDocs } = window.firestoreTools;
-            const prodSnap = await getDocs(collection(window.db, "products"));
-            if (!prodSnap.empty) {
-                products = [];
-                prodSnap.forEach(doc => {
-                    products.push({ id: doc.id, ...doc.data() });
-                });
-                renderProducts(products);
-            }
-
-            const chatSnap = await getDocs(collection(window.db, "community"));
-            if (!chatSnap.empty) {
-                communityMessages = [];
-                chatSnap.forEach(doc => {
-                    communityMessages.push({ id: doc.id, ...doc.data() });
-                });
-                renderCommunityChat();
-            }
-        } catch (error) {
-            console.log("جاري الاعتماد على التخزين المحلي مؤقتاً:", error);
-        }
-    }
-}
-
 document.addEventListener('DOMContentLoaded', () => {
     initSlider();
     renderProducts(products);
@@ -177,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCommunityChat();
     updateOwnerUI();
     ensureAdminButton();
-    loadCloudData();
 });
 
 function ensureAdminButton() {
@@ -213,7 +184,7 @@ function initSlider() {
 }
 
 // =========================================================================
-// 🛍️ عرض وإدارة المنتجات
+// 🛍️ عرض وإدارة المنتجات (تعديل، حذف، نفذ)
 // =========================================================================
 function renderProducts(itemsToRender = products) {
     const grid = document.getElementById('productsGrid');
@@ -238,9 +209,9 @@ function renderProducts(itemsToRender = products) {
         if (ownerSession) {
             adminControlsHtml = `
                 <div style="display: flex; gap: 5px; margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 8px;">
-                    <button type="button" onclick="openEditProductModal('${product.id}')" style="flex:1; background:#D4AF37; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">تعديل</button>
-                    <button type="button" onclick="deleteProduct('${product.id}')" style="flex:1; background:#c00; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">حذف</button>
-                    <button type="button" onclick="toggleOutOfStock('${product.id}')" style="flex:1; background:#555; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${product.outOfStock ? 'إتاحة' : 'نفذ'}</button>
+                    <button type="button" onclick="openEditProductModal(${product.id})" style="flex:1; background:#D4AF37; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">تعديل</button>
+                    <button type="button" onclick="deleteProduct(${product.id})" style="flex:1; background:#c00; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">حذف</button>
+                    <button type="button" onclick="toggleOutOfStock(${product.id})" style="flex:1; background:#555; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${product.outOfStock ? 'إتاحة' : 'نفذ'}</button>
                 </div>
             `;
         }
@@ -252,7 +223,7 @@ function renderProducts(itemsToRender = products) {
                 <div class="product-title">${product.titleAr}</div>
                 <div class="product-desc">${product.description || ''}</div>
                 <div class="price-box">يبدأ من ${minPrice} ج.م</div>
-                <button class="view-details-btn" onclick="openProductDetails('${product.id}')">عرض والتفاصيل</button>
+                <button class="view-details-btn" onclick="openProductDetails(${product.id})">عرض والتفاصيل</button>
                 ${adminControlsHtml}
             </div>
         `;
@@ -260,6 +231,7 @@ function renderProducts(itemsToRender = products) {
     });
 }
 
+// 1. فتح نافذة إضافة منتج
 function openAddProductModal() {
     if (!ownerSession) { alert('متاحة للإدارة فقط.'); return; }
     let modal = document.getElementById('productModal');
@@ -270,20 +242,146 @@ function openAddProductModal() {
         modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
         document.body.appendChild(modal);
     }
+
+    currentBase64Image = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=500";
+    colorUploadsList = [];
+
+    const content = document.getElementById('productModalContent');
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px; font-family:'Playfair Display', serif;">إضافة منتج جديد</h2>
+        
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="addProdTitle" placeholder="مثال: فستان سهرة أو هودي"></div>
+        
+        <div class="form-group"><label>القسم:</label>
+            <select id="addProdCat" style="width:100%; padding:10px; border:1px solid #ccc; border-radius:5px;">
+                <option value="hoodies">هوديات (Hoodies)</option>
+                <option value="pants">بناطيل (Pants)</option>
+                <option value="kids">أطفال (Kids)</option>
+                <option value="pajamas">بيجامات (Pajamas)</option>
+                <option value="sets">طقمة (Sets)</option>
+                <option value="dresses">الفساتين (Dresses)</option>
+                <option value="suits">البدل (Suits)</option>
+                <option value="jackets">الجواكت (Jackets)</option>
+                <option value="bundles">باكدج (Bundles)</option>
+                <option value="offers">عروض خاصة</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>رفع الصورة الرئيسية من الجهاز أو رابط خارجي:</label>
+            <input type="file" id="mainImageFile" accept="image/*" onchange="handleMainImageUpload(event)" style="padding:5px; margin-bottom:5px;">
+            <input type="text" id="mainImgUrlInput" placeholder="أو ائتي برابط صورة مباشرة (URL)..." oninput="handleMainImageUrl(event)" style="padding:7px; width:100%; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+            <div id="mainImgPreviewContainer" style="margin-top:8px;">
+                <img id="mainImgPreview" src="${currentBase64Image}" style="width:80px; height:80px; object-fit:cover; border-radius:6px; border:1px solid #ddd;">
+            </div>
+        </div>
+
+        <div class="form-group"><label>وصف المنتج:</label><textarea id="addProdDesc" placeholder="تفاصيل الخامات والمميزات..."></textarea></div>
+        
+        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
+        <h4 style="color:#4A040D; margin-bottom:8px;">أسعار المقاسات:</h4>
+        <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px;">
+            <div><label style="font-size:12px;">1 سنة:</label><input type="number" id="price_1y" placeholder="0"></div>
+            <div><label style="font-size:12px;">2 سنة:</label><input type="number" id="price_2y" placeholder="0"></div>
+            <div><label style="font-size:12px;">3 سنوات:</label><input type="number" id="price_3y" placeholder="0"></div>
+            <div><label style="font-size:12px;">4 سنوات:</label><input type="number" id="price_4y" placeholder="0"></div>
+            <div><label style="font-size:12px;">6 سنوات:</label><input type="number" id="price_6y" placeholder="0"></div>
+            <div><label style="font-size:12px;">8 سنوات:</label><input type="number" id="price_8y" placeholder="0"></div>
+            <div><label style="font-size:12px;">10 سنوات:</label><input type="number" id="price_10y" placeholder="0"></div>
+            <div><label style="font-size:12px;">12 سنة:</label><input type="number" id="price_12y" placeholder="0"></div>
+            <div><label style="font-size:12px;">XS:</label><input type="number" id="price_XS" placeholder="0"></div>
+            <div><label style="font-size:12px;">S:</label><input type="number" id="price_S" placeholder="0"></div>
+            <div><label style="font-size:12px;">M:</label><input type="number" id="price_M" placeholder="0"></div>
+            <div><label style="font-size:12px;">L:</label><input type="number" id="price_L" placeholder="0"></div>
+            <div><label style="font-size:12px;">XL:</label><input type="number" id="price_XL" placeholder="0"></div>
+            <div><label style="font-size:12px;">2XL:</label><input type="number" id="price_2XL" placeholder="0"></div>
+            <div><label style="font-size:12px;">3XL:</label><input type="number" id="price_3XL" placeholder="0"></div>
+            <div><label style="font-size:12px;">Free Size:</label><input type="number" id="price_Free" placeholder="0"></div>
+        </div>
+
+        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
+        <h4 style="color:#4A040D; margin-bottom:8px;">ألوان المنتج (حتى 25 لوناً):</h4>
+        <div id="colorUploadsContainer" style="max-height: 180px; overflow-y: auto; border: 1px dashed #D4AF37; padding: 10px; border-radius: 6px; margin-bottom: 15px;"></div>
+        <button type="button" onclick="addColorUploadField()" style="background:#f7f4ed; border:1px solid #D4AF37; color:#4A040D; padding:8px; border-radius:5px; font-weight:bold; cursor:pointer; width:100%; margin-bottom:15px;">+ إضافة لون جديد</button>
+
+        <button onclick="saveNewAdvancedProduct()" style="width:100%; background:#4A040D; color:#fff; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer;">حفظ ونشر المنتج</button>
+    `;
+    modal.style.display = 'flex';
+    addColorUploadField();
+}
+
+// 2. تعديل منتج قائم
+function openEditProductModal(productId) {
+    if (!ownerSession) return;
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    let modal = document.getElementById('productModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'productModal';
+        modal.className = 'modal';
+        modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
+        document.body.appendChild(modal);
+    }
+
+    let firstPrice = 500;
+    for(let s in product.sizes) {
+        if(product.sizes[s].price) { firstPrice = product.sizes[s].price; break; }
+    }
+
+    const content = document.getElementById('productModalContent');
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">تعديل المنتج</h2>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editProdTitle" value="${product.titleAr}"></div>
+        <div class="form-group"><label>السعر الافتراضي (ج.م):</label><input type="number" id="editProdPrice" value="${firstPrice}"></div>
+        <div class="form-group"><label>رابط الصورة:</label><input type="text" id="editProdImg" value="${product.image}"></div>
+        <div class="form-group"><label>الوصف:</label><textarea id="editProdDesc">${product.description || ''}</textarea></div>
+        <button onclick="saveEditedProduct(${product.id})" style="width:100%; background:#D4AF37; color:#fff; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer;">تحديث بيانات المنتج</button>
+    `;
     modal.style.display = 'flex';
 }
 
+function saveEditedProduct(productId) {
+    let product = products.find(p => p.id === productId);
+    if (!product) return;
+
+    let newTitle = document.getElementById('editProdTitle').value.trim();
+    let newPrice = parseFloat(document.getElementById('editProdPrice').value) || 0;
+    let newImg = document.getElementById('editProdImg').value.trim();
+    let newDesc = document.getElementById('editProdDesc').value.trim();
+
+    if (newTitle) { product.titleAr = newTitle; product.titleEn = newTitle; }
+    if (newPrice > 0) {
+        for(let s in product.sizes) {
+            product.sizes[s].price = newPrice;
+            break;
+        }
+    }
+    if (newImg) { product.image = newImg; }
+    product.description = newDesc;
+
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    closeProductModal();
+    renderProducts(products);
+    alert('تم تحديث المنتج بنجاح!');
+}
+
+// 3. حذف منتج
 function deleteProduct(productId) {
     if (!ownerSession) return;
     if (!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً؟')) return;
-    products = products.filter(p => p.id != productId);
+    products = products.filter(p => p.id !== productId);
     localStorage.setItem('jag_products', JSON.stringify(products));
     renderProducts(products);
 }
 
+// 4. تفعيل أو إلغاء حالة نفذ / إتاحة
 function toggleOutOfStock(productId) {
     if (!ownerSession) return;
-    let product = products.find(p => p.id == productId);
+    let product = products.find(p => p.id === productId);
     if (product) {
         product.outOfStock = !product.outOfStock;
         localStorage.setItem('jag_products', JSON.stringify(products));
@@ -291,13 +389,249 @@ function toggleOutOfStock(productId) {
     }
 }
 
+function handleMainImageUpload(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentBase64Image = e.target.result;
+            document.getElementById('mainImgPreview').src = currentBase64Image;
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function handleMainImageUrl(event) {
+    let urlVal = event.target.value.trim();
+    if(urlVal) {
+        currentBase64Image = urlVal;
+        document.getElementById('mainImgPreview').src = urlVal;
+    }
+}
+
+function addColorUploadField() {
+    if (colorUploadsList.length >= 25) { alert('الحد الأقصى 25 لوناً.'); return; }
+    const index = colorUploadsList.length;
+    colorUploadsList.push({ name: '', image: '' });
+
+    const container = document.getElementById('colorUploadsContainer');
+    const div = document.createElement('div');
+    div.id = `color_row_${index}`;
+    div.style.cssText = "display: flex; gap: 10px; align-items: center; margin-bottom: 10px; background:#fff; padding:6px; border-radius:5px; border:1px solid #eee;";
+    div.innerHTML = `
+        <input type="text" placeholder="اسم اللون (مثال: برجندي)" id="color_name_${index}" oninput="updateColorData(${index})" style="flex:1; padding:7px; border:1px solid #ccc; border-radius:4px; font-size:13px;">
+        <input type="file" accept="image/*" onchange="handleColorImageUpload(event, ${index})" style="font-size:11px; width:120px;">
+        <input type="text" placeholder="أو رابط URL" id="color_url_${index}" oninput="updateColorUrl(${index})" style="width:90px; padding:6px; font-size:11px; border:1px solid #ccc; border-radius:4px;">
+        <img id="color_preview_${index}" src="" style="width:32px; height:32px; object-fit:cover; border-radius:4px; display:none; border:1px solid #ddd;">
+        <button type="button" onclick="removeColorField(${index})" style="background:#c00; color:#fff; border:none; padding:5px 8px; border-radius:4px; cursor:pointer; font-size:11px;">حذف</button>
+    `;
+    container.appendChild(div);
+}
+
+function updateColorData(index) {
+    let nameVal = document.getElementById(`color_name_${index}`).value;
+    if(colorUploadsList[index]) colorUploadsList[index].name = nameVal;
+}
+
+function updateColorUrl(index) {
+    let urlVal = document.getElementById(`color_url_${index}`).value.trim();
+    if(colorUploadsList[index] && urlVal) {
+        colorUploadsList[index].image = urlVal;
+        let prevImg = document.getElementById(`color_preview_${index}`);
+        prevImg.src = urlVal;
+        prevImg.style.display = 'block';
+    }
+}
+
+function handleColorImageUpload(event, index) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            colorUploadsList[index].image = e.target.result;
+            let prevImg = document.getElementById(`color_preview_${index}`);
+            prevImg.src = e.target.result;
+            prevImg.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+function removeColorField(index) {
+    const row = document.getElementById(`color_row_${index}`);
+    if (row) row.remove();
+    colorUploadsList[index] = null;
+}
+
+function saveNewAdvancedProduct() {
+    let title = document.getElementById('addProdTitle').value.trim();
+    let category = document.getElementById('addProdCat').value;
+    let description = document.getElementById('addProdDesc').value.trim();
+
+    if (!title) { alert('يرجى إدخال اسم المنتج.'); return; }
+
+    let sizeKeys = ["1y", "2y", "3y", "4y", "6y", "8y", "10y", "12y", "XS", "S", "M", "L", "XL", "2XL", "3XL", "Free"];
+    let sizesObj = {};
+    sizeKeys.forEach(s => {
+        let inputEl = document.getElementById(`price_${s}`);
+        let pVal = inputEl ? parseFloat(inputEl.value) || 0 : 0;
+        if(pVal > 0) sizesObj[s] = { price: pVal, oldPrice: 0, available: true };
+    });
+
+    if(Object.keys(sizesObj).length === 0) sizesObj["M"] = { price: 500, oldPrice: 0, available: true };
+
+    let finalColors = colorUploadsList.filter(c => c !== null && (c.name || c.image));
+    if(finalColors.length === 0) finalColors = [{ name: "الأساسي", image: currentBase64Image }];
+
+    let newProduct = {
+        id: Date.now(),
+        titleAr: title,
+        titleEn: title,
+        category: category,
+        hasDiscount: false,
+        image: currentBase64Image,
+        description: description,
+        outOfStock: false,
+        colors: finalColors,
+        sizes: sizesObj
+    };
+
+    products.unshift(newProduct);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    closeProductModal();
+    renderProducts(products);
+    alert('تم إضافة المنتج بكافة مقاساته وألوانه بنجاح!');
+}
+
+// 🌟 تفاصيل المنتج مع أزرار المقاسات التفاعلية وتغيير الصور عبر الألوان
 function openProductDetails(productId) {
-    const product = products.find(p => p.id == productId);
+    const product = products.find(p => p.id === productId);
     if (!product) return;
+
     let modal = document.getElementById('productModal');
     const content = document.getElementById('productModalContent');
     if(!modal || !content) return;
+
+    let availableSizesKeys = Object.keys(product.sizes || {}).filter(s => product.sizes[s].available && product.sizes[s].price > 0);
+    selectedSizeForCart = availableSizesKeys.length > 0 ? availableSizesKeys[0] : "";
+    let initialPrice = selectedSizeForCart ? product.sizes[selectedSizeForCart].price : 500;
+
+    let sizesButtonsHtml = '';
+    Object.keys(product.sizes || {}).forEach(sKey => {
+        let sData = product.sizes[sKey];
+        if(sData.available && sData.price > 0) {
+            let isSelected = (sKey === selectedSizeForCart);
+            sizesButtonsHtml += `
+                <button type="button" onclick="selectProductSize('${sKey}', ${sData.price}, this)" 
+                    class="size-btn" 
+                    style="background: ${isSelected ? '#4A040D' : '#f7f4ed'}; color: ${isSelected ? '#fff' : '#4A040D'}; border: 1px solid #D4AF37; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s;">
+                    ${sKey}: ${sData.price} ج.م
+                </button>`;
+        }
+    });
+
+    let colorsHtml = '';
+    if(product.colors && product.colors.length > 0) {
+        product.colors.forEach(col => {
+            if(col.image) {
+                colorsHtml += `
+                    <div onclick="changeProductDisplayImage('${col.image}', '${col.name}')" style="text-align:center; display:inline-block; margin:4px; cursor:pointer;" title="عرض لون ${col.name}">
+                        <img src="${col.image}" style="width:40px; height:40px; object-fit:cover; border-radius:50%; border:2px solid #D4AF37;">
+                        <div style="font-size:10px; color:#4A040D; font-weight:bold;">${col.name}</div>
+                    </div>`;
+            }
+        });
+    }
+
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 220px; text-align:center;">
+                <img id="mainDetailImage" src="${product.image}" style="width: 100%; height: 260px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">
+                <div id="colorNameIndicator" style="margin-top:6px; font-size:13px; font-weight:bold; color:#4A040D;">الصورة الأصلية للمنتج</div>
+                <button type="button" onclick="resetToOriginalImage('${product.image}')" style="margin-top:6px; background:none; border:1px solid #D4AF37; color:#4A040D; padding:3px 10px; border-radius:15px; font-size:11px; cursor:pointer;">🔄 العودة للصورة الأصلية</button>
+            </div>
+            <div style="flex: 1; min-width: 220px;">
+                <h2 style="color: #4A040D; margin-bottom: 6px; font-family:'Playfair Display',serif;">${product.titleAr}</h2>
+                <p style="font-size: 12px; color: #666; margin-bottom: 10px; line-height:1.4;">${product.description || ''}</p>
+                
+                <div style="margin-bottom: 10px; font-size: 15px; font-weight: bold; color: #4A040D;">
+                    السعر الحالي: <span id="dynamicPriceDisplay">${initialPrice}</span> ج.م
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:4px;">اختر المقاس المطلـوب:</strong> 
+                    <div style="display:flex; gap:5px; flex-wrap:wrap;" id="productSizesContainer">
+                        ${sizesButtonsHtml}
+                    </div>
+                </div>
+
+                ${colorsHtml ? `<div style="margin-bottom: 10px;"><strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:3px;">الألوان المتوفرة:</strong> <div style="display:flex; gap:6px; flex-wrap:wrap;">${colorsHtml}</div></div>` : ''}
+                
+                <button class="view-details-btn" onclick="addToCartWithSelectedSize(${product.id})" ${product.outOfStock ? 'disabled style="background:#ccc;"' : ''}>
+                    ${product.outOfStock ? 'نفذت الكمية' : 'إضافة للسلة بالمقاس المحدد'}
+                </button>
+            </div>
+        </div>
+    `;
     modal.style.display = 'flex';
+}
+
+function selectProductSize(sizeKey, priceVal, btnElement) {
+    selectedSizeForCart = sizeKey;
+    const container = document.getElementById('productSizesContainer');
+    if(container) {
+        Array.from(container.children).forEach(btn => {
+            btn.style.background = '#f7f4ed';
+            btn.style.color = '#4A040D';
+        });
+    }
+    btnElement.style.background = '#4A040D';
+    btnElement.style.color = '#fff';
+
+    const priceDisplay = document.getElementById('dynamicPriceDisplay');
+    if(priceDisplay) {
+        priceDisplay.innerText = priceVal;
+    }
+}
+
+function addToCartWithSelectedSize(productId) {
+    const product = products.find(p => p.id === productId);
+    if (!product || product.outOfStock) return;
+
+    if (!selectedSizeForCart || !product.sizes[selectedSizeForCart]) {
+        alert('يرجى اختيار المقاس أولاً.');
+        return;
+    }
+
+    let chosenSizeData = product.sizes[selectedSizeForCart];
+    
+    cart.push({ 
+        id: product.id, 
+        titleAr: product.titleAr, 
+        size: selectedSizeForCart, 
+        price: chosenSizeData.price, 
+        qty: 1 
+    });
+
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    closeProductModal();
+    alert(`تمت إضافة "${product.titleAr}" (مقاس ${selectedSizeForCart}) بسعر ${chosenSizeData.price} ج.م إلى السلة بنجاح!`);
+}
+
+function changeProductDisplayImage(imgUrl, colorName) {
+    const mainImg = document.getElementById('mainDetailImage');
+    const indicator = document.getElementById('colorNameIndicator');
+    if(mainImg) mainImg.src = imgUrl;
+    if(indicator) indicator.innerText = `اللون المختاره: ${colorName}`;
+}
+
+function resetToOriginalImage(originalImgUrl) {
+    const mainImg = document.getElementById('mainDetailImage');
+    const indicator = document.getElementById('colorNameIndicator');
+    if(mainImg) mainImg.src = originalImgUrl;
+    if(indicator) indicator.innerText = `الصورة الأصلية للمنتج`;
 }
 
 function closeProductModal() { 
@@ -305,216 +639,329 @@ function closeProductModal() {
     if(modal) modal.style.display = 'none'; 
 }
 
-// =========================================================================
-// 🛒 إدارة سلة الشراء والطلب
-// =========================================================================
 function updateCartCount() {
     const badge = document.getElementById('cartCount');
     if(badge) badge.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
 }
 
+function openCartModal() {
+    let modal = document.getElementById('cartModal');
+    const list = document.getElementById('cartItemsList');
+    if(!modal || !list) return;
+    list.innerHTML = '';
+    let total = 0;
+
+    if (cart.length === 0) {
+        list.innerHTML = `<p style="text-align:center; color:#666;">السلة فارغة.</p>`;
+    } else {
+        cart.forEach((item, index) => {
+            total += item.price * item.qty;
+            list.innerHTML += `
+                <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
+                    <div><strong>${item.titleAr}</strong> ${item.size ? `(مقاس: ${item.size})` : ''} - <strong>${item.price} ج.م</strong></div>
+                    <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer;">حذف</button>
+                </div>
+            `;
+        });
+    }
+    const totalEl = document.getElementById('cartTotalPrice');
+    if(totalEl) totalEl.innerText = total;
+    modal.style.display = 'flex';
+}
+
+function closeCartModal() { 
+    const modal = document.getElementById('cartModal');
+    if(modal) modal.style.display = 'none'; 
+}
+
+function removeFromCart(index) { 
+    cart.splice(index, 1); 
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount(); 
+    openCartModal(); 
+}
+
 // =========================================================================
-// 💬 نظام مجتمع العملاء (مع الردود الفردية وإمكانية الحذف للمالكة)
+// 👤 إعدادات الحساب والإدارة
+// =========================================================================
+function openProfileModal() { 
+    const modal = document.getElementById('profileModal');
+    if(modal) {
+        updateOwnerUI();
+        modal.style.display = 'flex';
+    }
+}
+
+function closeProfileModal() { 
+    const modal = document.getElementById('profileModal');
+    if(modal) modal.style.display = 'none'; 
+}
+
+function loginAdmin() {
+    const emailInput = document.getElementById('adminEmailInput');
+    const passInput = document.getElementById('adminPasswordInput');
+    if (!emailInput || !passInput) return;
+
+    let enteredEmail = emailInput.value.trim();
+    let enteredPass = passInput.value.trim();
+
+    if ((enteredEmail === adminEmail || enteredEmail === "m63012860@gmail.com") && (enteredPass === adminPass || enteredPass === "123456")) {
+        ownerSession = true;
+        localStorage.setItem('jag_owner_session', 'true');
+        alert('تم تسجيل الدخول بنجاح كمسؤول!');
+        closeProfileModal();
+        updateOwnerUI();
+        renderProducts(products);
+    } else {
+        alert('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+    }
+}
+
+function logoutOwner() {
+    ownerSession = false;
+    localStorage.setItem('jag_owner_session', 'false');
+    closeProfileModal();
+    updateOwnerUI();
+    renderProducts(products);
+    alert('تم تسجيل الخروج من الإدارة بنجاح.');
+}
+
+function updateAdminAccount() {
+    const newEmailInput = document.getElementById('newAdminEmail');
+    const newPassInput = document.getElementById('newAdminPassword');
+    if (!newEmailInput || !newPassInput) return;
+
+    let newE = newEmailInput.value.trim();
+    let newP = newPassInput.value.trim();
+
+    if (newE) {
+        adminEmail = newE;
+        localStorage.setItem('jag_admin_email', adminEmail);
+    }
+    if (newP) {
+        if (newP.length < 6) { alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل.'); return; }
+        adminPass = newP;
+        localStorage.setItem('jag_admin_pass', adminPass);
+    }
+    alert('تم تحديث بيانات حساب الإدارة بنجاح!');
+    newEmailInput.value = '';
+    newPassInput.value = '';
+    closeProfileModal();
+}
+
+function updateOwnerUI() {
+    const adminLoginForm = document.getElementById('adminLoginForm');
+    const adminSettingsSection = document.getElementById('adminSettingsSection');
+    const ownerReviewForm = document.getElementById('ownerReviewForm');
+    const adminPanelContainer = document.getElementById('adminPanelContainer');
+
+    if (ownerSession) {
+        if (adminLoginForm) adminLoginForm.style.display = 'none';
+        if (adminSettingsSection) adminSettingsSection.style.display = 'block';
+        if (ownerReviewForm) ownerReviewForm.style.display = 'block';
+        if (adminPanelContainer) adminPanelContainer.style.display = 'block';
+    } else {
+        if (adminLoginForm) adminLoginForm.style.display = 'block';
+        if (adminSettingsSection) adminSettingsSection.style.display = 'none';
+        if (ownerReviewForm) ownerReviewForm.style.display = 'none';
+        if (adminPanelContainer) adminPanelContainer.style.display = 'none';
+    }
+    renderReviews();
+}
+
+function renderReviews() {
+    const grid = document.getElementById('reviewsGrid');
+    if(!grid) return;
+    grid.innerHTML = '';
+    customerReviews.forEach(rev => {
+        const card = document.createElement('div');
+        card.style.cssText = "background: white; padding: 15px; border-radius: 8px; border-top: 3px solid #D4AF37; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
+        card.innerHTML = `
+            <div style="font-size: 14px; margin-bottom: 5px;">⭐⭐⭐⭐⭐</div>
+            <p style="font-size: 13px; color: #444; margin-bottom: 8px;">"${rev.comment}"</p>
+            <strong style="color: #4A040D;">- ${rev.name}</strong>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+// =========================================================================
+// 💬 مجتمع العملاء (محدث بخاصية الردود وزر حذف الرد)
 // =========================================================================
 function renderCommunityChat() {
-    const chatBox = document.getElementById('communityChatBox');
+    const chatBox = document.getElementById('chatMessages');
     if (!chatBox) return;
     chatBox.innerHTML = '';
 
-    if (communityMessages.length === 0) {
-        chatBox.innerHTML = `<p style="text-align:center; color:#888; font-size:13px; padding:20px;">لا توجد استفسارات حالياً. كوني أول من يشارك! ✨</p>`;
-        return;
-    }
+    communityMessages.forEach(msg => {
+        const msgDiv = document.createElement('div');
+        msgDiv.style.cssText = `margin-bottom:12px; padding:14px; border-radius:8px; background:${msg.isOwner ? '#fff5f5' : '#ffffff'}; border:1px solid ${msg.isOwner ? '#ffcccc' : '#eee'}; position:relative;`;
+        
+        let ownerBadge = msg.isOwner ? `<span style="background:#4A040D; color:#D4AF37; font-size:11px; padding:3px 8px; border-radius:4px; font-weight:bold; margin-right:8px;">👑 Just a Girl (المالك) ✨</span>` : '';
+        let deleteBtnHtml = `<button onclick="deleteCommunityMsg(${msg.id})" style="position:absolute; top:12px; left:12px; background:none; border:none; color:#cc0000; font-size:12px; cursor:pointer;" title="حذف الرسالة">حذف</button>`;
 
-    communityMessages.forEach((msg) => {
+        // بناء الردود مع زر حذف خاص بكل رد
         let repliesHtml = '';
         if (msg.replies && msg.replies.length > 0) {
-            msg.replies.forEach((rep) => {
+            msg.replies.forEach(rep => {
+                let repOwnerBadge = rep.isOwner ? `<span style="background:#4A040D; color:#D4AF37; font-size:10px; padding:2px 6px; border-radius:3px; margin-right:5px;">👑 المالك</span>` : '';
                 repliesHtml += `
-                    <div style="margin-top: 8px; margin-right: 20px; background: ${rep.isOwner ? '#fff0f2' : '#f9f9f9'}; padding: 8px 12px; border-radius: 6px; border-right: 3px solid ${rep.isOwner ? '#4A040D' : '#D4AF37'};">
-                        <div style="display:flex; justify-content:space-between; align-items:center;">
-                            <strong style="font-size: 12px; color: ${rep.isOwner ? '#4A040D' : '#333'};">
-                                ${rep.sender} ${rep.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:1px 6px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
-                            </strong>
-                            ${ownerSession ? `<button onclick="deleteCommunityReply('${msg.id}', '${rep.id}')" style="background:none; border:none; color:#c00; font-size:11px; cursor:pointer;">حذف الرد</button>` : ''}
-                        </div>
-                        <p style="margin: 4px 0 0 0; font-size: 13px; color: #444;">${rep.text}</p>
+                    <div style="margin-top:8px; margin-right:20px; padding:8px 12px; background:#fdfbf7; border-right:3px solid #D4AF37; border-radius:4px; font-size:13px; position:relative;">
+                        <div><strong>${escapeHtml(rep.sender)}</strong> ${repOwnerBadge}: ${escapeHtml(rep.text)}</div>
+                        <button onclick="deleteReply(${msg.id}, ${rep.id})" style="position:absolute; top:8px; left:8px; background:none; border:none; color:#cc0000; font-size:11px; cursor:pointer;" title="حذف الرد">حذف</button>
                     </div>
                 `;
             });
         }
 
-        let deleteBtnHtml = ownerSession 
-            ? `<button onclick="deleteCommunityMessage('${msg.id}')" style="background:none; border:none; color:#c00; font-size:12px; cursor:pointer; font-weight:bold;">حذف</button>` 
-            : '';
+        msgDiv.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                <div style="font-size:15px; font-weight:bold; color:${msg.isOwner ? '#4A040D' : '#333'};">
+                    ${escapeHtml(msg.sender)} ${ownerBadge}
+                </div>
+                ${deleteBtnHtml}
+            </div>
+            <div style="font-size:14px; color:#444; line-height:1.5; white-space:pre-wrap; margin-bottom:8px;">${escapeHtml(msg.text)}</div>
+            
+            <div style="margin-top:5px;">
+                <button onclick="toggleReplyBox(${msg.id})" style="background:none; border:none; color:#D4AF37; font-size:12px; cursor:pointer; font-weight:bold;">💬 رد</button>
+            </div>
 
-        chatBox.innerHTML += `
-            <div style="margin-bottom: 15px; background: ${msg.isOwner ? '#fff5f7' : '#fff'}; padding: 12px; border-radius: 8px; border: 1px solid #eee; position:relative;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <strong style="color: #4A040D; font-size: 14px;">
-                        ${msg.sender} ${msg.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
-                    </strong>
-                    ${deleteBtnHtml}
-                </div>
-                
-                <p style="margin: 0 0 8px 0; font-size: 13px; color: #333; line-height: 1.5;">${msg.text}</p>
-                
-                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
-                    <button onclick="toggleReplyBox('${msg.id}')" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:12px; font-weight:bold;">
-                        <i class="fa-regular fa-comment-dots"></i> 💬 رد
-                    </button>
-                </div>
+            <div id="repliesContainer_${msg.id}" style="margin-top:6px;">
+                ${repliesHtml}
+            </div>
 
-                <div id="replyBox_${msg.id}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
-                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-                        <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="width: 30%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
-                        <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
-                        <button onclick="sendCommunityReply('${msg.id}')" style="background: #4A040D; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">إرسال الرد</button>
-                    </div>
-                </div>
-
-                <div class="replies-container">
-                    ${repliesHtml}
-                </div>
+            <div id="replyBox_${msg.id}" style="display:none; margin-top:8px; display:flex; gap:6px;">
+                <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; width:100px;">
+                <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; flex:1;">
+                <button onclick="sendReplyToMessage(${msg.id})" style="background:#4A040D; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:12px; cursor:pointer;">إرسال الرد</button>
             </div>
         `;
+        chatBox.appendChild(msgDiv);
     });
+    chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-function sendCommunityMessage() {
-    const input = document.getElementById('communityInput');
-    const nameInput = document.getElementById('chatSenderName');
-    if (!input || !input.value.trim()) return;
+// دالة حذف الرد المحدد
+function deleteReply(msgId, replyId) {
+    let msg = communityMessages.find(m => m.id === msgId);
+    if (!msg || !msg.replies) return;
 
-    let text = input.value.trim();
-    let senderName = nameInput && nameInput.value.trim() 
-        ? nameInput.value.trim() 
-        : (ownerSession ? "Just a Girl (المالك)" : "زائرة للموقع");
+    let rep = msg.replies.find(r => r.id === replyId);
+    if (!rep) return;
 
-    let newMsg = {
-        id: Date.now().toString(),
-        sender: senderName,
-        text: text,
-        isOwner: ownerSession,
-        replies: []
-    };
-
-    communityMessages.push(newMsg);
-    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-
-    if (window.db && window.firestoreTools) {
-        const { doc, setDoc } = window.firestoreTools;
-        setDoc(doc(window.db, "community", newMsg.id), newMsg);
+    if (ownerSession) {
+        if (confirm('هل أنتِ متأكدة من حذف هذا الرد بصفتك مالكة؟')) {
+            msg.replies = msg.replies.filter(r => r.id !== replyId);
+            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+            renderCommunityChat();
+        }
+    } else {
+        let enterName = prompt('لحذف ردك، اكتبي نفس الاسم الذي استخدمتيه عند كتابة الرد:');
+        if (enterName && enterName.trim().toLowerCase() === rep.sender.toLowerCase()) {
+            msg.replies = msg.replies.filter(r => r.id !== replyId);
+            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+            renderCommunityChat();
+        } else {
+            alert('الاسم غير صحيح، لا يمكنك حذف رد شخص آخر.');
+        }
     }
-
-    input.value = '';
-    renderCommunityChat();
 }
 
 function toggleReplyBox(msgId) {
-    const box = document.getElementById(`replyBox_${msgId}`);
+    let box = document.getElementById(`replyBox_${msgId}`);
     if (box) {
-        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+        box.style.display = box.style.display === 'none' ? 'flex' : 'none';
     }
 }
 
-function sendCommunityReply(msgId) {
-    const nameEl = document.getElementById(`replyName_${msgId}`);
-    const textEl = document.getElementById(`replyText_${msgId}`);
-    
-    if (!textEl || !textEl.value.trim()) return;
+function sendReplyToMessage(msgId) {
+    let nameInput = document.getElementById(`replyName_${msgId}`);
+    let textInput = document.getElementById(`replyText_${msgId}`);
+    if (!textInput || !textInput.value.trim()) {
+        alert('يرجى كتابة نص الرد.');
+        return;
+    }
 
-    let replyText = textEl.value.trim();
-    let replySender = (nameEl && nameEl.value.trim()) 
-        ? nameEl.value.trim() 
-        : (ownerSession ? "Just a Girl (المالك)" : "عميلة");
+    let senderName = nameInput ? nameInput.value.trim() : "";
+    let isOwnerFlag = false;
 
-    let msg = communityMessages.find(m => m.id == msgId);
+    if (ownerSession) {
+        senderName = 'Just a Girl (المالك)';
+        isOwnerFlag = true;
+    } else {
+        if (!senderName) {
+            alert('يرجى إدخال اسمك قبل الرد.');
+            return;
+        }
+    }
+
+    let msg = communityMessages.find(m => m.id === msgId);
     if (msg) {
         if (!msg.replies) msg.replies = [];
-        let newReply = {
-            id: Date.now().toString(),
-            sender: replySender,
-            text: replyText,
-            isOwner: ownerSession
-        };
-        msg.replies.push(newReply);
-        
+        msg.replies.push({
+            id: Date.now(),
+            sender: senderName,
+            text: textInput.value.trim(),
+            isOwner: isOwnerFlag
+        });
+
         localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-
-        if (window.db && window.firestoreTools) {
-            const { doc, setDoc } = window.firestoreTools;
-            setDoc(doc(window.db, "community", msg.id), msg);
-        }
-
         renderCommunityChat();
     }
 }
 
-function deleteCommunityMessage(msgId) {
-    if (!ownerSession) return;
-    if (!confirm('هل أنتِ متأكدة من حذف هذه الرسالة وكل الردود عليها؟')) return;
+function escapeHtml(text) {
+    return String(text || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
+}
 
-    communityMessages = communityMessages.filter(m => m.id != msgId);
-    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+function deleteCommunityMsg(id) {
+    const msg = communityMessages.find(m => m.id === id);
+    if (!msg) return;
 
-    if (window.db && window.firestoreTools) {
-        const { doc, deleteDoc } = window.firestoreTools;
-        deleteDoc(doc(window.db, "community", msg.id.toString()));
+    if (ownerSession) {
+        if (confirm('هل أنتِ متأكدة من حذف هذه الرسالة بصفتك مالكة؟')) {
+            communityMessages = communityMessages.filter(m => m.id !== id);
+            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+            renderCommunityChat();
+        }
+    } else {
+        let enterName = prompt('لحذف رسالتك، اكتبي نفس الاسم الذي استخدمتيه عند النشر:');
+        if (enterName && enterName.trim().toLowerCase() === msg.sender.toLowerCase()) {
+            communityMessages = communityMessages.filter(m => m.id !== id);
+            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+            renderCommunityChat();
+        } else {
+            alert('الاسم غير صحيح.');
+        }
+    }
+}
+
+function sendCommunityMessage() {
+    const nameInput = document.getElementById('chatSenderName');
+    const textInput = document.getElementById('chatInputText');
+    if (!textInput || !textInput.value.trim()) { alert('يرجى كتابة رسالة.'); return; }
+
+    let senderName = nameInput ? nameInput.value.trim() : "";
+    let isOwnerFlag = false;
+
+    if (ownerSession) {
+        senderName = 'Just a Girl (المالك)';
+        isOwnerFlag = true;
+    } else {
+        if (!senderName) { alert('يرجى إدخال اسمك.'); return; }
     }
 
+    communityMessages.push({ id: Date.now(), sender: senderName, text: textInput.value.trim(), isOwner: isOwnerFlag });
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+    textInput.value = '';
+    if(nameInput && !ownerSession) nameInput.value = '';
     renderCommunityChat();
 }
 
-function deleteCommunityReply(msgId, replyId) {
-    if (!ownerSession) return;
-    let msg = communityMessages.find(m => m.id == msgId);
-    if (msg && msg.replies) {
-        msg.replies = msg.replies.filter(r => r.id != replyId);
-        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-
-        if (window.db && window.firestoreTools) {
-            const { doc, setDoc } = window.firestoreTools;
-            setDoc(doc(window.db, "community", msg.id), msg);
-        }
-
-        renderCommunityChat();
-    }
-}
-
-function renderReviews() {
-    const container = document.getElementById('reviewsContainer');
-    if(!container) return;
-    container.innerHTML = '';
-    customerReviews.forEach(rev => {
-        container.innerHTML += `
-            <div class="review-card" style="background:#fff; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
-                <div style="color:#D4AF37; margin-bottom:5px;">${'★'.repeat(rev.rating)}</div>
-                <p style="font-size:13px; color:#444; margin-bottom:8px;">"${rev.comment}"</p>
-                <strong style="font-size:12px; color:#4A040D;">- ${rev.name}</strong>
-            </div>
-        `;
-    });
-}
-
-function openProfileModal() {
-    let modal = document.getElementById('profileModal');
-    if(modal) modal.style.display = 'flex';
-}
-// =========================================================================
-// ❌ دوال إغلاق النوافذ (لعلاج زرار X والعربة والتفاصيل)
-// =========================================================================
-function closeProductModal() { 
-    const modal = document.getElementById('productModal');
-    if(modal) modal.style.display = 'none'; 
-}
-
-function closeCartModal() {
-    let modal = document.getElementById('cartModal');
-    if(modal) modal.style.display = 'none';
-}
-
-function closeProfileModal() {
-    let modal = document.getElementById('profileModal');
-    if(modal) modal.style.display = 'none';
+function filterCategory(category) {
+    document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
+    if(window.event && window.event.target) window.event.target.classList.add('active');
+    if (category === 'all') renderProducts(products);
+    else renderProducts(products.filter(p => p.category === category));
 }
