@@ -444,3 +444,487 @@ function toggleOutOfStock(productId) {
   }
   renderProducts(products);
 }
+function openProductDetails(productId) {
+  const product = products.find(p => String(p.id) === String(productId));
+  const modal = document.getElementById('productModal');
+  const content = document.getElementById('productModalContent');
+  if (!product || !modal || !content) return;
+
+  selectedProductForCart = product;
+  selectedSizeForCart = null;
+  selectedPriceForCart = null;
+  selectedColorForCart = '';
+
+  const availableSizes = Object.entries(product.sizes || {}).filter(([,v]) => v && v.available && Number(v.price) > 0);
+
+  const sizeHTML = availableSizes.map(([size, data]) => `
+    <button type="button" class="jag-size-choice" data-size="${escapeHTML(size)}" onclick="selectSizeForCart('${escapeHTML(size)}',${Number(data.price)})">
+      ${escapeHTML(size)}
+    </button>`).join('');
+
+  const colorsHTML = (product.colors || []).map((color, index) => `
+    <button type="button" class="jag-color-choice" data-color-index="${index}" onclick="selectProductColor(${index})" aria-label="${escapeHTML(color.name)}">
+      <img src="${escapeHTML(color.image)}" alt="">
+      <span>${escapeHTML(color.name)}</span>
+    </button>`).join('');
+
+  content.innerHTML = `
+    <div class="jag-detail-wrap">
+      <button type="button" onclick="closeProductModal()" aria-label="إغلاق">×</button>
+      <div class="jag-detail-image-wrap">
+        <img id="jagDetailImage" class="jag-detail-image" src="${escapeHTML(product.image)}" alt="${escapeHTML(product.titleAr)}">
+        <button type="button" class="jag-main-image-btn" onclick="resetProductMainImage()">↶ العودة للصورة الرئيسية</button>
+      </div>
+      <h2 class="jag-detail-title">${escapeHTML(product.titleAr)}</h2>
+      <p class="jag-detail-description">${escapeHTML(product.description)}</p>
+      ${colorsHTML ? `<div class="jag-option-section"><strong class="jag-option-heading">اختاري اللون</strong><div class="jag-color-list">${colorsHTML}</div></div>` : ''}
+      <div class="jag-option-section">
+        <strong class="jag-option-heading">اختاري المقاس</strong>
+        <div class="jag-size-list">${sizeHTML || 'لا توجد مقاسات متاحة حالياً'}</div>
+      </div>
+      <div id="jagCurrentPrice" class="jag-current-price">السعر: اختاري المقاس</div>
+      <p id="jagSelectionNotice" class="jag-selection-notice">اختاري اللون والمقاس قبل إضافة المنتج إلى السلة.</p>
+      <button id="jagAddToCartBtn" type="button" class="jag-primary-btn" onclick="addToCart('${escapeHTML(product.id)}')" ${product.outOfStock || !availableSizes.length ? 'disabled' : ''}>
+        ${product.outOfStock ? 'نفد المنتج' : 'إضافة إلى السلة 🛍️'}
+      </button>
+    </div>`;
+  modal.style.display = 'flex';
+  if (product.colors?.length) selectProductColor(0);
+}
+
+function selectSizeForCart(size, price) {
+  selectedSizeForCart = String(size);
+  selectedPriceForCart = Number(price);
+  document.querySelectorAll('.jag-size-choice').forEach(btn => btn.classList.toggle('active', btn.dataset.size === selectedSizeForCart));
+  const priceEl = document.getElementById('jagCurrentPrice');
+  if (priceEl) priceEl.textContent = `السعر: ${selectedPriceForCart} ج.م`;
+  updateProductSelectionNotice();
+}
+
+function selectProductColor(index) {
+  if (!selectedProductForCart) return;
+  const color = selectedProductForCart.colors?.[Number(index)];
+  if (!color) return;
+  selectedColorForCart = color.name;
+  const img = document.getElementById('jagDetailImage');
+  if (img && safeImage(color.image)) img.src = color.image;
+  document.querySelectorAll('.jag-color-choice').forEach(btn => btn.classList.toggle('active', Number(btn.dataset.colorIndex) === Number(index)));
+  updateProductSelectionNotice();
+}
+
+function resetProductMainImage() {
+  if (!selectedProductForCart) return;
+  const img = document.getElementById('jagDetailImage');
+  if (img) img.src = selectedProductForCart.image;
+}
+
+function updateProductSelectionNotice() {
+  const notice = document.getElementById('jagSelectionNotice');
+  if (!notice) return;
+  const parts = [];
+  if (selectedColorForCart) parts.push(`اللون: ${selectedColorForCart}`);
+  if (selectedSizeForCart) parts.push(`المقاس: ${selectedSizeForCart}`);
+  if (selectedPriceForCart) parts.push(`السعر: ${selectedPriceForCart} ج.م`);
+  notice.textContent = parts.length ? parts.join(' — ') : 'اختاري اللون والمقاس قبل إضافة المنتج إلى السلة.';
+}
+
+function closeProductModal() {
+  const modal = document.getElementById('productModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function addToCart(productId) {
+  const product = products.find(p => String(p.id) === String(productId));
+  if (!product || product.outOfStock) return alert('المنتج غير متاح حالياً.');
+  if (!selectedSizeForCart || !selectedPriceForCart) return alert('اختاري المقاس أولاً.');
+  if (product.colors?.length && !selectedColorForCart) return alert('اختاري اللون أولاً.');
+
+  const existing = cart.find(item =>
+    String(item.id) === String(productId) &&
+    item.size === selectedSizeForCart &&
+    item.color === selectedColorForCart
+  );
+
+  if (existing) existing.qty += 1;
+  else cart.push({
+    id:String(product.id),
+    title:product.titleAr,
+    price:selectedPriceForCart,
+    qty:1,
+    size:selectedSizeForCart,
+    color:selectedColorForCart
+  });
+
+  if (!saveLocal(STORAGE_KEYS.cart, cart)) return;
+  updateCartCount();
+  closeProductModal();
+  alert('تمت إضافة المنتج إلى السلة 🛍️');
+}
+
+function updateCartCount() {
+  const badge = document.getElementById('cartCount');
+  if (badge) badge.textContent = cart.reduce((sum, item) => sum + (Number(item.qty) || 0), 0);
+}
+
+function openCartModal() {
+  const modal = document.getElementById('cartModal');
+  const list = document.getElementById('cartItemsList');
+  const totalEl = document.getElementById('cartTotalPrice');
+  if (!modal || !list) return;
+
+  list.innerHTML = '';
+  let total = 0;
+  if (!cart.length) list.innerHTML = '<p>سلة التسوق فارغة حالياً.</p>';
+
+  cart.forEach((item, index) => {
+    const lineTotal = Number(item.price) * Number(item.qty);
+    total += lineTotal;
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px;border-bottom:1px solid #eee;padding:10px 0';
+    row.innerHTML = `
+      <div>
+        <strong>${escapeHTML(item.title)}</strong>
+        <div>اللون: ${escapeHTML(item.color || '—')} | المقاس: ${escapeHTML(item.size)}</div>
+        <small>${Number(item.price)} ج.م × ${Number(item.qty)}</small>
+      </div>
+      <div>
+        <button type="button" onclick="changeCartQty(${index},-1)">−</button>
+        <button type="button" onclick="changeCartQty(${index},1)">+</button>
+        <button type="button" onclick="removeFromCart(${index})">حذف</button>
+      </div>`;
+    list.appendChild(row);
+  });
+
+  if (totalEl) totalEl.textContent = total;
+  modal.style.display = 'flex';
+}
+
+function changeCartQty(index, delta) {
+  if (!cart[index]) return;
+  cart[index].qty = Number(cart[index].qty) + delta;
+  if (cart[index].qty <= 0) cart.splice(index, 1);
+  if (!saveLocal(STORAGE_KEYS.cart, cart)) return;
+  updateCartCount();
+  openCartModal();
+}
+
+function removeFromCart(index) {
+  cart.splice(index, 1);
+  if (!saveLocal(STORAGE_KEYS.cart, cart)) return;
+  updateCartCount();
+  openCartModal();
+}
+
+function closeCartModal() {
+  const modal = document.getElementById('cartModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function sendToWhatsApp() {
+  const name = document.getElementById('clientName')?.value.trim();
+  const phone = document.getElementById('clientPhone')?.value.trim();
+  const address = document.getElementById('clientAddress')?.value.trim();
+  const legalCheck = document.getElementById('legalCheck')?.checked;
+
+  if (!name || !phone || !address) return alert('اكتبي الاسم ورقم الهاتف والعنوان بالتفصيل.');
+  if (!legalCheck) return alert('يرجى الموافقة على شروط الطلب أولاً.');
+  if (!cart.length) return alert('سلة التسوق فارغة.');
+
+  let total = 0;
+  let message = `✨ طلب جديد من موقع Just a Girl ✨\n\n👤 الاسم: ${name}\n📞 الهاتف: ${phone}\n📍 العنوان: ${address}\n\n🛍️ المنتجات:\n`;
+
+  cart.forEach(item => {
+    const line = Number(item.price) * Number(item.qty);
+    total += line;
+    message += `- ${item.title} | اللون: ${item.color || '—'} | المقاس: ${item.size} × ${item.qty} = ${line} ج.م\n`;
+  });
+
+  message += `\n💰 الإجمالي: ${total} ج.م\n`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
+}function renderCommunityChat() {
+  const box = document.getElementById('communityChatBox');
+  if (!box) return;
+  box.innerHTML = '';
+
+  if (!communityMessages.length) {
+    box.innerHTML = '<p>لا توجد رسائل حالياً.</p>';
+    return;
+  }
+
+  communityMessages.forEach(msg => {
+    const item = document.createElement('article');
+    item.className = `jag-chat-message ${msg.isOwner ? 'owner' : ''}`;
+
+    const repliesHTML = (msg.replies || []).map(reply => `
+      <div class="jag-reply ${reply.isOwner ? 'owner' : ''}">
+        <div class="jag-chat-head">
+          ${escapeHTML(reply.sender)}
+          ${reply.isOwner ? '<span class="jag-owner-badge">👑 مالكة الموقع</span>' : ''}
+        </div>
+        <p class="jag-chat-text">${escapeHTML(reply.text)}</p>
+        ${ownerSession ? `<button type="button" onclick="deleteCommunityReply('${escapeHTML(msg.id)}','${escapeHTML(reply.id)}')">حذف الرد</button>` : ''}
+      </div>`).join('');
+
+    item.innerHTML = `
+      <div class="jag-chat-head">
+        ${escapeHTML(msg.sender)}
+        ${msg.isOwner ? '<span class="jag-owner-badge">👑 مالكة الموقع</span>' : ''}
+      </div>
+      <p class="jag-chat-text">${escapeHTML(msg.text)}</p>
+      <div class="jag-chat-actions">
+        ${ownerSession ? `<button type="button" onclick="deleteCommunityMessage('${escapeHTML(msg.id)}')">حذف الرسالة</button>` : ''}
+        <button type="button" onclick="toggleReplyBox('${escapeHTML(msg.id)}')">💬 رد</button>
+      </div>
+      <div id="replyBox_${escapeHTML(msg.id)}" class="jag-reply-form" style="display:none">
+        <input id="replyName_${escapeHTML(msg.id)}" placeholder="اسمك (اختياري)" maxlength="40">
+        <input id="replyText_${escapeHTML(msg.id)}" placeholder="اكتبي ردك" maxlength="500">
+        <button type="button" onclick="sendCommunityReply('${escapeHTML(msg.id)}')">إرسال الرد</button>
+      </div>
+      <div class="jag-replies">${repliesHTML}</div>`;
+
+    box.appendChild(item);
+  });
+}
+
+function sendCommunityMessage() {
+  const input = document.getElementById('communityInput');
+  const nameInput = document.getElementById('chatSenderName');
+
+  if (!input || !input.value.trim()) return alert('اكتبي الرسالة أولاً.');
+
+  const message = {
+    id:String(Date.now()),
+    sender:nameInput?.value.trim() || (ownerSession ? 'Just a Girl' : 'زائرة'),
+    text:input.value.trim(),
+    isOwner:ownerSession,
+    replies:[]
+  };
+
+  communityMessages.push(message);
+
+  if (!saveLocal(STORAGE_KEYS.community, communityMessages)) {
+    communityMessages.pop();
+    return;
+  }
+
+  input.value = '';
+  renderCommunityChat();
+}
+
+function toggleReplyBox(messageId) {
+  const box = document.getElementById(`replyBox_${messageId}`);
+  if (box) box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+}
+
+function sendCommunityReply(messageId) {
+  const name = document.getElementById(`replyName_${messageId}`)?.value.trim();
+  const input = document.getElementById(`replyText_${messageId}`);
+
+  if (!input || !input.value.trim()) return alert('اكتبي الرد أولاً.');
+
+  const msg = communityMessages.find(m => String(m.id) === String(messageId));
+  if (!msg) return;
+
+  msg.replies = Array.isArray(msg.replies) ? msg.replies : [];
+
+  const reply = {
+    id:String(Date.now()),
+    sender:name || (ownerSession ? 'Just a Girl' : 'عميلة'),
+    text:input.value.trim(),
+    isOwner:ownerSession
+  };
+
+  msg.replies.push(reply);
+
+  if (!saveLocal(STORAGE_KEYS.community, communityMessages)) {
+    msg.replies.pop();
+    return;
+  }
+
+  renderCommunityChat();
+}
+
+function deleteCommunityMessage(messageId) {
+  if (!ownerSession) return;
+  if (!confirm('حذف الرسالة وكل الردود عليها؟')) return;
+
+  const previous = communityMessages;
+  communityMessages = communityMessages.filter(m => String(m.id) !== String(messageId));
+
+  if (!saveLocal(STORAGE_KEYS.community, communityMessages)) {
+    communityMessages = previous;
+    return;
+  }
+
+  renderCommunityChat();
+}
+
+function deleteCommunityReply(messageId, replyId) {
+  if (!ownerSession) return;
+
+  const msg = communityMessages.find(m => String(m.id) === String(messageId));
+  if (!msg) return;
+
+  const previous = [...(msg.replies || [])];
+  msg.replies = (msg.replies || []).filter(r => String(r.id) !== String(replyId));
+
+  if (!saveLocal(STORAGE_KEYS.community, communityMessages)) {
+    msg.replies = previous;
+    return;
+  }
+
+  renderCommunityChat();
+}
+
+function renderReviews() {
+  const container = document.getElementById('reviewsContainer');
+  if (!container) return;
+
+  container.classList.add('jag-review-grid');
+  container.innerHTML = '';
+
+  if (!customerReviews.length) {
+    container.innerHTML = '<p>لا توجد تقييمات حتى الآن.</p>';
+    return;
+  }
+
+  customerReviews.forEach(review => {
+    const card = document.createElement('div');
+    card.className = 'review-card';
+
+    const rating = Math.max(1, Math.min(5, Number(review.rating) || 5));
+
+    card.innerHTML = `
+      <div class="jag-review-stars" aria-label="التقييم ${rating} من 5">
+        ${'★'.repeat(rating)}${'☆'.repeat(5-rating)}
+      </div>
+      <p>${escapeHTML(review.comment)}</p>
+      <strong>${escapeHTML(review.name)}</strong>`;
+
+    container.appendChild(card);
+  });
+}
+
+function addCustomerReview() {
+  const name = document.getElementById('reviewName')?.value.trim();
+  const comment = document.getElementById('reviewComment')?.value.trim();
+  const rating = Number(document.getElementById('reviewRating')?.value || 5);
+
+  if (!name || !comment) return alert('اكتبي الاسم والتقييم.');
+
+  const review = {
+    id:String(Date.now()),
+    name,
+    comment,
+    rating:Math.max(1, Math.min(5, rating))
+  };
+
+  customerReviews.unshift(review);
+
+  if (!saveLocal(STORAGE_KEYS.reviews, customerReviews)) {
+    customerReviews.shift();
+    return;
+  }
+
+  renderReviews();
+
+  const nameEl = document.getElementById('reviewName');
+  const commentEl = document.getElementById('reviewComment');
+
+  if (nameEl) nameEl.value = '';
+  if (commentEl) commentEl.value = '';
+}
+
+function loginAdmin() {
+  const email = document.getElementById('adminEmailInput')?.value.trim();
+  const password = document.getElementById('adminPasswordInput')?.value;
+
+  if (!email || !password) return alert('اكتبي البريد الإلكتروني وكلمة المرور.');
+
+  if (email !== OWNER_EMAIL || password !== OWNER_PASSWORD) {
+    return alert('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
+  }
+
+  ownerSession = true;
+  closeProfileModal();
+  updateOwnerUI();
+  renderProducts(products);
+  renderCommunityChat();
+
+  alert('تم تسجيل الدخول. تذكري أن هذا تسجيل تجريبي محلي وليس حماية آمنة.');
+}
+
+function logoutAdmin() {
+  ownerSession = false;
+  updateOwnerUI();
+  renderProducts(products);
+  renderCommunityChat();
+  closeProfileModal();
+}
+
+function updateOwnerUI() {
+  const panel = document.getElementById('adminPanelContainer');
+  if (panel) panel.style.display = ownerSession ? 'block' : 'none';
+
+  const button = document.getElementById('floatingAdminBtn');
+  if (button) {
+    button.textContent = ownerSession ? '⚙️ لوحة تحكم المالكة' : '⚙️ دخول المالكة';
+  }
+}
+
+function openProfileModal() {
+  const modal = document.getElementById('profileModal');
+  if (modal) modal.style.display = 'flex';
+}
+
+function closeProfileModal() {
+  const modal = document.getElementById('profileModal');
+  if (modal) modal.style.display = 'none';
+}
+
+function openReviewsModal() {
+  const el = document.getElementById('reviewsModal');
+  if (el) el.style.display = 'flex';
+}
+
+function closeReviewsModal() {
+  const el = document.getElementById('reviewsModal');
+  if (el) el.style.display = 'none';
+}
+
+Object.assign(window, {
+  filterCategory,
+  filterProducts,
+  openAddProductModal,
+  saveNewProduct,
+  openEditProductModal,
+  saveEditedProduct,
+  deleteProduct,
+  toggleOutOfStock,
+  openProductDetails,
+  selectSizeForCart,
+  selectProductColor,
+  resetProductMainImage,
+  closeProductModal,
+  addToCart,
+  updateCartCount,
+  openCartModal,
+  changeCartQty,
+  removeFromCart,
+  closeCartModal,
+  sendToWhatsApp,
+  sendCommunityMessage,
+  toggleReplyBox,
+  sendCommunityReply,
+  deleteCommunityMessage,
+  deleteCommunityReply,
+  renderReviews,
+  addCustomerReview,
+  loginAdmin,
+  logoutAdmin,
+  updateOwnerUI,
+  openProfileModal,
+  closeProfileModal,
+  openReviewsModal,
+  closeReviewsModal
+});
