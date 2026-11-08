@@ -11,7 +11,47 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1200", titleAr: "أناقة شتوية وصيفية متكاملة", titleEn: "Complete Seasonal Elegance" },
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
-
+* =========================================================================
+   📌 دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
+   =========================================================================
+    { 
+        id: "2", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 2، 3، 4...)
+        titleAr: "اكتبي اسم المنتج بالعربي هنا", 
+        titleEn: "Product Name in English", 
+        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
+        hasDiscount: false, // اكتبي true لو عليه خصم، أو false لو السعر عادي
+        image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
+        description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
+        outOfStock: false, // false لو متاح، و true لو خلصان
+        
+        // الألوان الأساسية (تقدري تغيري الروابط وتسيبي الأسماء زي ما هي أو تعدليها)
+        colors: [
+            { name: "أسود", image: "رابط_صورة_اللون_الأسود.jpg" },
+            { name: "برجندي", image: "رابط_صورة_اللون_البرجندي.jpg" },
+            { name: "بيج", image: "رابط_صورة_اللون_البيج.jpg" }
+        ],
+        
+        // جميع المقاسات جاهزة أمامك (اكتبي السعر بالأرقام، أو اجعلي السعر 0 والـ available بـ false لو مش نازل)
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 600, available: true },   // مثال لمقاس متوفر بسعر 600
+            "M": { price: 650, available: true },   // مثال لمقاس متوفر بسعر 650
+            "L": { price: 700, available: true },   // مثال لمقاس متوفر بسعر 700
+            "XL": { price: 750, available: true },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 0, available: false }
+        }
+    },
+   ========================================================================= */
 let products = JSON.parse(localStorage.getItem('jag_products')) || [
     { 
         id: "1", 
@@ -218,17 +258,110 @@ function renderProducts(itemsToRender = products) {
     });
 }
 
+function filterCategory(cat) {
+    document.querySelectorAll('#categoryNav button').forEach(btn => btn.classList.remove('active'));
+    if (event && event.target) event.target.classList.add('active');
+    
+    const title = document.getElementById('catalogTitle');
+    if (cat === 'all') {
+        if(title) title.innerText = "تجميعة المنتجات";
+        renderProducts(products);
+    } else {
+        if(title && event) title.innerText = event.target.innerText;
+        const filtered = products.filter(p => p.category === cat);
+        renderProducts(filtered);
+    }
+}
+
+function filterProducts() {
+    const input = document.getElementById('searchInput');
+    if(!input) return;
+    const query = input.value.toLowerCase();
+    const filtered = products.filter(p => 
+        (p.titleAr && p.titleAr.toLowerCase().includes(query)) || 
+        (p.description && p.description.toLowerCase().includes(query))
+    );
+    renderProducts(filtered);
+}
+
 function openAddProductModal() {
     if (!ownerSession) { alert('متاحة للإدارة فقط.'); return; }
     let modal = document.getElementById('productModal');
-    if (!modal) {
-        modal = document.createElement('div');
-        modal.id = 'productModal';
-        modal.className = 'modal';
-        modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
-        document.body.appendChild(modal);
-    }
+    let content = document.getElementById('productModalContent');
+    if(!modal || !content) return;
+
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">إضافة منتج جديد</h2>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="newTitle" placeholder="اسم المنتج"></div>
+        <div class="form-group"><label>رابط الصورة الرئيسية:</label><input type="text" id="newImage" placeholder="رابط الصورة"></div>
+        <div class="form-group"><label>الوصف:</label><textarea id="newDesc" placeholder="تفاصيل المنتج"></textarea></div>
+        <button onclick="saveNewProduct()" style="width:100%; background:#4A040D; color:#fff; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer;">إضافة المنتج</button>
+    `;
     modal.style.display = 'flex';
+}
+
+function saveNewProduct() {
+    let title = document.getElementById('newTitle').value;
+    let image = document.getElementById('newImage').value;
+    let desc = document.getElementById('newDesc').value;
+
+    if(!title || !image) {
+        alert('برجاء إدخال اسم المنتج ورابط الصورة على الأقل.');
+        return;
+    }
+
+    let newProd = {
+        id: Date.now().toString(),
+        titleAr: title,
+        titleEn: title,
+        category: "sets",
+        image: image,
+        description: desc,
+        outOfStock: false,
+        colors: [],
+        sizes: { "Free": { price: 500, available: true } }
+    };
+
+    products.push(newProd);
+    localStorage.setItem('jag_products', JSON.stringify(products));
+    closeProductModal();
+    renderProducts(products);
+    alert('تم إضافة المنتج بنجاح! ✨');
+}
+
+function openEditProductModal(productId) {
+    if (!ownerSession) return;
+    const product = products.find(p => p.id == productId);
+    if (!product) return;
+
+    let modal = document.getElementById('productModal');
+    let content = document.getElementById('productModalContent');
+    if(!modal || !content) return;
+
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">تعديل المنتج</h2>
+        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editTitle" value="${product.titleAr}"></div>
+        <div class="form-group"><label>رابط الصورة الرئيسية:</label><input type="text" id="editImage" value="${product.image}"></div>
+        <div class="form-group"><label>الوصف:</label><textarea id="editDesc">${product.description || ''}</textarea></div>
+        <button onclick="saveEditedProduct('${product.id}')" style="width:100%; background:#4A040D; color:#fff; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer;">حفظ التعديلات</button>
+    `;
+    modal.style.display = 'flex';
+}
+
+function saveEditedProduct(productId) {
+    let product = products.find(p => p.id == productId);
+    if (product) {
+        product.titleAr = document.getElementById('editTitle').value;
+        product.image = document.getElementById('editImage').value;
+        product.description = document.getElementById('editDesc').value;
+        
+        localStorage.setItem('jag_products', JSON.stringify(products));
+        closeProductModal();
+        renderProducts(products);
+        alert('تم تعديل المنتج بنجاح! ✨');
+    }
 }
 
 function deleteProduct(productId) {
@@ -253,8 +386,31 @@ function openProductDetails(productId) {
     const product = products.find(p => p.id == productId);
     if (!product) return;
     let modal = document.getElementById('productModal');
-    const content = document.getElementById('productModalContent');
+    let content = document.getElementById('productModalContent');
     if(!modal || !content) return;
+
+    let sizesHtml = '';
+    if (product.sizes) {
+        for (let [sizeKey, sizeData] of Object.entries(product.sizes)) {
+            if (sizeData.available && sizeData.price > 0) {
+                sizesHtml += `<button onclick="selectSizeForCart('${sizeKey}', ${sizeData.price})" style="padding:8px 15px; border:1px solid #D4AF37; background:#fff; border-radius:5px; cursor:pointer; margin:4px; font-weight:bold;">${sizeKey} (${sizeData.price} ج.م)</button>`;
+            }
+        }
+    }
+
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <div style="text-align:center;">
+            <img src="${product.image}" style="max-height:280px; width:100%; object-fit:contain; border-radius:8px; margin-bottom:15px;">
+            <h2 style="color:#4A040D; margin-bottom:10px;">${product.titleAr}</h2>
+            <p style="color:#666; font-size:14px; margin-bottom:15px;">${product.description || ''}</p>
+            <div style="margin-bottom:15px;">
+                <strong style="display:block; margin-bottom:8px; color:#4A040D;">اختر المقاس:</strong>
+                <div id="modalSizesContainer">${sizesHtml || '<p style="color:#888;">متاح بمقاس فري سايز</p>'}</div>
+            </div>
+            <button onclick="addToCart('${product.id}')" style="background:#4A040D; color:#fff; border:none; padding:10px 25px; border-radius:5px; font-weight:bold; cursor:pointer; width:100%;">إضافة إلى السلة 🛍️</button>
+        </div>
+    `;
     modal.style.display = 'flex';
 }
 
@@ -264,15 +420,116 @@ function closeProductModal() {
 }
 
 // =========================================================================
-// 🛒 إدارة سلة الشراء والطلب
+// 🛒 إدارة سلة الشراء والطلب عبر الواتساب
 // =========================================================================
+function selectSizeForCart(size, price) {
+    selectedSizeForCart = size;
+    alert(`تم اختيار مقاس: ${size} بسعر ${price} ج.م`);
+}
+
+function addToCart(productId) {
+    const product = products.find(p => p.id == productId);
+    if(!product) return;
+
+    cart.push({
+        id: product.id,
+        title: product.titleAr,
+        price: 470,
+        qty: 1,
+        size: selectedSizeForCart || "Free"
+    });
+
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    closeProductModal();
+    alert('تم إضافة المنتج إلى السلة بنجاح! 🛍️');
+}
+
 function updateCartCount() {
     const badge = document.getElementById('cartCount');
     if(badge) badge.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
 }
 
+function openCartModal() {
+    let modal = document.getElementById('cartModal');
+    let listContainer = document.getElementById('cartItemsList');
+    let totalPriceEl = document.getElementById('cartTotalPrice');
+    if(!modal) return;
+
+    listContainer.innerHTML = '';
+    let total = 0;
+
+    if(cart.length === 0) {
+        listContainer.innerHTML = `<p style="text-align:center; color:#666; padding:20px;">سلة التسوق فارغة حالياً.</p>`;
+    } else {
+        cart.forEach((item, index) => {
+            let itemTotal = item.price * item.qty;
+            total += itemTotal;
+            listContainer.innerHTML += `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid #eee; padding-bottom:8px;">
+                    <div>
+                        <strong>${item.title}</strong> (مقاس: ${item.size})
+                        <div style="font-size:12px; color:#666;">${item.price} ج.م × ${item.qty}</div>
+                    </div>
+                    <button onclick="removeFromCart(${index})" style="background:none; border:none; color:#c00; cursor:pointer;"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            `;
+        });
+    }
+
+    if(totalPriceEl) totalPriceEl.innerText = total;
+    modal.style.display = 'flex';
+}
+
+function closeCartModal() {
+    let modal = document.getElementById('cartModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function removeFromCart(index) {
+    cart.splice(index, 1);
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    openCartModal();
+}
+
+function sendToWhatsApp() {
+    let name = document.getElementById('clientName').value.trim();
+    let phone = document.getElementById('clientPhone').value.trim();
+    let address = document.getElementById('clientAddress').value.trim();
+    let legalCheck = document.getElementById('legalCheck').checked;
+
+    if(!name || !phone || !address) {
+        alert('برجاء إدخال الاسم، رقم الهاتف، والعنوان بالتفصيل.');
+        return;
+    }
+
+    if(!legalCheck) {
+        alert('يجب الموافقة على شروط البراند ودفع الديبوزيت أولاً.');
+        return;
+    }
+
+    if(cart.length === 0) {
+        alert('سلة التسوق فارغة!');
+        return;
+    }
+
+    let message = `✨ طلب جديد من موقع Just a Girl ✨\n\n👤 الاسم: ${name}\n📞 الهاتف: ${phone}\n📍 العنوان: ${address}\n\n🛍️ المنتجات:\n`;
+    let total = 0;
+
+    cart.forEach(item => {
+        message += `- ${item.title} (مقاس: ${item.size}) × ${item.qty} (${item.price * item.qty} ج.م)\n`;
+        total += item.price * item.qty;
+    });
+
+    message += `\n💰 الإجمالي: ${total} ج.م\n✨ تم الموافقة على تحويل ديبوزيت 100 جنيه ومعاينة الاستلام.`;
+
+    let encodedUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+    window.open(encodedUrl, '_blank');
+}
+
 // =========================================================================
-// 💬 نظام مجتمع العملاء
+// 💬 نظام مجتمع العملاء والإدارة
 // =========================================================================
 function renderCommunityChat() {
     const chatBox = document.getElementById('communityChatBox');
@@ -310,81 +567,130 @@ function renderCommunityChat() {
             <div style="margin-bottom: 15px; background: ${msg.isOwner ? '#fff5f7' : '#fff'}; padding: 12px; border-radius: 8px; border: 1px solid #eee; position:relative;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
                     <strong style="color: #4A040D; font-size: 14px;">
-                        ${msg.sender} ${msg.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:5px;">✨ (المالك)</span>' : ''}
+                        ${msg.sender} ${msg.isOwner ? '<span style="background:#4A040D; color:#fff; font-size:10px; padding:2px 8px; border-radius:10px; margin-right:4px;">✨ (المالك)</span>' : ''}
                     </strong>
                     ${deleteBtnHtml}
                 </div>
-                <p style="margin: 0; font-size: 13px; color: #333;">${msg.text}</p>
-                ${repliesHtml}
+                
+                <p style="margin: 0 0 8px 0; font-size: 13px; color: #333; line-height: 1.5;">${msg.text}</p>
+                
+                <div style="display: flex; gap: 8px; align-items: center; margin-top: 6px;">
+                    <button onclick="toggleReplyBox('${msg.id}')" style="background:none; border:none; color:#D4AF37; cursor:pointer; font-size:12px; font-weight:bold;">
+                        💬 رد
+                    </button>
+                </div>
+
+                <div id="replyBox_${msg.id}" style="display: none; margin-top: 10px; padding-top: 10px; border-top: 1px dashed #eee;">
+                    <div style="display: flex; gap: 6px; margin-bottom: 6px;">
+                        <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="width: 30%; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                        <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="flex: 1; padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 12px;">
+                        <button onclick="sendCommunityReply('${msg.id}')" style="background: #4A040D; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-size: 12px; font-weight: bold; cursor: pointer;">إرسال الرد</button>
+                    </div>
+                </div>
+
+                <div class="replies-container">
+                    ${repliesHtml}
+                </div>
             </div>
         `;
     });
 }
-// =========================================================================
-// ➕ دوال الإدارة والتحكم في المنتجات والفلترة
-// =========================================================================
-function filterCategory(cat) {
-    document.querySelectorAll('#categoryNav button').forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
+
+function sendCommunityMessage() {
+    const input = document.getElementById('communityInput');
+    const nameInput = document.getElementById('chatSenderName');
+    if (!input || !input.value.trim()) return;
+
+    let text = input.value.trim();
+    let senderName = nameInput && nameInput.value.trim() 
+        ? nameInput.value.trim() 
+        : (ownerSession ? "Just a Girl (المالك)" : "زائرة للموقع");
+
+    let newMsg = {
+        id: Date.now().toString(),
+        sender: senderName,
+        text: text,
+        isOwner: ownerSession,
+        replies: []
+    };
+
+    communityMessages.push(newMsg);
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+    input.value = '';
+    renderCommunityChat();
+}
+
+function toggleReplyBox(msgId) {
+    const box = document.getElementById(`replyBox_${msgId}`);
+    if (box) {
+        box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+}
+
+function sendCommunityReply(msgId) {
+    const nameEl = document.getElementById(`replyName_${msgId}`);
+    const textEl = document.getElementById(`replyText_${msgId}`);
     
-    const title = document.getElementById('catalogTitle');
-    if (cat === 'all') {
-        if(title) title.innerText = "تجميعة المنتجات";
-        renderProducts(products);
-    } else {
-        if(title) title.innerText = event.target.innerText;
-        const filtered = products.filter(p => p.category === cat);
-        renderProducts(filtered);
-    }
-}
+    if (!textEl || !textEl.value.trim()) return;
 
-function filterProducts() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    const filtered = products.filter(p => 
-        p.titleAr.toLowerCase().includes(query) || 
-        (p.description && p.description.toLowerCase().includes(query))
-    );
-    renderProducts(filtered);
-}
+    let replyText = textEl.value.trim();
+    let replySender = (nameEl && nameEl.value.trim()) 
+        ? nameEl.value.trim() 
+        : (ownerSession ? "Just a Girl (المالك)" : "عميلة");
 
-function openEditProductModal(productId) {
-    if (!ownerSession) return;
-    const product = products.find(p => p.id == productId);
-    if (!product) return;
-
-    let modal = document.getElementById('productModal');
-    let content = document.getElementById('productModalContent');
-    if(!modal || !content) return;
-
-    content.innerHTML = `
-        <span class="close-modal" onclick="closeProductModal()">&times;</span>
-        <h2 style="color: #4A040D; text-align: center; margin-bottom: 15px;">تعديل المنتج</h2>
-        <div class="form-group"><label>اسم المنتج:</label><input type="text" id="editTitle" value="${product.titleAr}"></div>
-        <div class="form-group"><label>رابط الصورة الرئيسية:</label><input type="text" id="editImage" value="${product.image}"></div>
-        <div class="form-group"><label>الوصف:</label><textarea id="editDesc">${product.description || ''}</textarea></div>
-        <button onclick="saveEditedProduct('${product.id}')" style="width:100%; background:#4A040D; color:#fff; border:none; padding:10px; border-radius:5px; font-weight:bold; cursor:pointer;">حفظ التعديلات</button>
-    `;
-    modal.style.display = 'flex';
-}
-
-function saveEditedProduct(productId) {
-    let product = products.find(p => p.id == productId);
-    if (product) {
-        product.titleAr = document.getElementById('editTitle').value;
-        product.image = document.getElementById('editImage').value;
-        product.description = document.getElementById('editDesc').value;
+    let msg = communityMessages.find(m => m.id == msgId);
+    if (msg) {
+        if (!msg.replies) msg.replies = [];
+        let newReply = {
+            id: Date.now().toString(),
+            sender: replySender,
+            text: replyText,
+            isOwner: ownerSession
+        };
+        msg.replies.push(newReply);
         
-        localStorage.setItem('jag_products', JSON.stringify(products));
-        closeProductModal();
-        renderProducts(products);
-        alert('تم تعديل المنتج بنجاح! ✨');
+        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+        renderCommunityChat();
     }
+}
+
+function deleteCommunityMessage(msgId) {
+    if (!ownerSession) return;
+    if (!confirm('هل أنتِ متأكدة من حذف هذه الرسالة وكل الردود عليها؟')) return;
+
+    communityMessages = communityMessages.filter(m => m.id != msgId);
+    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+    renderCommunityChat();
+}
+
+function deleteCommunityReply(msgId, replyId) {
+    if (!ownerSession) return;
+    let msg = communityMessages.find(m => m.id == msgId);
+    if (msg && msg.replies) {
+        msg.replies = msg.replies.filter(r => r.id != replyId);
+        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
+        renderCommunityChat();
+    }
+}
+
+function renderReviews() {
+    const container = document.getElementById('reviewsContainer');
+    if(!container) return;
+    container.innerHTML = '';
+    customerReviews.forEach(rev => {
+        container.innerHTML += `
+            <div class="review-card" style="background:#fff; padding:15px; border-radius:8px; border:1px solid #eee; margin-bottom:10px;">
+                <div style="color:#D4AF37; margin-bottom:5px;">${'★'.repeat(rev.rating)}</div>
+                <p style="font-size:13px; color:#444; margin-bottom:8px;">"${rev.comment}"</p>
+                <strong style="font-size:12px; color:#4A040D;">- ${rev.name}</strong>
+            </div>
+        `;
+    });
 }
 
 function loginAdmin() {
     let email = document.getElementById('adminEmailInput').value;
     let pass = document.getElementById('adminPasswordInput').value;
-
     if (email === adminEmail && pass === adminPass) {
         ownerSession = true;
         localStorage.setItem('jag_owner_session', 'true');
@@ -392,7 +698,6 @@ function loginAdmin() {
         closeProfileModal();
         updateOwnerUI();
         renderProducts(products);
-        renderCommunityChat();
     } else {
         alert('البريد الإلكتروني أو كلمة المرور غير صحيحة!');
     }
@@ -405,7 +710,6 @@ function logoutAdmin() {
     closeProfileModal();
     updateOwnerUI();
     renderProducts(products);
-    renderCommunityChat();
 }
 
 function updateOwnerUI() {
@@ -416,50 +720,21 @@ function updateOwnerUI() {
 }
 
 function openProfileModal() {
-    const modal = document.getElementById('profileModal');
+    let modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'flex';
 }
 
 function closeProfileModal() {
-    const modal = document.getElementById('profileModal');
+    let modal = document.getElementById('profileModal');
     if(modal) modal.style.display = 'none';
-}
-
-function openCartModal() {
-    const modal = document.getElementById('cartModal');
-    if(modal) modal.style.display = 'flex';
 }
 
 function closeCartModal() {
-    const modal = document.getElementById('cartModal');
+    let modal = document.getElementById('cartModal');
     if(modal) modal.style.display = 'none';
 }
 
-function sendCommunityMessage() {
-    let sender = document.getElementById('chatSenderName').value.trim();
-    let text = document.getElementById('communityInput').value.trim();
-
-    if(!sender || !text) {
-        alert('برجاء إرسال الاسم ورسالتك أولاً.');
-        return;
-    }
-
-    communityMessages.push({
-        id: Date.now().toString(),
-        sender: sender,
-        text: text,
-        isOwner: false,
-        replies: []
-    });
-
-    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-    document.getElementById('communityInput').value = '';
-    renderCommunityChat();
-}
-
-function deleteCommunityMessage(msgId) {
-    if(!ownerSession) return;
-    communityMessages = communityMessages.filter(m => m.id != msgId);
-    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-    renderCommunityChat();
+function closeProductModal() { 
+    const modal = document.getElementById('productModal');
+    if(modal) modal.style.display = 'none'; 
 }
