@@ -698,6 +698,7 @@ function loginAdmin() {
         closeProfileModal();
         updateOwnerUI();
         renderProducts(products);
+        renderCommunityChat();
     } else {
         alert('البريد الإلكتروني أو كلمة المرور غير صحيحة!');
     }
@@ -710,6 +711,7 @@ function logoutAdmin() {
     closeProfileModal();
     updateOwnerUI();
     renderProducts(products);
+    renderCommunityChat();
 }
 
 function updateOwnerUI() {
