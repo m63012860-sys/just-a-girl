@@ -105,7 +105,42 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "3XL": { price: 0, available: false },
             "Free": { price: 440, available: true }
         } 
-    }
+    },
+    { 
+        id: "3", 
+        titleAr: "جمبسوت", 
+        titleEn: "", 
+        category: "pajamas", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/90PKDGgg/IMG-20261108-004310-807.jpg", 
+        description:"فري سايز لحد 85 🫶❤️الخامة موهير مبطن 🫶❤️",
+        outOfStock: false,
+        colors: [
+            { name: "مجمع اشكال  ", image: "https://i.postimg.cc/Xqg1jnXH/IMG-20261108-004306-171.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/7Zht484g/IMG-20261108-004311-155.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/RZYsVsV4/IMG-20261108-004311-245.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/V6QKXJCB/IMG-20261108-004311-401.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/NG8z7kbd/IMG-20261108-004310-980.jpg" }
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 270, available: true }
+        }
+    },
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
