@@ -79,7 +79,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         category: "blouses", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/dVqkx8PP/IMG-20261107-131821-682.jpg", 
-        description: "جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
+        description: "  جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز بنى اسود برجندى  لبنى  (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
         outOfStock: false,
         colors: [
             // ⚠️ الرابط ده كان ناقص ومكسور، حطي هنا رابط صورة اللون "بنى" الصحيح من postimages
