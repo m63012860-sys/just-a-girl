@@ -15,46 +15,28 @@ const heroBanners = [
 /*📌    دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
    =========================================================================
     { 
-        id: "2", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 2، 3، 4...)
+        id: "3", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 3، 4، 5...)
         titleAr: "اكتبي اسم المنتج بالعربي هنا", 
         titleEn: "Product Name in English", 
         category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
-        hasDiscount: false, // اكتبي true لو عليه خصم، أو false لو السعر عادي
+        hasDiscount: false,
         image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
         description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
         outOfStock: false, // false لو متاح، و true لو خلصان
-        
-        // الألوان الأساسية (تقدري تغيري الروابط وتسيبي الأسماء زي ما هي أو تعدليها)
         colors: [
             { name: "أسود", image: "رابط_صورة_اللون_الأسود.jpg" },
-            { name: "برجندي", image: "رابط_صورة_اللون_البرجندي.jpg" },
-            { name: "بيج", image: "رابط_صورة_اللون_البيج.jpg" }
+            { name: "برجندي", image: "رابط_صورة_اللون_البرجندي.jpg" }
         ],
-        
-        // جميع المقاسات جاهزة أمامك (اكتبي السعر بالأرقام، أو اجعلي السعر 0 والـ available بـ false لو مش نازل)
         sizes: { 
-            "1y": { price: 0, available: false },
-            "2y": { price: 0, available: false },
-            "3y": { price: 0, available: false },
-            "4y": { price: 0, available: false },
-            "6y": { price: 0, available: false },
-            "8y": { price: 0, available: false },
-            "10y": { price: 0, available: false },
-            "12y": { price: 0, available: false },
-            "XS": { price: 0, available: false },
-            "S": { price: 600, available: true },   // مثال لمقاس متوفر بسعر 600
-            "M": { price: 650, available: true },   // مثال لمقاس متوفر بسعر 650
-            "L": { price: 700, available: true },   // مثال لمقاس متوفر بسعر 700
-            "XL": { price: 750, available: true },
-            "2XL": { price: 0, available: false },
-            "3XL": { price: 0, available: false },
+            "S": { price: 600, available: true },
+            "M": { price: 650, available: true },
+            "L": { price: 0, available: false },
             "Free": { price: 0, available: false }
         }
     },
    ========================================================================= */
 
-   
-    let products = JSON.parse(localStorage.getItem('jag_products')) || [
+let products = JSON.parse(localStorage.getItem('jag_products')) || [
     { 
         id: "1", 
         titleAr: "سوت ميلتون", 
@@ -97,13 +79,13 @@ const heroBanners = [
         category: "blouses", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/dVqkx8PP/IMG-20261107-131821-682.jpg", 
-        description:"جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
+        description: "جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
         outOfStock: false,
         colors: [
-            { name: "بنى", image: "https://i.postimg1107-131821-101.jpg" },
+            // ⚠️ الرابط ده كان ناقص ومكسور، حطي هنا رابط صورة اللون "بنى" الصحيح من postimages
+            { name: "بنى", image: "" },
             { name: "برجندي", image: "https://i.postimg.cc/139njpxj/IMG-20261107-131821-409.jpg" },
-            { name: "اسود ", image: "https://i.postimg.cc/ZnpB1HK1/IMG-20261107-131820-991.jpg" },
-          
+            { name: "اسود", image: "https://i.postimg.cc/ZnpB1HK1/IMG-20261107-131820-991.jpg" }
         ],
         sizes: { 
             "1y": { price: 0, available: false },
@@ -122,7 +104,6 @@ const heroBanners = [
             "2XL": { price: 0, available: false },
             "3XL": { price: 0, available: false },
             "Free": { price: 440, available: true }
-     
         } 
     }
 ];
@@ -140,6 +121,11 @@ let cart = JSON.parse(localStorage.getItem('jag_cart')) || [];
 let currentBase64Image = "";
 let colorUploadsList = [];
 let selectedSizeForCart = "";
+
+// ✅ دالة مساعدة: بتدور على المنتج سواء الـ id نص أو رقم
+function findProduct(id) {
+    return products.find(p => String(p.id) === String(id));
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     initSlider();
@@ -209,9 +195,9 @@ function renderProducts(itemsToRender = products) {
         if (ownerSession) {
             adminControlsHtml = `
                 <div style="display: flex; gap: 5px; margin-top: 10px; border-top: 1px dashed #ddd; padding-top: 8px;">
-                    <button type="button" onclick="openEditProductModal(${product.id})" style="flex:1; background:#D4AF37; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">تعديل</button>
-                    <button type="button" onclick="deleteProduct(${product.id})" style="flex:1; background:#c00; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">حذف</button>
-                    <button type="button" onclick="toggleOutOfStock(${product.id})" style="flex:1; background:#555; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${product.outOfStock ? 'إتاحة' : 'نفذ'}</button>
+                    <button type="button" onclick="openEditProductModal('${product.id}')" style="flex:1; background:#D4AF37; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">تعديل</button>
+                    <button type="button" onclick="deleteProduct('${product.id}')" style="flex:1; background:#c00; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">حذف</button>
+                    <button type="button" onclick="toggleOutOfStock('${product.id}')" style="flex:1; background:#555; color:#fff; border:none; padding:6px; border-radius:4px; cursor:pointer; font-size:12px; font-weight:bold;">${product.outOfStock ? 'إتاحة' : 'نفذ'}</button>
                 </div>
             `;
         }
@@ -223,7 +209,7 @@ function renderProducts(itemsToRender = products) {
                 <div class="product-title">${product.titleAr}</div>
                 <div class="product-desc">${product.description || ''}</div>
                 <div class="price-box">يبدأ من ${minPrice} ج.م</div>
-                <button class="view-details-btn" onclick="openProductDetails(${product.id})">عرض والتفاصيل</button>
+                <button class="view-details-btn" onclick="openProductDetails('${product.id}')">عرض والتفاصيل</button>
                 ${adminControlsHtml}
             </div>
         `;
@@ -265,6 +251,8 @@ function openAddProductModal() {
                 <option value="jackets">الجواكت (Jackets)</option>
                 <option value="bundles">باكدج (Bundles)</option>
                 <option value="offers">عروض خاصة</option>
+                <option value="mens">رجالي (Men's)</option>
+                <option value="blouses">بلوزات (Blouses)</option>
             </select>
         </div>
 
@@ -314,7 +302,7 @@ function openAddProductModal() {
 // 2. تعديل منتج قائم
 function openEditProductModal(productId) {
     if (!ownerSession) return;
-    const product = products.find(p => p.id === productId);
+    const product = findProduct(productId);
     if (!product) return;
 
     let modal = document.getElementById('productModal');
@@ -339,13 +327,13 @@ function openEditProductModal(productId) {
         <div class="form-group"><label>السعر الافتراضي (ج.م):</label><input type="number" id="editProdPrice" value="${firstPrice}"></div>
         <div class="form-group"><label>رابط الصورة:</label><input type="text" id="editProdImg" value="${product.image}"></div>
         <div class="form-group"><label>الوصف:</label><textarea id="editProdDesc">${product.description || ''}</textarea></div>
-        <button onclick="saveEditedProduct(${product.id})" style="width:100%; background:#D4AF37; color:#fff; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer;">تحديث بيانات المنتج</button>
+        <button onclick="saveEditedProduct('${product.id}')" style="width:100%; background:#D4AF37; color:#fff; border:none; padding:12px; border-radius:5px; font-weight:bold; cursor:pointer;">تحديث بيانات المنتج</button>
     `;
     modal.style.display = 'flex';
 }
 
 function saveEditedProduct(productId) {
-    let product = products.find(p => p.id === productId);
+    let product = findProduct(productId);
     if (!product) return;
 
     let newTitle = document.getElementById('editProdTitle').value.trim();
@@ -356,8 +344,10 @@ function saveEditedProduct(productId) {
     if (newTitle) { product.titleAr = newTitle; product.titleEn = newTitle; }
     if (newPrice > 0) {
         for(let s in product.sizes) {
-            product.sizes[s].price = newPrice;
-            break;
+            if (product.sizes[s].available) {
+                product.sizes[s].price = newPrice;
+                break;
+            }
         }
     }
     if (newImg) { product.image = newImg; }
@@ -373,7 +363,7 @@ function saveEditedProduct(productId) {
 function deleteProduct(productId) {
     if (!ownerSession) return;
     if (!confirm('هل أنتِ متأكدة من حذف هذا المنتج نهائياً؟')) return;
-    products = products.filter(p => p.id !== productId);
+    products = products.filter(p => String(p.id) !== String(productId));
     localStorage.setItem('jag_products', JSON.stringify(products));
     renderProducts(products);
 }
@@ -381,7 +371,7 @@ function deleteProduct(productId) {
 // 4. تفعيل أو إلغاء حالة نفذ / إتاحة
 function toggleOutOfStock(productId) {
     if (!ownerSession) return;
-    let product = products.find(p => p.id === productId);
+    let product = findProduct(productId);
     if (product) {
         product.outOfStock = !product.outOfStock;
         localStorage.setItem('jag_products', JSON.stringify(products));
@@ -445,7 +435,7 @@ function updateColorUrl(index) {
 
 function handleColorImageUpload(event, index) {
     const file = event.target.files[0];
-    if (file) {
+    if (file && colorUploadsList[index]) {
         const reader = new FileReader();
         reader.onload = function(e) {
             colorUploadsList[index].image = e.target.result;
@@ -484,7 +474,7 @@ function saveNewAdvancedProduct() {
     if(finalColors.length === 0) finalColors = [{ name: "الأساسي", image: currentBase64Image }];
 
     let newProduct = {
-        id: Date.now(),
+        id: String(Date.now()),
         titleAr: title,
         titleEn: title,
         category: category,
@@ -505,7 +495,7 @@ function saveNewAdvancedProduct() {
 
 // 🌟 تفاصيل المنتج مع أزرار المقاسات التفاعلية وتغيير الصور عبر الألوان
 function openProductDetails(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = findProduct(productId);
     if (!product) return;
 
     let modal = document.getElementById('productModal');
@@ -568,7 +558,7 @@ function openProductDetails(productId) {
 
                 ${colorsHtml ? `<div style="margin-bottom: 10px;"><strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:3px;">الألوان المتوفرة:</strong> <div style="display:flex; gap:6px; flex-wrap:wrap;">${colorsHtml}</div></div>` : ''}
                 
-                <button class="view-details-btn" onclick="addToCartWithSelectedSize(${product.id})" ${product.outOfStock ? 'disabled style="background:#ccc;"' : ''}>
+                <button class="view-details-btn" onclick="addToCartWithSelectedSize('${product.id}')" ${product.outOfStock ? 'disabled style="background:#ccc;"' : ''}>
                     ${product.outOfStock ? 'نفذت الكمية' : 'إضافة للسلة بالمقاس المحدد'}
                 </button>
             </div>
@@ -596,7 +586,7 @@ function selectProductSize(sizeKey, priceVal, btnElement) {
 }
 
 function addToCartWithSelectedSize(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = findProduct(productId);
     if (!product || product.outOfStock) return;
 
     if (!selectedSizeForCart || !product.sizes[selectedSizeForCart]) {
@@ -624,7 +614,7 @@ function changeProductDisplayImage(imgUrl, colorName) {
     const mainImg = document.getElementById('mainDetailImage');
     const indicator = document.getElementById('colorNameIndicator');
     if(mainImg) mainImg.src = imgUrl;
-    if(indicator) indicator.innerText = `اللون المختاره: ${colorName}`;
+    if(indicator) indicator.innerText = `اللون المختار: ${colorName}`;
 }
 
 function resetToOriginalImage(originalImgUrl) {
@@ -726,6 +716,12 @@ function logoutOwner() {
     alert('تم تسجيل الخروج من الإدارة بنجاح.');
 }
 
+// الزر الموجود في لوحة التحكم الرئيسية بيستدعي logoutAdmin
+function logoutAdmin() { logoutOwner(); }
+
+// الزر الموجود في لوحة التحكم الرئيسية بيستدعي openAccountSettings
+function openAccountSettings() { openProfileModal(); }
+
 function updateAdminAccount() {
     const newEmailInput = document.getElementById('newAdminEmail');
     const newPassInput = document.getElementById('newAdminPassword');
@@ -800,7 +796,6 @@ function renderCommunityChat() {
         let ownerBadge = msg.isOwner ? `<span style="background:#4A040D; color:#D4AF37; font-size:11px; padding:3px 8px; border-radius:4px; font-weight:bold; margin-right:8px;">👑 Just a Girl (المالك) ✨</span>` : '';
         let deleteBtnHtml = `<button onclick="deleteCommunityMsg(${msg.id})" style="position:absolute; top:12px; left:12px; background:none; border:none; color:#cc0000; font-size:12px; cursor:pointer;" title="حذف الرسالة">حذف</button>`;
 
-        // بناء الردود مع زر حذف خاص بكل رد
         let repliesHtml = '';
         if (msg.replies && msg.replies.length > 0) {
             msg.replies.forEach(rep => {
@@ -831,7 +826,7 @@ function renderCommunityChat() {
                 ${repliesHtml}
             </div>
 
-            <div id="replyBox_${msg.id}" style="display:none; margin-top:8px; display:flex; gap:6px;">
+            <div id="replyBox_${msg.id}" style="display:none; margin-top:8px; gap:6px;">
                 <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; width:100px;">
                 <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; flex:1;">
                 <button onclick="sendReplyToMessage(${msg.id})" style="background:#4A040D; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:12px; cursor:pointer;">إرسال الرد</button>
@@ -842,7 +837,6 @@ function renderCommunityChat() {
     chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// دالة حذف الرد المحدد
 function deleteReply(msgId, replyId) {
     let msg = communityMessages.find(m => m.id === msgId);
     if (!msg || !msg.replies) return;
@@ -871,7 +865,7 @@ function deleteReply(msgId, replyId) {
 function toggleReplyBox(msgId) {
     let box = document.getElementById(`replyBox_${msgId}`);
     if (box) {
-        box.style.display = box.style.display === 'none' ? 'flex' : 'none';
+        box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'flex' : 'none';
     }
 }
 
@@ -966,77 +960,7 @@ function filterCategory(category) {
     else renderProducts(products.filter(p => p.category === category));
 }
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    // 1. فتح النافذة عند الضغط على أي زر عرض والتفاصيل
-    document.addEventListener('click', function(e) {
-        const detailBtn = e.target.closest('button');
-        if (detailBtn && detailBtn.textContent.includes('عرض والتفاصيل')) {
-            const modalOverlay = document.querySelector('.modal-overlay');
-            if (modalOverlay) {
-                modalOverlay.style.display = 'flex';
-            }
-        }
-    });
-
-    // 2. إغلاق النافذة عند الضغط على زر الإغلاق (X)
-    document.addEventListener('click', function(e) {
-        if (e.target.classList.contains('close-btn') || e.target.closest('.close-btn')) {
-            const modalOverlay = document.querySelector('.modal-overlay');
-            if (modalOverlay) {
-                modalOverlay.style.display = 'none';
-            }
-        }
-    });
-
-    // 3. إغلاق النافذة عند النقر في المساحة الفارغة خارج صندوق التفاصيل
-    window.addEventListener('click', function(e) {
-        const modalOverlay = document.querySelector('.modal-overlay');
-        if (modalOverlay && e.target === modalOverlay) {
-            modalOverlay.style.display = 'none';
-        }
-    });
-});
-// دالة فتح وتعبئة تفاصيل المنتج
-function showProductDetails(product) {
-    const modal = document.getElementById('productModal');
-    const container = document.getElementById('modalDynamicDetails');
-    
-    // بناء هيكل التفاصيل داخل النافذة
-    container.innerHTML = `
-        <div class="product-modal-body">
-            <div class="product-modal-image">
-                <img src="${product.image}" alt="${product.title}">
-            </div>
-            <div class="product-modal-info">
-                <h3>${product.title}</h3>
-                <p class="product-desc">${product.description || 'خامة ممتازة وراعية ومريحة'}</p>
-                <div class="product-price">السعر الحالي: <span>${product.price} ج.م</span></div>
-                
-                <div class="option-group">
-                    <label>اختر المقاس المطلوب:</label>
-                    <div class="size-options">
-                        <button class="size-btn active">Free Size</button>
-                    </div>
-                </div>
-
-                <button class="add-to-cart-btn" onclick="addToCart('${product.id}')">
-                    <i class="fa-solid fa-cart-plus"></i> إضافة للسلة بالمقاس المحدد
-                </button>
-            </div>
-        </div>
-    `;
-    
-    modal.style.display = 'flex';
-}
-
-// دالة إغلاق مودال المنتج
-function closeProductModal() {
-    const modal = document.getElementById('productModal');
-    if (modal) modal.style.display = 'none';
-}
-
-// إغلاق النافذة عند النقر خارج المحتوى
+// إغلاق النوافذ عند النقر خارج المحتوى
 window.onclick = function(event) {
     const productModal = document.getElementById('productModal');
     const cartModal = document.getElementById('cartModal');
