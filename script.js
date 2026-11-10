@@ -203,7 +203,27 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "3XL": { price: 0, available: false },
             "Free": { price: 270, available: true }
         }
-    }
+    },
+    { 
+        id: "6",
+        titleAr: "سويت شيرت هاف زيب رجالي (Running Club)", 
+        titleEn: "Men's Half Zip Sweatshirt - Running Club", 
+        category: "Men's", 
+        hasDiscount: false,
+        image: "https://i.postimg.cc/mkT0pQYm/IMG-20261108-005603-856.jpg", 
+        description: "سويت شيرت رجالي بتصميم عصري (هاف زيب) مع سحاب وياقة مرتفعة، مكتوب عليه عبارات مميزة في الصدر والخلف (Running Club)، الخامات ميلتون لايت مريحة وممتازة للأجواء المعتدلة، تلبيس فري سايز مريح لحد 95 كجم.الوان  ابيض   اسود   بنى ", 
+        outOfStock: false, 
+        colors: [
+            { name: "تفاصيل", image: "https://i.postimg.cc/sDDkp4Df/IMG-20261108-005604-608.jpg" },
+           
+        ],
+        sizes: { 
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "Free": { price: 300, available: true }
+        }
+    },
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
