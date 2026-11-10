@@ -224,6 +224,235 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "Free": { price: 300, available: true }
         }
     },
+     { 
+        id: "7", 
+        titleAr: "سويت شيرت فراشة", 
+        titleEn: "Butterfly Sweatshirt", 
+        category: "kids", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/VLTFYp4n/IMG-20261108-004802-099.jpg", 
+        description: "الخامه ميلتون لايت مبطن من جوه تقيل 🫶❤️مقاس 4 ❤️ بيلبس من 3 سنوات الى 5   مقاس 8 ❤️ بيلبس من 6 سنوات الى 8   مقاس 12 ❤️ من 8 سنوات الى 12   الالوان احمر / ابيض / بيج / بينك بيبي بلو / كحليل   ",
+        outOfStock: false,
+        colors: [
+           
+            { name: "بينك", image: "https://i.postimg.cc/k4nQ1mX3/IMG-20261108-004802-678.jpg" },
+          
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 250, available: true },
+            "6y": { price: 0, available: false },
+            "8y": { price: 250, available: true },
+            "10y": { price: 0, available: false },
+            "12y": { price: 250, available: true },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 0, available: false }
+        }
+    },
+{ 
+        id: "8", 
+        titleAr: "وايت ليج ميلتون", 
+        titleEn: "Milton Wide Leg Pants", 
+        category: "pants", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/4NT9BG8L/IMG-20261108-005130-979.jpg", 
+        description: "مقاس فري سايز بيلبس لحد 95 كيلو 🫶💕 الخامة ميلتون لايت 🫶❤️ابيض اسود بيج بني",
+        outOfStock: false,
+        colors: [
+            { name: "بيج", image: "https://i.postimg.cc/mgLFWwWh/IMG-20261108-005131-022.jpg" },
+            { name: "بني", image: "https://i.postimg.cc/P5SvXwtT/IMG-20261108-005131-259.jpg" }
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price:300, available: true }
+        }
+    },
+{ 
+        id: "9", 
+        titleAr: "جواندا وتر بروف منقط", 
+        titleEn: "Polka Dot Waterproof Jacket", 
+        category: "jackets", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/85QpNpf2/IMG-20261108-004933-390.jpg", 
+        description: "فري سايز لحد 95 ❤️ الخامة وتر بروف مستورد ❤️",
+        outOfStock: false,
+        colors: [
+            { name: "اسود منقط بأبيض", image: "https://i.postimg.cc/RhvvJgRX/IMG-20261108-004937-138.jpg" }
+             { name: "ابيض  منقط باسود ", image: "https://i.postimg.cc/L5v2tjQH/IMG-20261108-004943-042.jpg" }
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 400, available: true }
+        }
+    },
+{ 
+        id: "10", 
+        titleAr: "بيجامة ميني ماوس فرو", 
+        titleEn: "Minnie Mouse Fur Pyjama", 
+        category: "pajamas", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/7YTKTq53/IMG-20261108-004256-603.jpg", 
+        description: "فري سايز لحد 85 🫶❤️ الخامة مستورده 🫶❤️",
+        outOfStock: false,
+        colors: [
+            { name: "بني ليوبرد مع ميني ماوس", image: "https://i.postimg.cc/zDQdByGR/IMG-20261108-004252-517.jpg" }
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 380, available: true }
+        }
+    },
+{ 
+        id: "11", 
+        titleAr: "سويت شيرت جينز مطرز", 
+        titleEn: "Embroidered Denim Sweatshirt", 
+        category: "hoodies", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/28B0BCqR/IMG-20261108-004342-395.jpg", 
+        description: "فري سايز لحد 90كيلوا مرتاح ❤️",
+        outOfStock: false,
+        colors: [
+            { name: "أشكال", image: "https://i.postimg.cc/7Z8m3j7r/IMG-20261108-004342-697.jpg" },
+            { name: "أشكال", image: "https://i.postimg.cc/CxTmG9D8/IMG-20261108-004342-972.jpg" },
+            { name: "أشكال", image: "https://i.postimg.cc/Nj6bpb76/IMG-20261108-004343-010.jpg" },
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 320, available: true }
+        }
+    },
+{ 
+        id: "12", 
+        titleAr: "هودي جينز مطرز برسومات متنوعة", 
+        titleEn: "Printed & Embroidered Denim Hoodie", 
+        category: "hoodies", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/4x6wBwbF/IMG-20261108-004349-656.jpg", 
+        description: "فري سايز لحد 90كيلوا مرتاح ❤️",
+        outOfStock: false,
+        colors: [
+            { name: "أشكال", image: "https://i.postimg.cc/LsmD7fxs/IMG-20261108-004349-753.jpg" },
+            { name: "أشكال", image: "https://i.postimg.cc/0NZnqQ42/IMG-20261108-004349-945.jpg" },
+            { name: "أشكال", image: "https://i.postimg.cc/TPQ0Xwsn/IMG-20261108-004350-046.jpg" },
+            { name: "أشكال", image: "https://i.postimg.cc/QttbNDLb/IMG-20261108-004350-239.jpg" },
+            { name: "أشكال", image: "https://i.postimg.cc/ydbTkGsV/IMG-20261108-004350-296.jpg" },
+            { name: "أشكال", image: "https://i.postimg.cc/pr5J8BL5/IMG-20261108-004350-379.jpg" },
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 330, available: true }
+        }
+    },
+{ 
+        id: "13", 
+        titleAr: "سويت شيرت بولو ميلتون", 
+        titleEn: "Milton Polo Sweatshirt", 
+        category: "hoodies", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/tCPLG3NF/IMG-20261108-005144-586.jpg", 
+        description: "فري سايز لحد 95 ❤️❤️ الخامة ميلتون لايت ❤️ ابيض اسود بني",
+        outOfStock: false,
+        colors: [
+            { name: "تفاصيل", image: "https://i.postimg.cc/MpmNvzL3/IMG-20261108-005145-505.jpg" },
+          
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 350, available: true }
+        }
+    }
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
