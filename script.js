@@ -184,7 +184,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         outOfStock: false,
         colors: [
             { name:" تفاصيل", image: "https://i.postimg.cc/W3Bj1FPq/IMG-20261108-004244-801.jpg" },
-        ];
+        ],
         sizes: { 
             "1y": { price: 0, available: false },
             "2y": { price: 0, available: false },
@@ -1068,3 +1068,140 @@ window.onclick = function(event) {
     if (event.target === cartModal) closeCartModal();
     if (event.target === profileModal) closeProfileModal();
 };
+// 🌟 تفاصيل المنتج مع أزرار المقاسات التفاعلية وتغيير الصور وإضافة للسلة
+function openProductDetails(productId) {
+    const product = findProduct(productId);
+    if (!product) return;
+
+    let modal = document.getElementById('productModal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'productModal';
+        modal.className = 'modal';
+        modal.innerHTML = `<div class="modal-content" id="productModalContent"></div>`;
+        document.body.appendChild(modal);
+    }
+    const content = document.getElementById('productModalContent');
+
+    let availableSizesKeys = Object.keys(product.sizes || {}).filter(s => product.sizes[s].available && product.sizes[s].price > 0);
+    selectedSizeForCart = availableSizesKeys.length > 0 ? availableSizesKeys[0] : "";
+    let initialPrice = selectedSizeForCart ? product.sizes[selectedSizeForCart].price : 500;
+
+    let sizesButtonsHtml = '';
+    Object.keys(product.sizes || {}).forEach(sKey => {
+        let sData = product.sizes[sKey];
+        if(sData.available && sData.price > 0) {
+            let isSelected = (sKey === selectedSizeForCart);
+            sizesButtonsHtml += `
+                <button type="button" onclick="selectProductSize('${sKey}', ${sData.price}, this)" 
+                    class="size-btn" 
+                    style="background: ${isSelected ? '#4A040D' : '#f7f4ed'}; color: ${isSelected ? '#fff' : '#4A040D'}; border: 1px solid #D4AF37; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s;">
+                    ${sKey}: ${sData.price} ج.م
+                </button>`;
+        }
+    });
+
+    let colorsHtml = '';
+    if(product.colors && product.colors.length > 0) {
+        product.colors.forEach(col => {
+            if(col.image) {
+                colorsHtml += `
+                    <div onclick="changeProductDisplayImage('${col.image}', '${col.name}')" style="text-align:center; display:inline-block; margin:4px; cursor:pointer;" title="عرض لون ${col.name}">
+                        <img src="${col.image}" style="width:40px; height:40px; object-fit:cover; border-radius:50%; border:2px solid #D4AF37;">
+                        <div style="font-size:10px; color:#4A040D; font-weight:bold;">${col.name}</div>
+                    </div>`;
+            }
+        });
+    }
+
+    content.innerHTML = `
+        <span class="close-modal" onclick="closeProductModal()">&times;</span>
+        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 220px; text-align:center;">
+                <img id="mainDetailImage" src="${product.image}" style="width: 100%; height: 260px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">
+                <div id="colorNameIndicator" style="margin-top:6px; font-size:13px; font-weight:bold; color:#4A040D;">الصورة الأصلية للمنتج</div>
+                <button type="button" onclick="resetToOriginalImage('${product.image}')" style="margin-top:6px; background:none; border:1px solid #D4AF37; color:#4A040D; padding:3px 10px; border-radius:15px; font-size:11px; cursor:pointer;">🔄 الصورة الأصلية</button>
+            </div>
+            <div style="flex: 1; min-width: 220px;">
+                <h2 style="color: #4A040D; margin-bottom: 5px; font-family:'Playfair Display', serif;">${product.titleAr}</h2>
+                <div id="modalProductPrice" style="color: #D4AF37; font-size: 18px; font-weight: bold; margin-bottom: 10px;">السعر: ${initialPrice} ج.م</div>
+                <p style="color: #555; font-size: 13px; line-height: 1.6; margin-bottom: 15px;">${product.description || ''}</p>
+                
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:#4A040D; margin-bottom:5px;">اختر المقاس:</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">${sizesButtonsHtml || '<span style="font-size:12px; color:#666;">مقاس موحد (Free Size)</span>'}</div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:#4A040D; margin-bottom:5px;">الألوان المتاحة:</label>
+                    <div style="display:flex; gap:6px; flex-wrap:wrap;">${colorsHtml || '<span>لون أساسي</span>'}</div>
+                </div>
+
+                <button onclick="addToCartFromModal('${product.id}')" style="width: 100%; background: #4A040D; color: #fff; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px;">أضف إلى السلة 🛍️</button>
+            </div>
+        </div>
+    `;
+    modal.style.display = 'flex';
+}
+
+function selectProductSize(sizeKey, price, btnEl) {
+    selectedSizeForCart = sizeKey;
+    document.querySelectorAll('.size-btn').forEach(b => {
+        b.style.background = '#f7f4ed';
+        b.style.color = '#4A040D';
+    });
+    btnEl.style.background = '#4A040D';
+    btnEl.style.color = '#fff';
+    
+    let priceEl = document.getElementById('modalProductPrice');
+    if(priceEl) priceEl.innerText = `السعر: ${price} ج.م`;
+}
+
+function changeProductDisplayImage(imgUrl, colorName) {
+    let imgEl = document.getElementById('mainDetailImage');
+    let indEl = document.getElementById('colorNameIndicator');
+    if(imgEl) imgEl.src = imgUrl;
+    if(indEl) indEl.innerText = `لون: ${colorName}`;
+}
+
+function resetToOriginalImage(originalUrl) {
+    let imgEl = document.getElementById('mainDetailImage');
+    let indEl = document.getElementById('colorNameIndicator');
+    if(imgEl) imgEl.src = originalUrl;
+    if(indEl) indEl.innerText = `الصورة الأصلية للمنتج`;
+}
+
+function closeProductModal() {
+    let modal = document.getElementById('productModal');
+    if(modal) modal.style.display = 'none';
+}
+
+function addToCartFromModal(productId) {
+    let product = findProduct(productId);
+    if (!product) return;
+
+    let price = 500;
+    if (selectedSizeForCart && product.sizes[selectedSizeForCart]) {
+        price = product.sizes[selectedSizeForCart].price;
+    }
+
+    cart.push({
+        id: product.id,
+        title: product.titleAr,
+        price: price,
+        size: selectedSizeForCart || 'Free',
+        image: product.image,
+        quantity: 1
+    });
+
+    localStorage.setItem('jag_cart', JSON.stringify(cart));
+    updateCartCount();
+    closeProductModal();
+    alert('تم إضافة المنتج إلى السلة بنجاح! 🛍️✨');
+}
+
+function updateCartCount() {
+    // تحديث عداد السلة في الهيدر إن وجد
+    let badge = document.getElementById('cartCountBadge');
+    if(badge) badge.innerText = cart.length;
+}
