@@ -141,6 +141,69 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "Free": { price: 270, available: true }
         }
     },
+     { 
+        id: "4", 
+        titleAr: "بيجامة", 
+        titleEn: "", 
+        category: "pajamas", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/DwQrRxJ6/IMG-20261107-131925-383.jpg", 
+        description:"فري سايز لحد 85كيلو مرتاح ❣️الخامه مبطن موهير تقيل جدا جدا 💯",
+        outOfStock: false,
+        colors: [
+            { name: "اشكال ", image: "https://i.postimg.cc/4yrvRMQD/IMG-20261107-131930-120.jpg" },
+            { name: "اشكال ", image: "https://i.postimg.cc/44KFjTJv/IMG-20261108-010416-978.jpg" },
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 220, available: true }
+        }
+    },
+     { 
+        id: "5", 
+        titleAr: "سويت شيرت", 
+        titleEn: "", 
+        category: "hoodies", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/yNrs2pQD/IMG-20261108-004239-688.jpg", 
+        description:"مقاس فري سايز بيلبس لحد 95كيلوًا 🫶💖الالوان رمادي أبيض بينك بيبي بلو.احمر لافندر منت مارون/ بيج اسود بني ❤️💖✨❤️ الخامه ميلتون لايت",
+        outOfStock: false,
+        colors: [
+            { name:" تفاصيل", image: "https://i.postimg.cc/W3Bj1FPq/IMG-20261108-004244-801.jpg" },
+        ];
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 270, available: true }
+        }
+    },
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
