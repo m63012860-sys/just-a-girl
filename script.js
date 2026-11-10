@@ -105,7 +105,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "3XL": { price: 0, available: false },
             "Free": { price: 440, available: true }
         } 
-    },
+      },
     { 
         id: "3", 
         titleAr: "جمبسوت", 
@@ -257,7 +257,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "Free": { price: 0, available: false }
         }
     },
-{ 
+    { 
         id: "8", 
         titleAr: "وايت ليج ميلتون", 
         titleEn: "Milton Wide Leg Pants", 
