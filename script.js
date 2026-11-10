@@ -299,7 +299,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         description: "فري سايز لحد 95 ❤️ الخامة وتر بروف مستورد ❤️",
         outOfStock: false,
         colors: [
-            { name: "اسود منقط بأبيض", image: "https://i.postimg.cc/RhvvJgRX/IMG-20261108-004937-138.jpg" }
+            { name: "اسود منقط بأبيض", image: "https://i.postimg.cc/RhvvJgRX/IMG-20261108-004937-138.jpg" },
              { name: "ابيض  منقط باسود ", image: "https://i.postimg.cc/L5v2tjQH/IMG-20261108-004943-042.jpg" }
         ],
         sizes: { 
