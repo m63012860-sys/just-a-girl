@@ -18,7 +18,7 @@ const heroBanners = [
         id: "3", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 3، 4، 5...)
         titleAr: "اكتبي اسم المنتج بالعربي هنا", 
         titleEn: "Product Name in English", 
-        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
+        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers  mens  
         hasDiscount: false,
         image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
         description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
@@ -208,7 +208,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         id: "6",
         titleAr: "سويت شيرت هاف زيب رجالي (Running Club)", 
         titleEn: "Men's Half Zip Sweatshirt - Running Club", 
-        category: "Men's", 
+        category: "mens", 
         hasDiscount: false,
         image: "https://i.postimg.cc/mkT0pQYm/IMG-20261108-005603-856.jpg", 
         description: "سويت شيرت رجالي بتصميم عصري (هاف زيب) مع سحاب وياقة مرتفعة، مكتوب عليه عبارات مميزة في الصدر والخلف (Running Club)، الخامات ميلتون لايت مريحة وممتازة للأجواء المعتدلة، تلبيس فري سايز مريح لحد 95 كجم.الوان  ابيض   اسود   بنى ", 
