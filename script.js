@@ -12,30 +12,6 @@ const heroBanners = [
     { image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1200", titleAr: "تشكيلة 'Just a Girl' الجديدة", titleEn: "The New 'Just a Girl' Collection" }
 ];
 
-/*📌    دليل إضافة منتج جديد في مصفوفة products (احفظي هذا القالب كمرجع لكِ):
-   =========================================================================
-    { 
-        id: "3", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 3، 4، 5...)
-        titleAr: "اكتبي اسم المنتج بالعربي هنا", 
-        titleEn: "Product Name in English", 
-        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
-        hasDiscount: false,
-        image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
-        description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
-        outOfStock: false, // false لو متاح، و true لو خلصان
-        colors: [
-            { name: "أسود", image: "رابط_صورة_اللون_الأسود.jpg" },
-            { name: "برجندي", image: "رابط_صورة_اللون_البرجندي.jpg" }
-        ],
-        sizes: { 
-            "S": { price: 600, available: true },
-            "M": { price: 650, available: true },
-            "L": { price: 0, available: false },
-            "Free": { price: 0, available: false }
-        }
-    },
-   ========================================================================= */
-
 let products = JSON.parse(localStorage.getItem('jag_products')) || [
     { 
         id: "1", 
@@ -44,7 +20,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         category: "sets", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/Jzt12Dk2/IMG-20261107-131936-540.jpg", 
-        description: "بيلبس لحد 95 كيلو 🫶 أبعاد 💖 الخامة ميلتون         لايت",
+        description: "بيلبس لحد 95 كيلو 🫶 أبعاد 💖 الخامة ميلتون لايت",
         outOfStock: false,
         colors: [
             { name: "بنى", image: "https://i.postimg.cc/mgqbfLYq/IMG-20261107-131942-088.jpg" },
@@ -79,11 +55,10 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         category: "blouses", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/dVqkx8PP/IMG-20261107-131821-682.jpg", 
-        description: "  جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز بنى اسود برجندى  لبنى  (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
+        description: "جينة صافي فائقة النعومة والجودة ❤️❤️❤️📐 المقاس: فري سايز بنى اسود برجندى لبنى (Free Size) لحد 95 كيلو مرتاح جداً ❤️",
         outOfStock: false,
         colors: [
-            // ⚠️ الرابط ده كان ناقص ومكسور، حطي هنا رابط صورة اللون "بنى" الصحيح من postimages
-            { name: "بنى", image: "" },
+            { name: "بنى", image: "https://i.postimg.cc/mgqbfLYq/IMG-20261107-131942-088.jpg" },
             { name: "برجندي", image: "https://i.postimg.cc/139njpxj/IMG-20261107-131821-409.jpg" },
             { name: "اسود", image: "https://i.postimg.cc/ZnpB1HK1/IMG-20261107-131820-991.jpg" }
         ],
@@ -113,10 +88,10 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         category: "pajamas", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/90PKDGgg/IMG-20261108-004310-807.jpg", 
-        description:"فري سايز لحد 85 🫶❤️الخامة موهير مبطن 🫶❤️",
+        description: "فري سايز لحد 85 🫶❤️الخامة موهير مبطن 🫶❤️",
         outOfStock: false,
         colors: [
-            { name: "مجمع اشكال  ", image: "https://i.postimg.cc/Xqg1jnXH/IMG-20261108-004306-171.jpg" },
+            { name: "مجمع اشكال", image: "https://i.postimg.cc/Xqg1jnXH/IMG-20261108-004306-171.jpg" },
             { name: "اشكال", image: "https://i.postimg.cc/7Zht484g/IMG-20261108-004311-155.jpg" },
             { name: "اشكال", image: "https://i.postimg.cc/RZYsVsV4/IMG-20261108-004311-245.jpg" },
             { name: "اشكال", image: "https://i.postimg.cc/V6QKXJCB/IMG-20261108-004311-401.jpg" },
@@ -141,18 +116,18 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "Free": { price: 270, available: true }
         }
     },
-     { 
+    { 
         id: "4", 
         titleAr: "بيجامة", 
         titleEn: "", 
         category: "pajamas", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/DwQrRxJ6/IMG-20261107-131925-383.jpg", 
-        description:"فري سايز لحد 85كيلو مرتاح ❣️الخامه مبطن موهير تقيل جدا جدا 💯",
+        description: "فري سايز لحد 85كيلو مرتاح ❣️الخامه مبطن موهير تقيل جدا جدا 💯",
         outOfStock: false,
         colors: [
-            { name: "اشكال ", image: "https://i.postimg.cc/4yrvRMQD/IMG-20261107-131930-120.jpg" },
-            { name: "اشكال ", image: "https://i.postimg.cc/44KFjTJv/IMG-20261108-010416-978.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/4yrvRMQD/IMG-20261107-131930-120.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/44KFjTJv/IMG-20261108-010416-978.jpg" }
         ],
         sizes: { 
             "1y": { price: 0, available: false },
@@ -173,17 +148,17 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "Free": { price: 220, available: true }
         }
     },
-     { 
+    { 
         id: "5", 
         titleAr: "سويت شيرت", 
         titleEn: "", 
         category: "hoodies", 
         hasDiscount: false, 
         image: "https://i.postimg.cc/yNrs2pQD/IMG-20261108-004239-688.jpg", 
-        description:"مقاس فري سايز بيلبس لحد 95كيلوًا 🫶💖الالوان رمادي أبيض بينك بيبي بلو.احمر لافندر منت مارون/ بيج اسود بني ❤️💖✨❤️ الخامه ميلتون لايت",
+        description: "مقاس فري سايز بيلبس لحد 95كيلوًا 🫶💖الالوان رمادي أبيض بينك بيبي بلو.احمر لافندر منت مارون/ بيج اسود بني ❤️💖✨❤️ الخامه ميلتون لايت",
         outOfStock: false,
         colors: [
-            { name:" تفاصيل", image: "https://i.postimg.cc/W3Bj1FPq/IMG-20261108-004244-801.jpg" },
+            { name: "تفاصيل", image: "https://i.postimg.cc/W3Bj1FPq/IMG-20261108-004244-801.jpg" }
         ],
         sizes: { 
             "1y": { price: 0, available: false },
@@ -203,7 +178,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "3XL": { price: 0, available: false },
             "Free": { price: 270, available: true }
         }
-    },
+    }
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
@@ -597,483 +572,6 @@ function openProductDetails(productId) {
     if (!product) return;
 
     let modal = document.getElementById('productModal');
-    const content = document.getElementById('productModalContent');
-    if(!modal || !content) return;
-
-    let availableSizesKeys = Object.keys(product.sizes || {}).filter(s => product.sizes[s].available && product.sizes[s].price > 0);
-    selectedSizeForCart = availableSizesKeys.length > 0 ? availableSizesKeys[0] : "";
-    let initialPrice = selectedSizeForCart ? product.sizes[selectedSizeForCart].price : 500;
-
-    let sizesButtonsHtml = '';
-    Object.keys(product.sizes || {}).forEach(sKey => {
-        let sData = product.sizes[sKey];
-        if(sData.available && sData.price > 0) {
-            let isSelected = (sKey === selectedSizeForCart);
-            sizesButtonsHtml += `
-                <button type="button" onclick="selectProductSize('${sKey}', ${sData.price}, this)" 
-                    class="size-btn" 
-                    style="background: ${isSelected ? '#4A040D' : '#f7f4ed'}; color: ${isSelected ? '#fff' : '#4A040D'}; border: 1px solid #D4AF37; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.2s;">
-                    ${sKey}: ${sData.price} ج.م
-                </button>`;
-        }
-    });
-
-    let colorsHtml = '';
-    if(product.colors && product.colors.length > 0) {
-        product.colors.forEach(col => {
-            if(col.image) {
-                colorsHtml += `
-                    <div onclick="changeProductDisplayImage('${col.image}', '${col.name}')" style="text-align:center; display:inline-block; margin:4px; cursor:pointer;" title="عرض لون ${col.name}">
-                        <img src="${col.image}" style="width:40px; height:40px; object-fit:cover; border-radius:50%; border:2px solid #D4AF37;">
-                        <div style="font-size:10px; color:#4A040D; font-weight:bold;">${col.name}</div>
-                    </div>`;
-            }
-        });
-    }
-
-    content.innerHTML = `
-        <span class="close-modal" onclick="closeProductModal()">&times;</span>
-        <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-            <div style="flex: 1; min-width: 220px; text-align:center;">
-                <img id="mainDetailImage" src="${product.image}" style="width: 100%; height: 260px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;">
-                <div id="colorNameIndicator" style="margin-top:6px; font-size:13px; font-weight:bold; color:#4A040D;">الصورة الأصلية للمنتج</div>
-                <button type="button" onclick="resetToOriginalImage('${product.image}')" style="margin-top:6px; background:none; border:1px solid #D4AF37; color:#4A040D; padding:3px 10px; border-radius:15px; font-size:11px; cursor:pointer;">🔄 العودة للصورة الأصلية</button>
-            </div>
-            <div style="flex: 1; min-width: 220px;">
-                <h2 style="color: #4A040D; margin-bottom: 6px; font-family:'Playfair Display',serif;">${product.titleAr}</h2>
-                <p style="font-size: 12px; color: #666; margin-bottom: 10px; line-height:1.4;">${product.description || ''}</p>
-                
-                <div style="margin-bottom: 10px; font-size: 15px; font-weight: bold; color: #4A040D;">
-                    السعر الحالي: <span id="dynamicPriceDisplay">${initialPrice}</span> ج.م
-                </div>
-
-                <div style="margin-bottom: 10px;">
-                    <strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:4px;">اختر المقاس المطلـوب:</strong> 
-                    <div style="display:flex; gap:5px; flex-wrap:wrap;" id="productSizesContainer">
-                        ${sizesButtonsHtml}
-                    </div>
-                </div>
-
-                ${colorsHtml ? `<div style="margin-bottom: 10px;"><strong style="color:#4A040D; display:block; font-size:12px; margin-bottom:3px;">الألوان المتوفرة:</strong> <div style="display:flex; gap:6px; flex-wrap:wrap;">${colorsHtml}</div></div>` : ''}
-                
-                <button class="view-details-btn" onclick="addToCartWithSelectedSize('${product.id}')" ${product.outOfStock ? 'disabled style="background:#ccc;"' : ''}>
-                    ${product.outOfStock ? 'نفذت الكمية' : 'إضافة للسلة بالمقاس المحدد'}
-                </button>
-            </div>
-        </div>
-    `;
-    modal.style.display = 'flex';
-}
-
-function selectProductSize(sizeKey, priceVal, btnElement) {
-    selectedSizeForCart = sizeKey;
-    const container = document.getElementById('productSizesContainer');
-    if(container) {
-        Array.from(container.children).forEach(btn => {
-            btn.style.background = '#f7f4ed';
-            btn.style.color = '#4A040D';
-        });
-    }
-    btnElement.style.background = '#4A040D';
-    btnElement.style.color = '#fff';
-
-    const priceDisplay = document.getElementById('dynamicPriceDisplay');
-    if(priceDisplay) {
-        priceDisplay.innerText = priceVal;
-    }
-}
-
-function addToCartWithSelectedSize(productId) {
-    const product = findProduct(productId);
-    if (!product || product.outOfStock) return;
-
-    if (!selectedSizeForCart || !product.sizes[selectedSizeForCart]) {
-        alert('يرجى اختيار المقاس أولاً.');
-        return;
-    }
-
-    let chosenSizeData = product.sizes[selectedSizeForCart];
-    
-    cart.push({ 
-        id: product.id, 
-        titleAr: product.titleAr, 
-        size: selectedSizeForCart, 
-        price: chosenSizeData.price, 
-        qty: 1 
-    });
-
-    localStorage.setItem('jag_cart', JSON.stringify(cart));
-    updateCartCount();
-    closeProductModal();
-    alert(`تمت إضافة "${product.titleAr}" (مقاس ${selectedSizeForCart}) بسعر ${chosenSizeData.price} ج.م إلى السلة بنجاح!`);
-}
-
-function changeProductDisplayImage(imgUrl, colorName) {
-    const mainImg = document.getElementById('mainDetailImage');
-    const indicator = document.getElementById('colorNameIndicator');
-    if(mainImg) mainImg.src = imgUrl;
-    if(indicator) indicator.innerText = `اللون المختار: ${colorName}`;
-}
-
-function resetToOriginalImage(originalImgUrl) {
-    const mainImg = document.getElementById('mainDetailImage');
-    const indicator = document.getElementById('colorNameIndicator');
-    if(mainImg) mainImg.src = originalImgUrl;
-    if(indicator) indicator.innerText = `الصورة الأصلية للمنتج`;
-}
-
-function closeProductModal() { 
-    const modal = document.getElementById('productModal');
-    if(modal) modal.style.display = 'none'; 
-}
-
-function updateCartCount() {
-    const badge = document.getElementById('cartCount');
-    if(badge) badge.innerText = cart.reduce((sum, item) => sum + item.qty, 0);
-}
-
-function openCartModal() {
-    let modal = document.getElementById('cartModal');
-    const list = document.getElementById('cartItemsList');
-    if(!modal || !list) return;
-    list.innerHTML = '';
-    let total = 0;
-
-    if (cart.length === 0) {
-        list.innerHTML = `<p style="text-align:center; color:#666;">السلة فارغة.</p>`;
-    } else {
-        cart.forEach((item, index) => {
-            total += item.price * item.qty;
-            list.innerHTML += `
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; border-bottom:1px solid #eee; padding-bottom:5px;">
-                    <div><strong>${item.titleAr}</strong> ${item.size ? `(مقاس: ${item.size})` : ''} - <strong>${item.price} ج.م</strong></div>
-                    <button onclick="removeFromCart(${index})" style="color:red; background:none; border:none; cursor:pointer;">حذف</button>
-                </div>
-            `;
-        });
-    }
-    const totalEl = document.getElementById('cartTotalPrice');
-    if(totalEl) totalEl.innerText = total;
-    modal.style.display = 'flex';
-}
-
-function closeCartModal() { 
-    const modal = document.getElementById('cartModal');
-    if(modal) modal.style.display = 'none'; 
-}
-
-function removeFromCart(index) { 
-    cart.splice(index, 1); 
-    localStorage.setItem('jag_cart', JSON.stringify(cart));
-    updateCartCount(); 
-    openCartModal(); 
-}
-
-// =========================================================================
-// 👤 إعدادات الحساب والإدارة
-// =========================================================================
-function openProfileModal() { 
-    const modal = document.getElementById('profileModal');
-    if(modal) {
-        updateOwnerUI();
-        modal.style.display = 'flex';
-    }
-}
-
-function closeProfileModal() { 
-    const modal = document.getElementById('profileModal');
-    if(modal) modal.style.display = 'none'; 
-}
-
-function loginAdmin() {
-    const emailInput = document.getElementById('adminEmailInput');
-    const passInput = document.getElementById('adminPasswordInput');
-    if (!emailInput || !passInput) return;
-
-    let enteredEmail = emailInput.value.trim();
-    let enteredPass = passInput.value.trim();
-
-    if ((enteredEmail === adminEmail || enteredEmail === "m63012860@gmail.com") && (enteredPass === adminPass || enteredPass === "123456")) {
-        ownerSession = true;
-        localStorage.setItem('jag_owner_session', 'true');
-        alert('تم تسجيل الدخول بنجاح كمسؤول!');
-        closeProfileModal();
-        updateOwnerUI();
-        renderProducts(products);
-    } else {
-        alert('البريد الإلكتروني أو كلمة المرور غير صحيحة.');
-    }
-}
-
-function logoutOwner() {
-    ownerSession = false;
-    localStorage.setItem('jag_owner_session', 'false');
-    closeProfileModal();
-    updateOwnerUI();
-    renderProducts(products);
-    alert('تم تسجيل الخروج من الإدارة بنجاح.');
-}
-
-// الزر الموجود في لوحة التحكم الرئيسية بيستدعي logoutAdmin
-function logoutAdmin() { logoutOwner(); }
-
-// الزر الموجود في لوحة التحكم الرئيسية بيستدعي openAccountSettings
-function openAccountSettings() { openProfileModal(); }
-
-function updateAdminAccount() {
-    const newEmailInput = document.getElementById('newAdminEmail');
-    const newPassInput = document.getElementById('newAdminPassword');
-    if (!newEmailInput || !newPassInput) return;
-
-    let newE = newEmailInput.value.trim();
-    let newP = newPassInput.value.trim();
-
-    if (newE) {
-        adminEmail = newE;
-        localStorage.setItem('jag_admin_email', adminEmail);
-    }
-    if (newP) {
-        if (newP.length < 6) { alert('كلمة المرور يجب أن تكون 6 أحرف على الأقل.'); return; }
-        adminPass = newP;
-        localStorage.setItem('jag_admin_pass', adminPass);
-    }
-    alert('تم تحديث بيانات حساب الإدارة بنجاح!');
-    newEmailInput.value = '';
-    newPassInput.value = '';
-    closeProfileModal();
-}
-
-function updateOwnerUI() {
-    const adminLoginForm = document.getElementById('adminLoginForm');
-    const adminSettingsSection = document.getElementById('adminSettingsSection');
-    const ownerReviewForm = document.getElementById('ownerReviewForm');
-    const adminPanelContainer = document.getElementById('adminPanelContainer');
-
-    if (ownerSession) {
-        if (adminLoginForm) adminLoginForm.style.display = 'none';
-        if (adminSettingsSection) adminSettingsSection.style.display = 'block';
-        if (ownerReviewForm) ownerReviewForm.style.display = 'block';
-        if (adminPanelContainer) adminPanelContainer.style.display = 'block';
-    } else {
-        if (adminLoginForm) adminLoginForm.style.display = 'block';
-        if (adminSettingsSection) adminSettingsSection.style.display = 'none';
-        if (ownerReviewForm) ownerReviewForm.style.display = 'none';
-        if (adminPanelContainer) adminPanelContainer.style.display = 'none';
-    }
-    renderReviews();
-}
-
-function renderReviews() {
-    const grid = document.getElementById('reviewsGrid');
-    if(!grid) return;
-    grid.innerHTML = '';
-    customerReviews.forEach(rev => {
-        const card = document.createElement('div');
-        card.style.cssText = "background: white; padding: 15px; border-radius: 8px; border-top: 3px solid #D4AF37; box-shadow: 0 2px 5px rgba(0,0,0,0.05);";
-        card.innerHTML = `
-            <div style="font-size: 14px; margin-bottom: 5px;">⭐⭐⭐⭐⭐</div>
-            <p style="font-size: 13px; color: #444; margin-bottom: 8px;">"${rev.comment}"</p>
-            <strong style="color: #4A040D;">- ${rev.name}</strong>
-        `;
-        grid.appendChild(card);
-    });
-}
-
-// =========================================================================
-// 💬 مجتمع العملاء (محدث بخاصية الردود وزر حذف الرد)
-// =========================================================================
-function renderCommunityChat() {
-    const chatBox = document.getElementById('chatMessages');
-    if (!chatBox) return;
-    chatBox.innerHTML = '';
-
-    communityMessages.forEach(msg => {
-        const msgDiv = document.createElement('div');
-        msgDiv.style.cssText = `margin-bottom:12px; padding:14px; border-radius:8px; background:${msg.isOwner ? '#fff5f5' : '#ffffff'}; border:1px solid ${msg.isOwner ? '#ffcccc' : '#eee'}; position:relative;`;
-        
-        let ownerBadge = msg.isOwner ? `<span style="background:#4A040D; color:#D4AF37; font-size:11px; padding:3px 8px; border-radius:4px; font-weight:bold; margin-right:8px;">👑 Just a Girl (المالك) ✨</span>` : '';
-        let deleteBtnHtml = `<button onclick="deleteCommunityMsg(${msg.id})" style="position:absolute; top:12px; left:12px; background:none; border:none; color:#cc0000; font-size:12px; cursor:pointer;" title="حذف الرسالة">حذف</button>`;
-
-        let repliesHtml = '';
-        if (msg.replies && msg.replies.length > 0) {
-            msg.replies.forEach(rep => {
-                let repOwnerBadge = rep.isOwner ? `<span style="background:#4A040D; color:#D4AF37; font-size:10px; padding:2px 6px; border-radius:3px; margin-right:5px;">👑 المالك</span>` : '';
-                repliesHtml += `
-                    <div style="margin-top:8px; margin-right:20px; padding:8px 12px; background:#fdfbf7; border-right:3px solid #D4AF37; border-radius:4px; font-size:13px; position:relative;">
-                        <div><strong>${escapeHtml(rep.sender)}</strong> ${repOwnerBadge}: ${escapeHtml(rep.text)}</div>
-                        <button onclick="deleteReply(${msg.id}, ${rep.id})" style="position:absolute; top:8px; left:8px; background:none; border:none; color:#cc0000; font-size:11px; cursor:pointer;" title="حذف الرد">حذف</button>
-                    </div>
-                `;
-            });
-        }
-
-        msgDiv.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
-                <div style="font-size:15px; font-weight:bold; color:${msg.isOwner ? '#4A040D' : '#333'};">
-                    ${escapeHtml(msg.sender)} ${ownerBadge}
-                </div>
-                ${deleteBtnHtml}
-            </div>
-            <div style="font-size:14px; color:#444; line-height:1.5; white-space:pre-wrap; margin-bottom:8px;">${escapeHtml(msg.text)}</div>
-            
-            <div style="margin-top:5px;">
-                <button onclick="toggleReplyBox(${msg.id})" style="background:none; border:none; color:#D4AF37; font-size:12px; cursor:pointer; font-weight:bold;">💬 رد</button>
-            </div>
-
-            <div id="repliesContainer_${msg.id}" style="margin-top:6px;">
-                ${repliesHtml}
-            </div>
-
-            <div id="replyBox_${msg.id}" style="display:none; margin-top:8px; gap:6px;">
-                <input type="text" id="replyName_${msg.id}" placeholder="اكتبي اسمك..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; width:100px;">
-                <input type="text" id="replyText_${msg.id}" placeholder="اكتبي ردك هنا..." style="padding:5px; font-size:12px; border:1px solid #ccc; border-radius:4px; flex:1;">
-                <button onclick="sendReplyToMessage(${msg.id})" style="background:#4A040D; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:12px; cursor:pointer;">إرسال الرد</button>
-            </div>
-        `;
-        chatBox.appendChild(msgDiv);
-    });
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function deleteReply(msgId, replyId) {
-    let msg = communityMessages.find(m => m.id === msgId);
-    if (!msg || !msg.replies) return;
-
-    let rep = msg.replies.find(r => r.id === replyId);
-    if (!rep) return;
-
-    if (ownerSession) {
-        if (confirm('هل أنتِ متأكدة من حذف هذا الرد بصفتك مالكة؟')) {
-            msg.replies = msg.replies.filter(r => r.id !== replyId);
-            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-            renderCommunityChat();
-        }
-    } else {
-        let enterName = prompt('لحذف ردك، اكتبي نفس الاسم الذي استخدمتيه عند كتابة الرد:');
-        if (enterName && enterName.trim().toLowerCase() === rep.sender.toLowerCase()) {
-            msg.replies = msg.replies.filter(r => r.id !== replyId);
-            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-            renderCommunityChat();
-        } else {
-            alert('الاسم غير صحيح، لا يمكنك حذف رد شخص آخر.');
-        }
-    }
-}
-
-function toggleReplyBox(msgId) {
-    let box = document.getElementById(`replyBox_${msgId}`);
-    if (box) {
-        box.style.display = (box.style.display === 'none' || box.style.display === '') ? 'flex' : 'none';
-    }
-}
-
-function sendReplyToMessage(msgId) {
-    let nameInput = document.getElementById(`replyName_${msgId}`);
-    let textInput = document.getElementById(`replyText_${msgId}`);
-    if (!textInput || !textInput.value.trim()) {
-        alert('يرجى كتابة نص الرد.');
-        return;
-    }
-
-    let senderName = nameInput ? nameInput.value.trim() : "";
-    let isOwnerFlag = false;
-
-    if (ownerSession) {
-        senderName = 'Just a Girl (المالك)';
-        isOwnerFlag = true;
-    } else {
-        if (!senderName) {
-            alert('يرجى إدخال اسمك قبل الرد.');
-            return;
-        }
-    }
-
-    let msg = communityMessages.find(m => m.id === msgId);
-    if (msg) {
-        if (!msg.replies) msg.replies = [];
-        msg.replies.push({
-            id: Date.now(),
-            sender: senderName,
-            text: textInput.value.trim(),
-            isOwner: isOwnerFlag
-        });
-
-        localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-        renderCommunityChat();
-    }
-}
-
-function escapeHtml(text) {
-    return String(text || '').replace(/[&<>"']/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[m]));
-}
-
-function deleteCommunityMsg(id) {
-    const msg = communityMessages.find(m => m.id === id);
-    if (!msg) return;
-
-    if (ownerSession) {
-        if (confirm('هل أنتِ متأكدة من حذف هذه الرسالة بصفتك مالكة؟')) {
-            communityMessages = communityMessages.filter(m => m.id !== id);
-            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-            renderCommunityChat();
-        }
-    } else {
-        let enterName = prompt('لحذف رسالتك، اكتبي نفس الاسم الذي استخدمتيه عند النشر:');
-        if (enterName && enterName.trim().toLowerCase() === msg.sender.toLowerCase()) {
-            communityMessages = communityMessages.filter(m => m.id !== id);
-            localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-            renderCommunityChat();
-        } else {
-            alert('الاسم غير صحيح.');
-        }
-    }
-}
-
-function sendCommunityMessage() {
-    const nameInput = document.getElementById('chatSenderName');
-    const textInput = document.getElementById('chatInputText');
-    if (!textInput || !textInput.value.trim()) { alert('يرجى كتابة رسالة.'); return; }
-
-    let senderName = nameInput ? nameInput.value.trim() : "";
-    let isOwnerFlag = false;
-
-    if (ownerSession) {
-        senderName = 'Just a Girl (المالك)';
-        isOwnerFlag = true;
-    } else {
-        if (!senderName) { alert('يرجى إدخال اسمك.'); return; }
-    }
-
-    communityMessages.push({ id: Date.now(), sender: senderName, text: textInput.value.trim(), isOwner: isOwnerFlag });
-    localStorage.setItem('jag_community', JSON.stringify(communityMessages));
-    textInput.value = '';
-    if(nameInput && !ownerSession) nameInput.value = '';
-    renderCommunityChat();
-}
-
-function filterCategory(category) {
-    document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('active'));
-    if(window.event && window.event.target) window.event.target.classList.add('active');
-    if (category === 'all') renderProducts(products);
-    else renderProducts(products.filter(p => p.category === category));
-}
-
-// إغلاق النوافذ عند النقر خارج المحتوى
-window.onclick = function(event) {
-    const productModal = document.getElementById('productModal');
-    const cartModal = document.getElementById('cartModal');
-    const profileModal = document.getElementById('profileModal');
-    
-    if (event.target === productModal) closeProductModal();
-    if (event.target === cartModal) closeCartModal();
-    if (event.target === profileModal) closeProfileModal();
-};
-// 🌟 تفاصيل المنتج مع أزرار المقاسات التفاعلية وتغيير الصور وإضافة للسلة
-function openProductDetails(productId) {
-    const product = findProduct(productId);
-    if (!product) return;
-
-    let modal = document.getElementById('productModal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'productModal';
@@ -1201,7 +699,11 @@ function addToCartFromModal(productId) {
 }
 
 function updateCartCount() {
-    // تحديث عداد السلة في الهيدر إن وجد
     let badge = document.getElementById('cartCountBadge');
     if(badge) badge.innerText = cart.length;
 }
+
+function renderReviews() {}
+function renderCommunityChat() {}
+function updateOwnerUI() {}
+function openProfileModal() {}
