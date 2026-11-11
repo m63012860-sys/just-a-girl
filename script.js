@@ -18,7 +18,7 @@ const heroBanners = [
         id: "3", // غيري رقم الـ ID لكل منتج جديد (مثلاً: 3، 4، 5...)
         titleAr: "اكتبي اسم المنتج بالعربي هنا", 
         titleEn: "Product Name in English", 
-        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers  mens  
+        category: "hoodies", // الأقسام المتاحة: hoodies, pants, kids, pajamas, sets, dresses, suits, jackets, bundles, offers
         hasDiscount: false,
         image: "رابط_الصورة_الرئيسية_للمنتج.jpg", 
         description: "اكتبي هنا وصف الخامات وتفاصيل التلبيس والنوع...",
@@ -208,7 +208,7 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         id: "6",
         titleAr: "سويت شيرت هاف زيب رجالي (Running Club)", 
         titleEn: "Men's Half Zip Sweatshirt - Running Club", 
-        category: "mens", 
+        category: "Men's", 
         hasDiscount: false,
         image: "https://i.postimg.cc/mkT0pQYm/IMG-20261108-005603-856.jpg", 
         description: "سويت شيرت رجالي بتصميم عصري (هاف زيب) مع سحاب وياقة مرتفعة، مكتوب عليه عبارات مميزة في الصدر والخلف (Running Club)، الخامات ميلتون لايت مريحة وممتازة للأجواء المعتدلة، تلبيس فري سايز مريح لحد 95 كجم.الوان  ابيض   اسود   بنى ", 
@@ -452,7 +452,249 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
             "3XL": { price: 0, available: false },
             "Free": { price: 350, available: true }
         }
+    },
+ { 
+        id: "14", 
+        titleAr: "S", 
+        titleEn: "", 
+        category: "hoodies", 
+        hasDiscount: false, 
+        image: "https://i.postimg.cc/ZKQKwtxY/IMG-20261108-004411-228.jpg", 
+        description:"فري سايز حتى 90 كجم مرتاح   الأشكال والألوان: متوفر بتطريزات متعددة (فراشة، قطة، تاج ونبض، فيونكة، كلمة Queen)   ",
+        outOfStock: false,
+        colors: [
+            { name: "اشكال", image: "https://i.postimg.cc/xjx0dD7w/IMG-20261108-004411-275.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/kX276YP4/IMG-20261108-004411-475.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/bw6MxpxT/IMG-20261108-004411-596.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/fRHFcD7h/IMG-20261108-004411-606.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/yNkGntnH/IMG-20261108-004411-702.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/bvs5LWLR/IMG-20261108-004411-746.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/Zq2MQHDD/IMG-20261108-004411-870.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/B6FVfFr6/IMG-20261108-004412-120.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/qqdZJRr6/IMG-20261108-004412-150.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/7hMtfkPm/IMG-20261108-004416-830.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/bNpF4sL5/IMG-20261108-004417-080.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/TY0Hxf4f/IMG-20261108-004417-125.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/2S598MsP/IMG-20261108-004417-170.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/q7hm2nMt/IMG-20261108-004417-209.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/FKMTpR7G/IMG-20261108-004417-229.jpg" },
+            { name: "اشكال", image: "https://i.postimg.cc/JnjP2LXm/IMG-20261108-004417-492.jpg" },
+        ],
+        sizes: { 
+            "1y": { price: 0, available: false },
+            "2y": { price: 0, available: false },
+            "3y": { price: 0, available: false },
+            "4y": { price: 0, available: false },
+            "6y": { price: 0, available: false },
+            "8y": { price: 0, available: false },
+            "10y": { price: 0, available: false },
+            "12y": { price: 0, available: false },
+            "XS": { price: 0, available: false },
+            "S": { price: 0, available: false },
+            "M": { price: 0, available: false },
+            "L": { price: 0, available: false },
+            "XL": { price: 0, available: false },
+            "2XL": { price: 0, available: false },
+            "3XL": { price: 0, available: false },
+            "Free": { price: 330, available: true }
+        }
+    },
+    {
+    id: "15",
+    titleAr: "سويت شيرت RAVE & FREE",
+    titleEn: "RAVE & FREE Sweatshirt",
+    category: "hoodies",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/KcCfQHVJ/IMG-20261108-004713-235.jpg",
+    description: "امقاس فري سايز يلبس لحد 95 كيلوا. الألوان: رمادي، أبيض، بينك بيبي، بلو، أحمر، لافندر، منت، مارون، بيج، أسود، بني. الخامة ميلتون لايت.",
+    outOfStock: false,
+    colors: [
+        { name: "رمادي", image: "https://i.postimg.cc/s2f4vdQ1/IMG-20261108-004716-709.jpg" },
+        { name: "بني", image: "https://i.postimg.cc/SxhrbzmW/IMG-20261108-004716-366.jpg" },
+        { name: "بينك", image: "https://i.postimg.cc/s2f4vdQ1/IMG-20261108-004716-709.jpg" },
+        { name: "برجندى", image: "https://i.postimg.cc/SsB9Lwsg/IMG-20261108-004713-536.jpg" },
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 300, available: true }
     }
+},
+{
+    id: "16",
+    titleAr: "سويت شيرت Stussy",
+    titleEn: "Stussy Sweatshirt",
+    category: "hoodies",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/jS1k0S3p/IMG-20261108-010622-152.jpg",
+    description: ". L: 50-70 💖🌸 | XL: 70-85 💖🌻 | 2XL: 85-110الخامة ميلتون لايت. الألوان: اسود، رمادي، بيج، بني، زيتي، نبيتي، منت، بينك، ابيض، بيبي بلو، بني لافندر، رمادي، ازرق، منت احمر.",
+    outOfStock: false,
+    colors: [
+        { name: "اسود", image: "https://i.postimg.cc/sXd6x0zj/IMG-20261108-010637-379.jpg" },
+        { name: "رمادي", image: "https://i.postimg.cc/MKP9VGwT/IMG-20261108-010553-558.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 300, available: true },
+        "L": { price: 300, available: true },
+        "XL": { price: 300, available: true },
+        "2XL": { price: 300, available: true },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 0, available: false }
+    }
+},
+{
+    id: "17",
+    titleAr: "سويت شيرت Scufiers",
+    titleEn: "Scufiers Sweatshirt",
+    category: "hoodies",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/bvTDSZcX/IMG-20261108-010645-003.jpg",
+    description: "اL: 50-70 💖🌸 | XL: 70-85 💖🌻 | 2XL: 85-110 💖🌺 | اسود/ رمادي/ بيج/ بني/ زيتي نبيتي/ منت/ بينك/ ابيض/ بيبي بلو/ بني لافندر/ رمادي/ ازرق/ منت احمر | الخامة ميلتون لايت 🤲❤️   ",
+    outOfStock: false,
+    colors: [
+       
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 290, available: true },
+        "L": { price: 290, available: true },
+        "XL": { price: 290, available: true },
+        "2XL": { price: 290, available: true },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 0, available: false }
+    }
+},
+{
+    id: "18",
+    titleAr: "بلوفر بياقة وتطريز دبدوب",
+    titleEn: "Teddy Collar Pullover",
+    category: "hoodies",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/Kz1TXmVJ/IMG-20261108-010753-330.jpg",
+    description: "فري سايز لحد 95 كيلوا مرتاح. الخامة قطيفه × جينز × عجينه. خامته تحفه بجد.",
+    outOfStock: false,
+    colors: [
+        { name: "ابيض", image: "https://i.postimg.cc/MH8psx8g/IMG-20261108-010802-027.jpg" },
+        { name: "بنى", image: "https://i.postimg.cc/h4bDSkBr/IMG-20261108-010806-024.jpg" },
+        { name: "برجندى", image: "https://i.postimg.cc/QxQTZ44d/IMG-20261108-010741-916.jpg" }
+
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 420, available: true }
+    }
+},
+{
+    id: "19",
+    titleAr: "هودجي بسوستة",
+    titleEn: "Zipper Hoodie",
+    category: "hoodies",
+    hasDiscount: false,
+    image:  "https://i.postimg.cc/Y2g3jxnP/IMG-20261108-005330-442.jpg",
+    description: "ا. مقاس 1 تلبس من 60 لـ 80 كيلو. مقاس 2 تلبس من 80 لـ 110 كيلو. الخامة ميلتون لايت. الألوان: ابيض، بيبي بلو، بني، رمادي، بينك، بيج، زيتي.",
+    outOfStock: false,
+    colors: [
+        { name: "بينك", image: "https://i.postimg.cc/wTQQQjdQ/IMG-20261108-005325-207.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price:0 , available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 0, available: false },
+        "مقاس 1": { price: 300, available: true },
+        "مقاس 2": { price: 300, available: true }
+    }
+},
+{
+    id: "20",
+    titleAr: "sets",
+    titleEn: "Leopard Embroidery Set",
+    category: "sets",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/SKJL4LY5/IMG-20261108-010720-835.jpg",
+    description: "السعر 540 جنيه. الخامة ميلتون لايت. الألوان: اسود، رمادي، بيج، بني، زيتي، نبيتي، منت، بينك، ابيض، بيبي بلو، بني لافندر، رمادي، ازرق، منت احمر.",
+    outOfStock: false,
+    colors: [
+        { name: "رمادى ", image: "https://i.postimg.cc/PfmWd5Nj/IMG-20261108-010724-482.jpg" },
+        { name: "اسود ", image: "https://i.postimg.cc/7LGzdxpx/IMG-20261108-010727-164.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 540, available: true },
+        "L": { price: 540, available: true },
+        "XL": { price: 540, available: true },
+        "2XL": { price: 540, available: true },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 0, available: false }
+    }
+}
 ];
 
 let customerReviews = JSON.parse(localStorage.getItem('jag_reviews')) || [
