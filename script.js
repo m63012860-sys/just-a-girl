@@ -694,6 +694,316 @@ let products = JSON.parse(localStorage.getItem('jag_products')) || [
         "3XL": { price: 0, available: false },
         "Free": { price: 0, available: false }
     }
+    },
+{
+    id: "21",
+    titleAr: "هودجي بطبعة بطة بنظارة",
+    titleEn: "Duck Print Hoodie",
+    category: "hoodies",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/v80vhKFq/IMG-20261108-004425-497.jpg",
+    description: "السعر 280 جنيه. الخامة ميلتون لايت. المقاسات: L (50-70 كجم)، XL (70-85 كجم)، 2XL (85-110 كجم). الألوان: اسود، رمادي، بيج، بني، زيتي نبيتي، منت، بينك، ابيض، بيبي بلو، بني لافندر، ازرق، منت احمر.",
+    outOfStock: false,
+    colors: [
+       
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 280, available: true },
+        "XL": { price: 280, available: true },
+        "2XL": { price: 280, available: true },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 0, available: false }
+    }
+},
+
+{
+    id: "22",
+    titleAr: "سوت قطعتين",
+    titleEn: "Two-Piece Suit",
+    category: "sets",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/bv0xtC9m/IMG-20261108-004821-857.jpg",
+    description: "السعر 490 جنيه. سوت قطعتين. الخامة ميلتون لايت. المقاسات: L (50-70 كجم)، XL (70-85 كجم)، 2XL (85-110 كجم). الألوان: اسود، رمادي، بيج، بني، زيتي نبيتي، منت، بينك، ابيض، بيبي بلو، بني لافندر، ازرق، منت احمر.",
+    outOfStock: false,
+    colors: [
+        { name: "رمادي", image: "https://i.postimg.cc/Px216CcP/IMG-20261108-004816-794.jpg" },
+        { name: "بيج", image: "https://i.postimg.cc/kGHKmk7W/IMG-20261108-004816-197.jpg" },
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 490, available: true },
+        "XL": { price: 490, available: true },
+        "2XL": { price:490 , available: true },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 0, available: false }
+    }
+},
+
+{
+    id: "23",
+    titleAr: "سوت قطعتين",
+    titleEn: "Bow Embroidery Two-Piece Suit",
+    category: "sets",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/QMq7tBXL/IMG-20261108-004849-597.jpg",
+    description: "السعر 500 جنيه. سوت قطعتين. فري سايز لحد 95 كجم. الخامة ميلتون لايت.",
+    outOfStock: false,
+    colors: [
+        { name: "بينك", image: "https://i.postimg.cc/0NCSQ68P/IMG-20261108-004849-916.jpg" },
+        { name: "بيبي بلو", image: "https://i.postimg.cc/XJHyfTGP/IMG-20261108-004849-930.jpg" },
+        { name: "نبيتي", image: "https://i.postimg.cc/LsSf2kFt/IMG-20261108-004850-221.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 500, available: true }
+    }
+},
+
+
+{
+    id: "24",
+    titleAr: " وبنطلون كاروه",
+    titleEn: " with Plaid Pants",
+    category: "sets",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/52BY7HQt/IMG-20261108-004857-379.jpg",
+    description: "فري سايز لحد 90كيلوا ❤️الخامه جوخ مستورد ونحط تحت مستورد خط 🤲❤️",
+    outOfStock: false,
+    colors: [
+        { name: "احمر ", image: "https://i.postimg.cc/HxhVcXRP/IMG-20261108-004857-130.jpg" },
+        { name: "ارمادى وابيض", image: "https://i.postimg.cc/HxhVcXRP/IMG-20261108-004857-130.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 200, available: true }
+    }
+},
+
+{
+    id: "26",
+    titleAr: "بلوفر رجالي بياقة كاروه",
+    titleEn: "Checkered Collar Men's Pullover",
+    category: "mens",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/MHkHWxhZ/IMG-20261108-005525-611.jpg",
+    description: "السعر 300 جنيه. فري سايز لحد 95 كجم. الخامة عجينه.",
+    outOfStock: false,
+    colors: [
+        { name: "اسود", image: "https://i.postimg.cc/XJKSCbrw/IMG-20261108-005548-699.jpg" },
+        { name: "رمادى", image: "https://i.postimg.cc/RhMr1DtX/IMG-20261108-005548-677.jpg" },
+        { name: "بيج", image: "https://i.postimg.cc/nzffrzcd/IMG-20261108-005549-359.jpg" },
+        { name: "اخضر", image: "https://i.postimg.cc/sg1r0qLz/IMG-20261108-005549-460.jpg" },
+        { name: "طبيعه", image: "https://i.postimg.cc/FHYMxcf5/Screenshot-2026-11-08-00-55-42-79-948cd9899890cbd5c2798760b2b95377.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 300, available: true }
+    }
+},
+
+
+{
+    id: "27",
+    titleAr: "بلوفر رجالي منقوش بسوستة",
+    titleEn: "Patterned Zip Men's Pullover",
+    category: "mens",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/KzWLBdCk/IMG-20261108-005559-413.jpg",
+    description: "السعر 300 جنيه. فري سايز لحد 95 كجم. الخامة عجينه.",
+    outOfStock: false,
+    colors: [
+        { name: "رمادي", image: "https://i.postimg.cc/ZY1shgns/IMG-20261108-005554-922.jpg" },
+        { name: "ابيض", image: "https://i.postimg.cc/TwB0fLdk/IMG-20261108-005555-711.jpg" },
+        { name: "بني", image: "https://i.postimg.cc/tgSDvv8S/IMG-20261108-005555-555.jpg" },
+        { name: "اخضر", image: "https://i.postimg.cc/kgCj2bxc/IMG-20261108-005555-086.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 300, available: true }
+    }
+},
+
+
+{
+    id: "28",
+    titleAr: "شميز سادة",
+    titleEn: "Solid Shirt",
+    category: "bundles",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/6pB0WNKx/IMG-20261108-010408-863.jpg",
+    description: "السعر 280 جنيه. فري سايز لحد 85 كيلوا. الخامة مستورده.",
+    outOfStock: false,
+    colors: [
+        { name: "بينك", image: "https://i.postimg.cc/q7RxKXgg/IMG-20261108-010401-072.jpg" },
+        { name: "جنزاري", image: "https://i.postimg.cc/x8KvQ6p4/IMG-20261108-010401-674.jpg" },
+        { name: "كحلي", image: "https://i.postimg.cc/L63t001t/IMG-20261108-010401-932.jpg" },
+        { name: "بني", image: "https://i.postimg.cc/DzMdPJXF/IMG-20261108-010401-274.jpg" },
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 280, available: true }
+    }
+},
+
+
+{
+    id: "29",
+    titleAr: "ترنج بسوستة وخطوط جانبية",
+    titleEn: "Side Stripe Zip Tracksuit",
+    category: "sets",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/LsYZRyJp/IMG-20261108-010440-102.jpg",
+    description: "السعر 520 جنيه. مقاس فري سايز بيلبس لحد 95 كيلوا. الخامة ميلتون لايت.",
+    outOfStock: false,
+    colors: [
+        { name: "بيج في نبيتي", image: "https://i.postimg.cc/44bHJHxN/IMG-20261108-010430-204.jpg" },
+        { name: "طبيعه ", image: "https://i.postimg.cc/1XPgGsJ5/IMG-20261108-010426-703.jpg" },
+        { name: "طبيعه", image: "https://i.postimg.cc/qM1tKfKX/IMG-20261108-010433-663.jpg" },
+        { name: "طبيعه", image: "https://i.postimg.cc/1XPgGsJ5/IMG-20261108-010426-703.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 0, available: false },
+        "XL": { price: 0, available: false },
+        "2XL": { price: 0, available: false },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 520, available: true }
+    }
+},
+
+
+
+{
+    id: "31",
+    titleAr: "هودجي رقم 8",
+    titleEn: "Number 8 Hoodie",
+    category: "hoodies",
+    hasDiscount: false,
+    image: "https://i.postimg.cc/brBhzRG3/IMG-20261108-010615-736.jpg",
+    description: "السعر 285 جنيه. الخامة ميلتون لايت. المقاسات: L (50-70 كجم)، XL (70-85 كجم)، 2XL (85-110 كجم). الألوان: اسود، رمادي، بيج، بني، زيتي نبيتي، منت، بينك، ابيض، بيبي بلو، بني لافندر، ازرق، منت احمر.",
+    outOfStock: false,
+    colors: [
+        { name: "تفاصيل ", image: "https://i.postimg.cc/XJxWPW4Q/IMG-20261108-010613-003.jpg" }
+    ],
+    sizes: { 
+        "1y": { price: 0, available: false },
+        "2y": { price: 0, available: false },
+        "3y": { price: 0, available: false },
+        "4y": { price: 0, available: false },
+        "6y": { price: 0, available: false },
+        "8y": { price: 0, available: false },
+        "10y": { price: 0, available: false },
+        "12y": { price: 0, available: false },
+        "XS": { price: 0, available: false },
+        "S": { price: 0, available: false },
+        "M": { price: 0, available: false },
+        "L": { price: 285, available: true },
+        "XL": { price: 285, available: true },
+        "2XL": { price: 285, available: true },
+        "3XL": { price: 0, available: false },
+        "Free": { price: 0, available: false }
+    }
 }
 ];
 
