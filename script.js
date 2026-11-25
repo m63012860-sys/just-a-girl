@@ -1,7 +1,7 @@
 // =========================================================================
 // 🛠️ إعدادات البراند والأساسيات
 // =========================================================================
-const WHATSAPP_NUMBER = "201283332160"; 
+const WHATSAPP_NUMBER = "01245678912"; 
 
 let adminEmail = localStorage.getItem('jag_admin_email') || "m63012860@gmail.com";
 let adminPass = localStorage.getItem('jag_admin_pass') || "123456";
